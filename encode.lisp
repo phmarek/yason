@@ -1,3 +1,10 @@
+;; This file is part of yason, a Common Lisp JSON parser/encoder
+;;
+;; Copyright (c) 2008 Hans Hübner
+;; All rights reserved.
+;;
+;; Please see the file LICENSE in the distribution.
+
 (in-package :yason)
 
 (defvar *json-output*)
