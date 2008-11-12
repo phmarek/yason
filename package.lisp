@@ -13,8 +13,8 @@
 
   (:export
    ;; Parser
-    #:parse
-    #:*parse-object-key-fn*
+   #:parse
+   #:*parse-object-key-fn*
 
    ;; Basic encoder interface
    #:encode
