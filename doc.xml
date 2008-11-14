@@ -96,29 +96,36 @@
   </clix:chapter>
 
   <clix:chapter name="parsing" title="Parsing JSON data">
-    JSON data is always completely parsed into an equivalent
-    in-memory representation.  Upon reading, some translations are
-    performed by default to make it easier for the Common Lisp
-    program to work with the data; see <clix:ref>mapping</clix:ref>
-    for details.  If desired, the parser can be configured to
-    preserve the full semantics of the JSON data read.
-  </clix:chapter>
+    <p>
+      JSON data is always completely parsed into an equivalent
+      in-memory representation.  Upon reading, some translations are
+      performed by default to make it easier for the Common Lisp
+      program to work with the data; see <clix:ref>mapping</clix:ref>
+      for details.  If desired, the parser can be configured to
+      preserve the full semantics of the JSON data read.
+    </p>
 
-  <clix:chapter name="encoding" title="Encoding JSON data">
-    YASON provides for two distinct modes to encode JSON data:
-    Applications can either create an in memory representation of
-    the data to be serialized, then have YASON convert it to JSON in
-    one go, or they can use a set of macros to serialze the JSON
-    data element-by-element, thereby having fine grained control
-    over the layout of the generated data.
-  </clix:chapter>
-
-  <clix:chapter name="reference" title="Reference">
-
-    <clix:special-variable name="*parse-json-array-as-list*">
+    <clix:function name="parse" generic="true">
+      <clix:lambda-list>input</clix:lambda-list>
+      <clix:returns>object</clix:returns>
       <clix:description>
-        If set to a true value, JSON arrays will be parsed as lists,
-        not as vectors.
+        Parse <clix:arg>input</clix:arg>, which needs to be a string
+        or a stream, as JSON.  Returns the lisp representation of the
+        JSON structure parsed.
+      </clix:description>
+    </clix:function>
+
+    <clix:special-variable name="*parse-json-arrays-as-vectors*">
+      <clix:description>
+        If set to a true value, JSON arrays will be parsed as vectors,
+        not as lists.
+      </clix:description>
+    </clix:special-variable>
+
+    <clix:special-variable name="*parse-json-booleans-as-symbols*">
+      <clix:description>
+        If set to a true value, JSON booleans will be read as the
+        symbols TRUE and FALSE, not as T and NIL, respectively.
       </clix:description>
     </clix:special-variable>
 
@@ -129,125 +136,155 @@
       </clix:description>
     </clix:special-variable>
 
-    <clix:function name="encode" generic="true">
-      <clix:lambda-list>object stream</clix:lambda-list>
-      <clix:returns>**RETURN-TYPE**</clix:returns>
-      <clix:description>
-        Encode <clix:arg>object</clix:arg>
-        to <clix:arg>stream</clix:arg> in JSON format
-      </clix:description>
-    </clix:function>
+  </clix:chapter>
 
-    <clix:function name="encode-array-element">
-      <clix:lambda-list>object</clix:lambda-list>
-      <clix:returns>**RETURN-TYPE**</clix:returns>
-      <clix:description>
-        Encode <clix:arg>object</clix:arg> as next array element to
-        the last JSON array opened
-        with <clix:ref>WITH-ARRAY</clix:ref> in the dynamic
-        context.  <clix:arg>object</clix:arg> is encoded using the
-        <clix:ref>ENCODE</clix:ref> generic function, so it must be of
-        a type for which an <clix:ref>ENCODE</clix:ref> method is
-        defined.
-      </clix:description>
-    </clix:function>
+  <clix:chapter name="encoding" title="Encoding JSON data">
+    YASON provides for two distinct modes to encode JSON data:
+    Applications can either create an in memory representation of the
+    data to be serialized, then have YASON convert it to JSON in one
+    go, or they can use a set of macros to serialze the JSON data
+    element-by-element, thereby having fine grained control over the
+    layout of the generated data.
 
-    <clix:function name="encode-object-element">
-      <clix:lambda-list>key value</clix:lambda-list>
-      <clix:returns>**RETURN-TYPE**</clix:returns>
-      <clix:description>
-        Encode <clix:arg>key</clix:arg> and <clix:arg>value</clix:arg>
-        as object element to the last JSON object opened
-        with <clix:ref>WITH-OBJECT</clix:ref> in the dynamic
-        context.  <clix:arg>key</clix:arg>
-        and <clix:arg>value</clix:arg> are encoded using
-        the <clix:ref>ENCODE</clix:ref> generic function, so they both
-        must be of a type for which an <clix:ref>ENCODE</clix:ref>
-        method is defined.
-      </clix:description>
-    </clix:function>
+    <clix:subchapter name="dom-encoder" title="Encoding a JSON DOM">
+      In this mode, a in-memory structure is ancoded in JSON format.
+      The structure must consist of objects that are serializable
+      using the <clix:ref>ENCODE</clix:ref> function.  YASON defines a
+      number of encoders for standard data types
+      (see <clix:ref>MAPPING</clix:ref>), but the application can
+      define additional methods, e.g. for encoding CLOS objects.
 
-    <clix:condition name="no-json-output-context">
-      <clix:description>**DOCSTRING-MISSING**</clix:description>
-    </clix:condition>
+      <clix:function name="encode" generic="true">
+        <clix:lambda-list>object stream</clix:lambda-list>
+        <clix:returns>|</clix:returns>
+        <clix:description>
+          Encode <clix:arg>object</clix:arg>
+          to <clix:arg>stream</clix:arg> in JSON format
+        </clix:description>
+      </clix:function>
 
-    <clix:function name="null">
-      <clix:lambda-list>object</clix:lambda-list>
-      <clix:returns>**RETURN-TYPE**</clix:returns>
-      <clix:description>
-        Return true if <clix:arg>object</clix:arg> is a <clix:ref>NULL</clix:ref>, and NIL otherwise.
-      </clix:description>
-    </clix:function>
+    </clix:subchapter>
 
-    <clix:function name="parse" generic="true">
-      <clix:lambda-list>input</clix:lambda-list>
-      <clix:returns>**RETURN-TYPE**</clix:returns>
-      <clix:description>
-        Parse <clix:arg>input</clix:arg>, which needs to be a string or a
-        stream, as JSON.  Returns the lisp representation of the JSON
-        structure parsed.
-      </clix:description>
-    </clix:function>
+    <clix:subchapter name="stream-encoder" title="Encoding JSON in streaming mode">
+      <p>
+        In this mode, the JSON structure is generated in a stream.  The
+        application makes explicit calls to the encoding library in
+        order to generate the JSON structure.  It provides for more
+        control over the generated output, and can be used to generate
+        arbitary JSON without requiring that there exists a matching
+        Lisp datastructure.
+      </p>
+      For example:
+      <pre>CL-USER> (json:with-output (*standard-output*)
+           (json:with-array ()
+             (dotimes (i 3)
+               (json:encode-array-element i))))
+[0,1,2]
+NIL
+CL-USER> (json:with-output (*standard-output*)
+           (json:with-object ()
+             (json:encode-object-element "hello" "hu hu")
+             (json:with-object-element ("harr")
+               (json:with-array ()
+                 (dotimes (i 3)
+                   (json:encode-array-element i))))))
+{"hello":"hu hu","harr":[0,1,2]}
+NIL</pre>
 
-    <clix:function name="with-array" macro="true">
-      <clix:lambda-list>() &amp;body body</clix:lambda-list>
-      <clix:returns>**RETURN-TYPE**</clix:returns>
-      <clix:description>
-        Open a JSON array, then run <clix:arg>body</clix:arg>.  Inside the body,
-        <clix:ref>ENCODE-ARRAY-ELEMENT</clix:ref> must be called to
-        encode elements to the opened array.  Must be called within an
-        existing JSON encoder context, see
-        <clix:ref>WITH-OUTPUT</clix:ref> and
-        <clix:ref>WITH-OUTPUT-TO-STRING*</clix:ref>.
-      </clix:description>
-    </clix:function>
+      <clix:function name="with-output" macro="true">
+        <clix:lambda-list>(stream) &amp;body body</clix:lambda-list>
+        <clix:returns>**RETURN-TYPE**</clix:returns>
+        <clix:description>
+          Set up a JSON streaming encoder context
+          on <clix:arg>stream</clix:arg>, then
+          evaluate <clix:arg>body</clix:arg>.
+        </clix:description>
+      </clix:function>
 
-    <clix:function name="with-object" macro="true">
-      <clix:lambda-list>() &amp;body body</clix:lambda-list>
-      <clix:returns>**RETURN-TYPE**</clix:returns>
-      <clix:description>
-        Open a JSON object, then run <clix:arg>body</clix:arg>.  Inside the body,
-        <clix:ref>ENCODE-OBJECT-ELEMENT</clix:ref>
-        or <clix:ref>WITH-OBJECT-ELEMENT</clix:ref> must be called to
-        encode elements to the object.  Must be called within an
-        existing JSON encoder context,
-        see <clix:ref>WITH-OUTPUT</clix:ref>
-        and <clix:ref>WITH-OUTPUT-TO-STRING*</clix:ref>.
-      </clix:description>
-    </clix:function>
+      <clix:function name="with-output-to-string*" macro="true">
+        <clix:lambda-list>() &amp;body body</clix:lambda-list>
+        <clix:returns>**RETURN-TYPE**</clix:returns>
+        <clix:description>
+          Set up a JSON streaming encoder context, then
+          evaluate <clix:arg>body</clix:arg>.  Return a string with the
+          generated JSON output.
+        </clix:description>
+      </clix:function>
 
-    <clix:function name="with-object-element" macro="true">
-      <clix:lambda-list>(key) &amp;body body</clix:lambda-list>
-      <clix:returns>**RETURN-TYPE**</clix:returns>
-      <clix:description>
-        Open a new encoding context to encode a JSON object
-        element.  <clix:arg>key</clix:arg> is the key of the element.
-        The value will be whatever <clix:arg>body</clix:arg>
-        serializes to the current JSON output context using one of the
-        stream encoding functions.  This can be used to stream out
-        nested object structures.
-      </clix:description>
-    </clix:function>
+      <clix:condition name="no-json-output-context">
+        <clix:description>**DOCSTRING-MISSING**</clix:description>
+      </clix:condition>
 
-    <clix:function name="with-output" macro="true">
-      <clix:lambda-list>(stream) &amp;body body</clix:lambda-list>
-      <clix:returns>**RETURN-TYPE**</clix:returns>
-      <clix:description>
-        Set up a JSON streaming encoder context
-        on <clix:arg>stream</clix:arg>, then
-        evaluate <clix:arg>body</clix:arg>.
-      </clix:description>
-    </clix:function>
+      <clix:function name="with-array" macro="true">
+        <clix:lambda-list>() &amp;body body</clix:lambda-list>
+        <clix:returns>**RETURN-TYPE**</clix:returns>
+        <clix:description>
+          Open a JSON array, then run <clix:arg>body</clix:arg>.  Inside
+          the body, <clix:ref>ENCODE-ARRAY-ELEMENT</clix:ref> must be
+          called to encode elements to the opened array.  Must be called
+          within an existing JSON encoder context, see
+          <clix:ref>WITH-OUTPUT</clix:ref> and
+          <clix:ref>WITH-OUTPUT-TO-STRING*</clix:ref>.
+        </clix:description>
+      </clix:function>
 
-    <clix:function name="with-output-to-string*" macro="true">
-      <clix:lambda-list>() &amp;body body</clix:lambda-list>
-      <clix:returns>**RETURN-TYPE**</clix:returns>
-      <clix:description>
-        Set up a JSON streaming encoder context, then
-        evaluate <clix:arg>body</clix:arg>.  Return a string with the
-        generated JSON output.
-      </clix:description>
-    </clix:function>
+      <clix:function name="encode-array-element">
+        <clix:lambda-list>object</clix:lambda-list>
+        <clix:returns>**RETURN-TYPE**</clix:returns>
+        <clix:description>
+          Encode <clix:arg>object</clix:arg> as next array element to
+          the last JSON array opened
+          with <clix:ref>WITH-ARRAY</clix:ref> in the dynamic
+          context.  <clix:arg>object</clix:arg> is encoded using the
+          <clix:ref>ENCODE</clix:ref> generic function, so it must be of
+          a type for which an <clix:ref>ENCODE</clix:ref> method is
+          defined.
+        </clix:description>
+      </clix:function>
+
+      <clix:function name="with-object" macro="true">
+        <clix:lambda-list>() &amp;body body</clix:lambda-list>
+        <clix:returns>**RETURN-TYPE**</clix:returns>
+        <clix:description>
+          Open a JSON object, then run <clix:arg>body</clix:arg>.  Inside the body,
+          <clix:ref>ENCODE-OBJECT-ELEMENT</clix:ref>
+          or <clix:ref>WITH-OBJECT-ELEMENT</clix:ref> must be called to
+          encode elements to the object.  Must be called within an
+          existing JSON encoder context,
+          see <clix:ref>WITH-OUTPUT</clix:ref>
+          and <clix:ref>WITH-OUTPUT-TO-STRING*</clix:ref>.
+        </clix:description>
+      </clix:function>
+
+      <clix:function name="with-object-element" macro="true">
+        <clix:lambda-list>(key) &amp;body body</clix:lambda-list>
+        <clix:returns>**RETURN-TYPE**</clix:returns>
+        <clix:description>
+          Open a new encoding context to encode a JSON object
+          element.  <clix:arg>key</clix:arg> is the key of the element.
+          The value will be whatever <clix:arg>body</clix:arg>
+          serializes to the current JSON output context using one of the
+          stream encoding functions.  This can be used to stream out
+          nested object structures.
+        </clix:description>
+      </clix:function>
+
+      <clix:function name="encode-object-element">
+        <clix:lambda-list>key value</clix:lambda-list>
+        <clix:returns>**RETURN-TYPE**</clix:returns>
+        <clix:description>
+          Encode <clix:arg>key</clix:arg> and <clix:arg>value</clix:arg>
+          as object element to the last JSON object opened
+          with <clix:ref>WITH-OBJECT</clix:ref> in the dynamic
+          context.  <clix:arg>key</clix:arg>
+          and <clix:arg>value</clix:arg> are encoded using
+          the <clix:ref>ENCODE</clix:ref> generic function, so they both
+          must be of a type for which an <clix:ref>ENCODE</clix:ref>
+          method is defined.
+        </clix:description>
+      </clix:function>
+
+    </clix:subchapter>
   </clix:chapter>
 
   <clix:chapter name="index" title="Symbol index">
