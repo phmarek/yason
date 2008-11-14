@@ -15,7 +15,8 @@
 
 (defgeneric encode (object stream)
 
-  (:documentation "Encode OBJECT to STREAM in JSON format")
+  (:documentation "Encode OBJECT to STREAM in JSON format.  May be
+  specialized by applications to perform specific rendering.")
 
   (:method ((object string) stream)
     (with-standard-output-to (stream)
@@ -38,11 +39,6 @@
               (t
                (princ char))))
       (princ #\")))
-
-  (:method ((object float) stream)
-    ;; Using ~F to print floats is not faithfully implementing the
-    ;; JSON specification.  Reconsider if needed.
-    (format stream "~F" object))
 
   (:method ((object rational) stream)
     (encode (float object) stream))
@@ -129,8 +125,7 @@ Return a string with the generated JSON output."
 
 (define-condition no-json-output-context (error)
   ()
-  (:report (lambda (c stream)
-             (format stream "No JSON output context is active"))))
+  (:report "No JSON output context is active"))
 
 (defmacro with-aggregate ((begin-char end-char) &body body)
   `(progn
@@ -168,7 +163,7 @@ method is defined."
   (encode object (output-stream *json-output*)))
 
 (defun encode-object-element (key value)
-  "Encode KEY and VALUE as object element to the last JSON objectarray
+  "Encode KEY and VALUE as object element to the last JSON object
 opened with WITH-OBJECT in the dynamic context.  KEY and VALUE are
 encoded using the ENCODE generic function, so they both must be of a
 type for which an ENCODE method is defined."

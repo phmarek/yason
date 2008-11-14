@@ -15,6 +15,12 @@
    ;; Parser
    #:parse
    #:*parse-object-key-fn*
+   #:*parse-json-arrays-as-vectors*
+   #:*parse-json-booleans-as-symbols*
+
+   #:true
+   #:false
+   #:null
 
    ;; Basic encoder interface
    #:encode

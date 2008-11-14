@@ -11,7 +11,16 @@
   "Default length of strings that are created while reading json input.")
 
 (defvar *parse-object-key-fn* #'identity
-  "Function to call to convert a key string in a JSON array to a key in the CL hash produced.")
+  "Function to call to convert a key string in a JSON array to a key
+  in the CL hash produced.")
+
+(defvar *parse-json-arrays-as-vectors* nil
+  "If set to a true value, JSON arrays will be parsed as vectors, not
+  as lists.")
+
+(defvar *parse-json-booleans-as-symbols* nil
+  "If set to a true value, JSON booleans will be read as the symbols
+  TRUE and FALSE, not as T and NIL, respectively.")
 
 (defun make-adjustable-string ()
   "Return an adjustable empty string, usable as a buffer for parsing strings and numbers."
@@ -120,19 +129,31 @@
 (defconstant +initial-array-size+ 20
   "Initial size of JSON arrays read, they will grow as needed.")
 
+(defun %parse-array (input add-element-function)
+  "Parse JSON array from input, calling ADD-ELEMENT-FUNCTION for each array element parsed."
+  (read-char input)
+  (loop
+     (when (eql (peek-char-skipping-whitespace input)
+                #\])
+       (return))
+     (funcall add-element-function (parse input))
+     (ecase (peek-char-skipping-whitespace input)
+       (#\, (read-char input))
+       (#\] nil)))
+  (read-char input))
+
 (defun parse-array (input)
-  (let ((return-value (make-array +initial-array-size+ :adjustable t :fill-pointer 0)))
-    (read-char input)
-    (loop
-       (when (eql (peek-char-skipping-whitespace input)
-                  #\])
-         (return))
-       (vector-push-extend (parse input) return-value)
-       (ecase (peek-char-skipping-whitespace input)
-         (#\, (read-char input))
-         (#\] nil)))
-    (read-char input)
-    return-value))
+  (if *parse-json-arrays-as-vectors*
+      (let ((return-value (make-array +initial-array-size+ :adjustable t :fill-pointer 0)))
+        (%parse-array input
+                      (lambda (element)
+                        (vector-push-extend element return-value)))
+        return-value)
+      (let (return-value)
+        (%parse-array input
+                      (lambda (element)
+                        (push element return-value)))
+        (nreverse return-value))))
 
 (defgeneric parse (input)
   (:documentation "Parse INPUT, which needs to be a string or a
