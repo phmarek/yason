@@ -13,12 +13,13 @@
   `(let ((*standard-output* ,stream))
      ,@body))
 
-(defgeneric encode (object stream)
+(defgeneric encode (object &optional stream)
 
   (:documentation "Encode OBJECT to STREAM in JSON format.  May be
-  specialized by applications to perform specific rendering.")
+  specialized by applications to perform specific rendering.  STREAM
+  defaults to *STANDARD-OUTPUT*.")
 
-  (:method ((object string) stream)
+  (:method ((object string) &optional (stream *standard-output*))
     (with-standard-output-to (stream)
       (princ #\")
       (loop
@@ -38,15 +39,17 @@
                (princ #\\) (princ #\t))
               (t
                (princ char))))
-      (princ #\")))
+      (princ #\"))
+    object)
 
-  (:method ((object rational) stream)
-    (encode (float object) stream))
+  (:method ((object rational) &optional (stream *standard-output*))
+    (encode (float object) stream)
+    object)
 
-  (:method ((object integer) stream)
+  (:method ((object integer) &optional (stream *standard-output*))
     (princ object stream))
 
-  (:method ((object hash-table) stream)
+  (:method ((object hash-table) &optional (stream *standard-output*))
     (with-standard-output-to (stream)
       (princ #\{)
       (let (printed)
@@ -58,9 +61,10 @@
                    (princ #\:)
                    (encode value stream))
                  object))
-      (princ #\})))
+      (princ #\}))
+    object)
 
-  (:method ((object vector) stream)
+  (:method ((object vector) &optional (stream *standard-output*))
     (with-standard-output-to (stream)
       (princ #\[)
       (let (printed)
@@ -71,9 +75,10 @@
                (princ #\,))
              (setf printed t)
              (encode value stream)))
-      (princ #\])))
+      (princ #\]))
+    object)
 
-  (:method ((object list) stream)
+  (:method ((object list) &optional (stream *standard-output*))
     (with-standard-output-to (stream)
       (princ #\[)
       (let (printed)
@@ -82,22 +87,28 @@
               (princ #\,)
               (setf printed t))
           (encode value stream)))
-      (princ #\])))
+      (princ #\]))
+    object)
 
-  (:method ((object (eql 'true)) stream)
-    (princ "true" stream))
+  (:method ((object (eql 'true)) &optional (stream *standard-output*))
+    (princ "true" stream)
+    object)
 
-  (:method ((object (eql 'false)) stream)
-    (princ "false" stream))
+  (:method ((object (eql 'false)) &optional (stream *standard-output*))
+    (princ "false" stream)
+    object)
 
-  (:method ((object (eql 'null)) stream)
-    (princ "null" stream))
+  (:method ((object (eql 'null)) &optional (stream *standard-output*))
+    (princ "null" stream)
+    object)
 
-  (:method ((object (eql t)) stream)
-    (princ "true" stream))
+  (:method ((object (eql t)) &optional (stream *standard-output*))
+    (princ "true" stream)
+    object)
 
-  (:method ((object (eql nil)) stream)
-    (princ "null" stream)))      
+  (:method ((object (eql nil)) &optional (stream *standard-output*))
+    (princ "null" stream)
+    object))
 
 (defclass json-output-stream ()
   ((output-stream :reader output-stream
@@ -125,7 +136,10 @@ Return a string with the generated JSON output."
 
 (define-condition no-json-output-context (error)
   ()
-  (:report "No JSON output context is active"))
+  (:report "No JSON output context is active")
+  (:documentation "This condition is signalled when one of the stream
+  encoding function is used outside the dynamic context of a
+  WITH-OUTPUT or WITH-OUTPUT-TO-STRING* body."))
 
 (defmacro with-aggregate ((begin-char end-char) &body body)
   `(progn
@@ -170,7 +184,8 @@ type for which an ENCODE method is defined."
   (next-aggregate-element)
   (encode key (output-stream *json-output*))
   (princ #\: (output-stream *json-output*))
-  (encode value (output-stream *json-output*)))
+  (encode value (output-stream *json-output*))
+  value)
 
 (defmacro with-object-element ((key) &body body)
   "Open a new encoding context to encode a JSON object element.  KEY

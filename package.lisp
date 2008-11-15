@@ -20,13 +20,9 @@
 
    #:true
    #:false
-   #:null
 
    ;; Basic encoder interface
    #:encode
-   #:true
-   #:false
-   #:null
 
    ;; Streaming encoder interface
    #:with-output
