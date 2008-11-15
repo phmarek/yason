@@ -43,7 +43,9 @@
     <p>
       You may also check out the current development version from its
       subversion repository:
-      <pre>svn co svn://bknr.net/svn/trunk/libraries/yason/</pre>
+      <pre>svn co svn://bknr.net/svn/trunk/libraries/yason/</pre> If
+      you have suggestions regarding YASON, please email me
+      at <i>hans.huebner@gmail.com</i>.
     </p>
     <p>
       YASON is written in ANSI Common Lisp and does not depend on
