@@ -25,11 +25,21 @@
   <clix:contents/>
 
   <clix:chapter name="intro" title="Introduction">
-    <a href="http://json.org/">JSON</a> is an established alternative
-    to XML as a data interchange format for web applications.  YASON
-    implements reading and writing of JSON formatted data in Common
-    Lisp.  It does not attempt to provide a mapping between CLOS
-    objects and YASON, but can be used to implement such mappings.
+    <p>
+      <a href="http://json.org/">JSON</a> is an established alternative
+      to XML as a data interchange format for web applications.  YASON
+      implements reading and writing of JSON formatted data in Common
+      Lisp.  It does not attempt to provide a mapping between CLOS
+      objects and YASON, but can be used to implement such mappings.
+    </p>
+    <p>
+      <a href="http://common-lisp.net/project/cl-json/">CL-JSON</a> is
+      another Common Lisp package that can be used to work with JSON
+      encoded data.  It takes a more integrated approach, providing
+      for library internal mappings between JSON objects and CLOS
+      objects.  YASON was created as a lightweight, documented
+      alternative with a minimalistic approach and extensibilty.
+    </p>
   </clix:chapter>
 
   <clix:chapter name="install" title="Download and Installation">
