@@ -36,9 +36,9 @@
     <p>
       YASON has its permanent home
       at <a href="http://common-lisp.net/project/yason/">common-lisp.net</a>.
-      It can be obtained either by downloading
+      It can be obtained by downloading
       the <a href="http://common-lisp.net/project/yason/files/yason.tar.gz">release
-        tarball</a>.  The current release is 0.1.
+      tarball</a>.  The current release is 0.1.
     </p>
     <p>
       You may also check out the current development version from its
@@ -447,7 +447,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     Thanks go to Edi Weitz for being a great inspiration.  This
     documentation as been generated with a hacked-up version of
     his <a href="http://weitz.de/documentation-template/">DOCUMENTATION-TEMPLATE</a>
-    software.
+    software.  Thanks to David Lichteblau for coining YASON's name.
   </clix:chapter>
 
 </clix:documentation>
