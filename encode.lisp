@@ -17,98 +17,99 @@
 
   (:documentation "Encode OBJECT to STREAM in JSON format.  May be
   specialized by applications to perform specific rendering.  STREAM
-  defaults to *STANDARD-OUTPUT*.")
+  defaults to *STANDARD-OUTPUT*."))
 
-  (:method ((object string) &optional (stream *standard-output*))
-    (with-standard-output-to (stream)
-      (princ #\")
+(defparameter *char-replacements*
+  (alexandria:plist-hash-table
+   '(#\\ "\\\\"
+     #\" "\\\""
+     #\/ "\\/"
+     #\Backspace "\\b"
+     #\Page "\\f"
+     #\Newline "\\n"
+     #\Return "\\r"
+     #\Tab "\\t")))
+       
+
+(defmethod encode ((string string) &optional (stream *standard-output*))
+  (with-standard-output-to (stream)
+    (write-char #\")
+    (dotimes (i (length string))
+      (let* ((char (aref string i))
+             (replacement (gethash char *char-replacements*)))
+        (if replacement
+            (write-string replacement)
+            (write-char char))))
+    (write-char #\")
+    string))
+
+(defmethod encode ((object rational) &optional (stream *standard-output*))
+  (encode (float object) stream)
+  object)
+
+(defmethod encode ((object integer) &optional (stream *standard-output*))
+  (princ object stream))
+
+(defmethod encode ((object hash-table) &optional (stream *standard-output*))
+  (with-standard-output-to (stream)
+    (write-char #\{)
+    (let (printed)
+      (maphash (lambda (key value)
+                 (if printed
+                     (write-char #\,)
+                     (setf printed t))
+                 (encode key stream)
+                 (write-char #\:)
+                 (encode value stream))
+               object))
+    (write-char #\}))
+  object)
+
+(defmethod encode ((object vector) &optional (stream *standard-output*))
+  (with-standard-output-to (stream)
+    (write-char #\[)
+    (let (printed)
       (loop
-         for char across object
-         do (case char
-              ((#\\ #\" #\/)
-               (princ #\\) (princ char))
-              (#\Backspace
-               (princ #\\) (princ #\b))
-              (#\Page
-               (princ #\\) (princ #\f))
-              (#\Newline
-               (princ #\\) (princ #\n))
-              (#\Return
-               (princ #\\) (princ #\r))
-              (#\Tab
-               (princ #\\) (princ #\t))
-              (t
-               (princ char))))
-      (princ #\"))
-    object)
+         for value across object
+         do
+         (when printed
+           (write-char #\,))
+         (setf printed t)
+         (encode value stream)))
+    (write-char #\]))
+  object)
 
-  (:method ((object rational) &optional (stream *standard-output*))
-    (encode (float object) stream)
-    object)
+(defmethod encode ((object list) &optional (stream *standard-output*))
+  (with-standard-output-to (stream)
+    (write-char #\[)
+    (let (printed)
+      (dolist (value object)
+        (if printed
+            (write-char #\,)
+            (setf printed t))
+        (encode value stream)))
+    (write-char #\]))
+  object)
 
-  (:method ((object integer) &optional (stream *standard-output*))
-    (princ object stream))
+(defmethod encode ((object (eql 'true)) &optional (stream *standard-output*))
+  (write-string "true" stream)
+  object)
 
-  (:method ((object hash-table) &optional (stream *standard-output*))
-    (with-standard-output-to (stream)
-      (princ #\{)
-      (let (printed)
-        (maphash (lambda (key value)
-                   (if printed
-                       (princ #\,)
-                       (setf printed t))
-                   (encode key stream)
-                   (princ #\:)
-                   (encode value stream))
-                 object))
-      (princ #\}))
-    object)
+(defmethod encode ((object (eql 'false)) &optional (stream *standard-output*))
+  (write-string "false" stream)
+  object)
 
-  (:method ((object vector) &optional (stream *standard-output*))
-    (with-standard-output-to (stream)
-      (princ #\[)
-      (let (printed)
-        (loop
-           for value across object
-           do
-             (when printed
-               (princ #\,))
-             (setf printed t)
-             (encode value stream)))
-      (princ #\]))
-    object)
+(defmethod encode ((object (eql 'null)) &optional (stream *standard-output*))
+  (write-string "null" stream)
+  object)
 
-  (:method ((object list) &optional (stream *standard-output*))
-    (with-standard-output-to (stream)
-      (princ #\[)
-      (let (printed)
-        (dolist (value object)
-          (if printed
-              (princ #\,)
-              (setf printed t))
-          (encode value stream)))
-      (princ #\]))
-    object)
+(defmethod encode ((object (eql t)) &optional (stream *standard-output*))
+  (write-string "true" stream)
+  object)
 
-  (:method ((object (eql 'true)) &optional (stream *standard-output*))
-    (princ "true" stream)
-    object)
-
-  (:method ((object (eql 'false)) &optional (stream *standard-output*))
-    (princ "false" stream)
-    object)
-
-  (:method ((object (eql 'null)) &optional (stream *standard-output*))
-    (princ "null" stream)
-    object)
-
-  (:method ((object (eql t)) &optional (stream *standard-output*))
-    (princ "true" stream)
-    object)
-
-  (:method ((object (eql nil)) &optional (stream *standard-output*))
-    (princ "null" stream)
-    object))
+(defmethod encode ((object (eql nil)) &optional (stream *standard-output*))
+  (write-string "null" stream)
+  object)
 
 (defclass json-output-stream ()
   ((output-stream :reader output-stream
@@ -119,7 +120,7 @@
 
 (defun next-aggregate-element ()
   (if (car (stack *json-output*))
-      (princ (car (stack *json-output*)) (output-stream *json-output*))
+      (write-char (car (stack *json-output*)) (output-stream *json-output*))
       (setf (car (stack *json-output*)) #\,)))
 
 (defmacro with-output ((stream) &body body)
@@ -147,12 +148,12 @@ Return a string with the generated JSON output."
        (error 'no-json-output-context))
      (when (stack *json-output*)
        (next-aggregate-element))
-     (princ ,begin-char (output-stream *json-output*))
+     (write-char ,begin-char (output-stream *json-output*))
      (push nil (stack *json-output*))
      (prog1
          (progn ,@body)
        (pop (stack *json-output*))
-       (princ ,end-char (output-stream *json-output*)))))
+       (write-char ,end-char (output-stream *json-output*)))))
 
 (defmacro with-array (() &body body)
   "Open a JSON array, then run BODY.  Inside the body,
@@ -188,7 +189,7 @@ encoded using the ENCODE generic function, so they both must be of a
 type for which an ENCODE method is defined."
   (next-aggregate-element)
   (encode key (output-stream *json-output*))
-  (princ #\: (output-stream *json-output*))
+  (write-char #\: (output-stream *json-output*))
   (encode value (output-stream *json-output*))
   value)
 
