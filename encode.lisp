@@ -176,6 +176,11 @@ method is defined."
   (next-aggregate-element)
   (encode object (output-stream *json-output*)))
 
+(defun encode-array-elements (&rest objects)
+  "Encode OBJECTS, a list of JSON encodeable object, as array elements."
+  (dolist (object objects)
+    (encode-array-element object)))
+
 (defun encode-object-element (key value)
   "Encode KEY and VALUE as object element to the last JSON object
 opened with WITH-OBJECT in the dynamic context.  KEY and VALUE are
@@ -186,6 +191,11 @@ type for which an ENCODE method is defined."
   (princ #\: (output-stream *json-output*))
   (encode value (output-stream *json-output*))
   value)
+
+(defun encode-object-elements (&rest elements)
+  "Encode plist ELEMENTS as object elements."
+  (loop for (key value) on elements by #'cddr
+       do (encode-object-element key value)))
 
 (defmacro with-object-element ((key) &body body)
   "Open a new encoding context to encode a JSON object element.  KEY

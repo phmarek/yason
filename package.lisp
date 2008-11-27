@@ -30,7 +30,9 @@
    #:no-json-output-context
    #:with-array
    #:encode-array-element
+   #:encode-array-elements
    #:with-object
    #:encode-object-element
+   #:encode-object-elements
    #:with-object-element
    #:with-response))
