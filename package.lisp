@@ -23,6 +23,8 @@
 
    ;; Basic encoder interface
    #:encode
+   #:encode-slots
+   #:encode-object
 
    ;; Streaming encoder interface
    #:with-output

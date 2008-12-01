@@ -47,6 +47,14 @@
   (encode (float object) stream)
   object)
 
+(defmethod encode ((object double-float) &optional (stream *standard-output*))
+  (encode (coerce object 'single-float) stream)
+  object)
+
+(defmethod encode ((object float) &optional (stream *standard-output*))
+  (princ object stream)
+  object)
+
 (defmethod encode ((object integer) &optional (stream *standard-output*))
   (princ object stream))
 
@@ -212,3 +220,19 @@ type for which an ENCODE method is defined."
           (progn ,@body)
        (setf (car (stack *json-output*)) #\,))))
 
+(defgeneric encode-slots (object)
+  (:method-combination progn)
+  (:documentation
+   "Generic function to encode objects.  Every class in a hierarchy
+   implements a method for ENCODE-OBJECT that serializes its slots.
+   It is a PROGN generic function so that for a given instance, all
+   slots are serialized by invoking the ENCODE-OBJECT method for all
+   classes that it inherits from."))
+
+(defgeneric encode-object (object)
+  (:documentation
+   "Encode OBJECT, presumably a CLOS object as a JSON object, invoking
+   the ENCODE-SLOTS method as appropriate.")
+  (:method (object)
+    (with-object ()
+      (json:encode-slots object))))
