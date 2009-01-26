@@ -9,10 +9,6 @@
 
 (defvar *json-output*)
 
-(defmacro with-standard-output-to ((stream) &body body)
-  `(let ((*standard-output* ,stream))
-     ,@body))
-
 (defgeneric encode (object &optional stream)
 
   (:documentation "Encode OBJECT to STREAM in JSON format.  May be
@@ -29,19 +25,17 @@
      #\Newline "\\n"
      #\Return "\\r"
      #\Tab "\\t")))
-       
 
 (defmethod encode ((string string) &optional (stream *standard-output*))
-  (with-standard-output-to (stream)
-    (write-char #\")
-    (dotimes (i (length string))
-      (let* ((char (aref string i))
-             (replacement (gethash char *char-replacements*)))
-        (if replacement
-            (write-string replacement)
-            (write-char char))))
-    (write-char #\")
-    string))
+  (write-char #\")
+  (dotimes (i (length string))
+    (let* ((char (aref string i))
+           (replacement (gethash char *char-replacements*)))
+      (if replacement
+          (write-string replacement)
+          (write-char char))))
+  (write-char #\")
+  string)
 
 (defmethod encode ((object rational) &optional (stream *standard-output*))
   (encode (float object) stream)
@@ -59,44 +53,41 @@
   (princ object stream))
 
 (defmethod encode ((object hash-table) &optional (stream *standard-output*))
-  (with-standard-output-to (stream)
-    (write-char #\{)
-    (let (printed)
-      (maphash (lambda (key value)
-                 (if printed
-                     (write-char #\,)
-                     (setf printed t))
-                 (encode key stream)
-                 (write-char #\:)
-                 (encode value stream))
-               object))
-    (write-char #\}))
+  (write-char #\{)
+  (let (printed)
+    (maphash (lambda (key value)
+               (if printed
+                   (write-char #\,)
+                   (setf printed t))
+               (encode key stream)
+               (write-char #\:)
+               (encode value stream))
+             object))
+  (write-char #\})
   object)
 
 (defmethod encode ((object vector) &optional (stream *standard-output*))
-  (with-standard-output-to (stream)
-    (write-char #\[)
-    (let (printed)
-      (loop
-         for value across object
-         do
-         (when printed
-           (write-char #\,))
-         (setf printed t)
-         (encode value stream)))
-    (write-char #\]))
+  (write-char #\[)
+  (let (printed)
+    (loop
+       for value across object
+       do
+       (when printed
+         (write-char #\,))
+       (setf printed t)
+       (encode value stream)))
+  (write-char #\])
   object)
 
 (defmethod encode ((object list) &optional (stream *standard-output*))
-  (with-standard-output-to (stream)
-    (write-char #\[)
-    (let (printed)
-      (dolist (value object)
-        (if printed
-            (write-char #\,)
-            (setf printed t))
-        (encode value stream)))
-    (write-char #\]))
+  (write-char #\[)
+  (let (printed)
+    (dolist (value object)
+      (if printed
+          (write-char #\,)
+          (setf printed t))
+      (encode value stream)))
+  (write-char #\])
   object)
 
 (defmethod encode ((object (eql 'true)) &optional (stream *standard-output*))
@@ -204,7 +195,7 @@ type for which an ENCODE method is defined."
 (defun encode-object-elements (&rest elements)
   "Encode plist ELEMENTS as object elements."
   (loop for (key value) on elements by #'cddr
-       do (encode-object-element key value)))
+     do (encode-object-element key value)))
 
 (defmacro with-object-element ((key) &body body)
   "Open a new encoding context to encode a JSON object element.  KEY
