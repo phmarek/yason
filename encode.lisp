@@ -27,14 +27,14 @@
      #\Tab "\\t")))
 
 (defmethod encode ((string string) &optional (stream *standard-output*))
-  (write-char #\")
+  (write-char #\" stream)
   (dotimes (i (length string))
     (let* ((char (aref string i))
            (replacement (gethash char *char-replacements*)))
       (if replacement
-          (write-string replacement)
-          (write-char char))))
-  (write-char #\")
+          (write-string replacement stream)
+          (write-char char stream))))
+  (write-char #\" stream)
   string)
 
 (defmethod encode ((object rational) &optional (stream *standard-output*))
@@ -53,41 +53,41 @@
   (princ object stream))
 
 (defmethod encode ((object hash-table) &optional (stream *standard-output*))
-  (write-char #\{)
+  (write-char #\{ stream)
   (let (printed)
     (maphash (lambda (key value)
                (if printed
-                   (write-char #\,)
+                   (write-char #\, stream)
                    (setf printed t))
                (encode key stream)
-               (write-char #\:)
+               (write-char #\: stream)
                (encode value stream))
              object))
-  (write-char #\})
+  (write-char #\} stream)
   object)
 
 (defmethod encode ((object vector) &optional (stream *standard-output*))
-  (write-char #\[)
+  (write-char #\[ stream)
   (let (printed)
     (loop
        for value across object
        do
        (when printed
-         (write-char #\,))
+         (write-char #\, stream))
        (setf printed t)
        (encode value stream)))
-  (write-char #\])
+  (write-char #\] stream)
   object)
 
 (defmethod encode ((object list) &optional (stream *standard-output*))
-  (write-char #\[)
+  (write-char #\[ stream)
   (let (printed)
     (dolist (value object)
       (if printed
-          (write-char #\,)
+          (write-char #\, stream)
           (setf printed t))
       (encode value stream)))
-  (write-char #\])
+  (write-char #\] stream)
   object)
 
 (defmethod encode ((object (eql 'true)) &optional (stream *standard-output*))
