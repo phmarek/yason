@@ -25,6 +25,8 @@
    #:encode
    #:encode-slots
    #:encode-object
+   #:encode-plist
+   #:encode-alist
 
    ;; Streaming encoder interface
    #:with-output

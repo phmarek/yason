@@ -52,6 +52,11 @@
 (defmethod encode ((object integer) &optional (stream *standard-output*))
   (princ object stream))
 
+(defun encode-key/value (key value stream)
+  (encode string stream)
+  (write-char #\: stream)
+  (encode value stream))
+
 (defmethod encode ((object hash-table) &optional (stream *standard-output*))
   (write-char #\{ stream)
   (let (printed)
@@ -59,9 +64,7 @@
                (if printed
                    (write-char #\, stream)
                    (setf printed t))
-               (encode key stream)
-               (write-char #\: stream)
-               (encode value stream))
+               (encode-key/value key value stream))
              object))
   (write-char #\} stream)
   object)
@@ -89,6 +92,32 @@
       (encode value stream)))
   (write-char #\] stream)
   object)
+
+(defun encode-symbol/value (symbol value stream)
+  (let ((string (symbol-name symbol)))
+    (encode-key/value string value stream)))
+
+(defun encode-alist (object &optional (stream *standard-output*))
+  (loop initially (write-char #\{ stream)
+     with printed = nil
+     for (key . value) in object
+     do (if printed
+            (write-char #\, stream)
+            (setf printed t))
+       (encode-symbol/value key value stream)
+     finally (write-char #\} stream)
+       (return object)))
+
+(defun encode-plist (object &optional (stream *standard-output*))
+  (loop initially (write-char #\{ stream)
+     with printed = nil
+     for (key value . rest) on object by #'cddr
+     do (if printed
+            (write-char #\, stream)
+            (setf printed t))
+       (encode-symbol/value key value stream)
+     finally (write-char #\} stream)
+       (return object)))
 
 (defmethod encode ((object (eql 'true)) &optional (stream *standard-output*))
   (write-string "true" stream)
@@ -187,9 +216,7 @@ opened with WITH-OBJECT in the dynamic context.  KEY and VALUE are
 encoded using the ENCODE generic function, so they both must be of a
 type for which an ENCODE method is defined."
   (next-aggregate-element)
-  (encode key (output-stream *json-output*))
-  (write-char #\: (output-stream *json-output*))
-  (encode value (output-stream *json-output*))
+  (encode-key/value key value (output-stream *json-output*))
   value)
 
 (defun encode-object-elements (&rest elements)
