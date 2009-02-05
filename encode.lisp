@@ -53,7 +53,7 @@
   (princ object stream))
 
 (defun encode-key/value (key value stream)
-  (encode string stream)
+  (encode key stream)
   (write-char #\: stream)
   (encode value stream))
 
