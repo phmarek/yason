@@ -15,6 +15,7 @@
    ;; Parser
    #:parse
    #:*parse-object-key-fn*
+   #:*parse-object-as-alist*
    #:*parse-json-arrays-as-vectors*
    #:*parse-json-booleans-as-symbols*
 

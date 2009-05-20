@@ -102,24 +102,40 @@
              (format stream "cannot convert key ~S used in JSON object to hash table key"
                      (key-string c)))))
 
+(defvar *parse-object-as-alist* nil
+  "If set to a true value, JSON objects will be parsed as association lists and not hash tables.")
+
+(defun create-container ()
+  (if *parse-object-as-alist*
+      '()
+      (make-hash-table :test #'equal)))
+
+(defgeneric add-attribute (to key value)
+  (:method ((to hash-table) key value)
+   (setf (gethash key to) value)
+   to)
+  (:method ((to list) key value)
+   (acons key value to)))
+
 (defun parse-object (input)
-  (let ((return-value (make-hash-table :test #'equal)))
+  (let ((return-value (create-container)))
     (read-char input)
     (loop
        (when (eql (peek-char-skipping-whitespace input)
                   #\})
          (return))
        (skip-whitespace input)
-       (setf (gethash (prog1
-                          (let ((key-string (parse-string input)))
-                            (or (funcall *parse-object-key-fn* key-string)
-                                (error 'cannot-convert-key :key-string key-string)))
-                        (skip-whitespace input)
-                        (unless (eql #\: (read-char input))
-                          (error 'expected-colon))
-                        (skip-whitespace input))
-                      return-value)
-             (parse input))
+       (setf return-value
+             (add-attribute return-value
+                            (prog1
+                                (let ((key-string (parse-string input)))
+                                  (or (funcall *parse-object-key-fn* key-string)
+                                      (error 'cannot-convert-key :key-string key-string)))
+                              (skip-whitespace input)
+                              (unless (eql #\: (read-char input))
+                                (error 'expected-colon))
+                              (skip-whitespace input))
+                            (parse input)))
        (ecase (peek-char-skipping-whitespace input)
          (#\, (read-char input))
          (#\} nil)))
@@ -171,6 +187,9 @@
        (parse-array input))
       ((#\t #\f #\n)
        (parse-constant input))))
+  (:method ((input pathname))
+   (with-open-file (stream input)
+     (parse stream)))
   (:method ((input string))
     (parse (make-string-input-stream input))))
 

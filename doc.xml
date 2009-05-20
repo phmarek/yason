@@ -87,7 +87,9 @@
           <td>hash-table<br/>:test&#x00A0;#'equal</td>
           <td>
             Keys are strings by default,
-            see <clix:ref>*parse-object-key-fn*</clix:ref>
+            see <clix:ref>*parse-object-key-fn*</clix:ref>.
+            Set <clix:ref>*parse-object-as-alist*</clix:ref> to a true
+            value in order to have YASON parse objects as alists.
           </td>
         </tr>
         <tr>
@@ -196,6 +198,13 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
         </clix:description>
       </clix:special-variable>
 
+      <clix:special-variable name="*parse-object-as-alist*">
+        <clix:description>
+          If set to a true value, JSON objects will be parsed as
+          alists instead of hash tables.
+        </clix:description>
+      </clix:special-variable>
+
       <clix:special-variable name="*parse-json-booleans-as-symbols*">
         <clix:description>
           If set to a true value, JSON booleans will be read as the
@@ -209,6 +218,7 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
           key in the CL hash produced.
         </clix:description>
       </clix:special-variable>
+
     </clix:subchapter>
   </clix:chapter>
 
