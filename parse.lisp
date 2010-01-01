@@ -22,6 +22,9 @@
   "If set to a true value, JSON booleans will be read as the symbols
   TRUE and FALSE, not as T and NIL, respectively.")
 
+(defvar *parse-object-as-alist* nil
+  "If set to a true value, JSON objects will be parsed as association lists and not hash tables.")
+
 (defun make-adjustable-string ()
   "Return an adjustable empty string, usable as a buffer for parsing strings and numbers."
   (make-array +default-string-length+
@@ -101,9 +104,6 @@
   (:report (lambda (c stream)
              (format stream "cannot convert key ~S used in JSON object to hash table key"
                      (key-string c)))))
-
-(defvar *parse-object-as-alist* nil
-  "If set to a true value, JSON objects will be parsed as association lists and not hash tables.")
 
 (defun create-container ()
   (if *parse-object-as-alist*
