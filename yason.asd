@@ -23,8 +23,6 @@
   :description "JSON parser/encoder"
   :long-description ""
 
-  :depends-on (:alexandria)
-
   :components ((:file "package")
 	       (:file "encode" :depends-on ("package"))
 	       (:file "parse" :depends-on ("package"))))
