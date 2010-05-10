@@ -81,7 +81,7 @@
           (outc (next)))))))))
 
 (defun whitespace-p (char)
-  (member char '(#\Space #\Newline #\Tab #\Linefeed)))
+  (member char '(#\Space #\Newline #\Tab #\Linefeed #\Return)))
 
 (defun skip-whitespace (input)
   (loop
