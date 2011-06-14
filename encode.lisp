@@ -51,6 +51,7 @@ PLIST. Hash table is initialized using the HASH-TABLE-INITARGS."
   (encode (float object) stream)
   object)
 
+#-clisp
 (defmethod encode ((object double-float) &optional (stream *standard-output*))
   (encode (coerce object 'single-float) stream)
   object)
