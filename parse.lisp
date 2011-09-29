@@ -22,8 +22,9 @@
   "If set to a true value, JSON booleans will be read as the symbols
   TRUE and FALSE, not as T and NIL, respectively.")
 
-(defvar *parse-object-as-alist* nil
-  "If set to a true value, JSON objects will be parsed as association lists and not hash tables.")
+(defvar *parse-object-as* :hash-table
+  "Set to either :hash-table, :plist or :alist to determine the data
+  structure that objects are parsed to.")
 
 (defun make-adjustable-string ()
   "Return an adjustable empty string, usable as a buffer for parsing strings and numbers."
@@ -115,16 +116,21 @@
                      (key-string c)))))
 
 (defun create-container ()
-  (if *parse-object-as-alist*
-      '()
-      (make-hash-table :test #'equal)))
+  (ecase *parse-object-as*
+    ((:plist :alist)
+     nil)
+    (:hash-table
+     (make-hash-table :test #'equal))))
 
-(defgeneric add-attribute (to key value)
-  (:method ((to hash-table) key value)
-   (setf (gethash key to) value)
-   to)
-  (:method ((to list) key value)
-   (acons key value to)))
+(defun add-attribute (to key value)
+  (ecase *parse-object-as*
+    (:plist
+     (append to (list key value)))
+    (:alist
+     (acons key value to))
+    (:hash-table
+     (setf (gethash key to) value)
+     to)))
 
 (defun parse-object (input)
   (let ((return-value (create-container)))
@@ -185,11 +191,13 @@
   stream, as JSON.  Returns the lisp representation of the JSON
   structure parsed.")
   (:method ((input stream))
+    (check-type *parse-object-as* (member :hash-table :alist :plist))
     (ecase (peek-char-skipping-whitespace input)
       (#\"
        (parse-string input))
       ((#\- #\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
        (parse-number input))
+
       (#\{
        (parse-object input))
       (#\[
