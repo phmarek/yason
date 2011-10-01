@@ -16,6 +16,7 @@
    #:parse
    #:*parse-object-key-fn*
    #:*parse-object-as*
+   #:*parse-object-as-alist* ; deprecated
    #:*parse-json-arrays-as-vectors*
    #:*parse-json-booleans-as-symbols*
 

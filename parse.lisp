@@ -26,6 +26,9 @@
   "Set to either :hash-table, :plist or :alist to determine the data
   structure that objects are parsed to.")
 
+(defvar *parse-object-as-alist* nil
+  "DEPRECATED, provided for backward compatibility")
+
 (defun make-adjustable-string ()
   "Return an adjustable empty string, usable as a buffer for parsing strings and numbers."
   (make-array +default-string-length+
@@ -191,19 +194,27 @@
   stream, as JSON.  Returns the lisp representation of the JSON
   structure parsed.")
   (:method ((input stream))
-    (check-type *parse-object-as* (member :hash-table :alist :plist))
-    (ecase (peek-char-skipping-whitespace input)
-      (#\"
-       (parse-string input))
-      ((#\- #\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
-       (parse-number input))
+    ;; backward compatibility code
+    (assert (or (not *parse-object-as-alist*)
+                (eq *parse-object-as* :hash-table))
+            () "unexpected combination of *parse-object-as* and *parse-object-as-alist*, please use *parse-object-as* exclusively")
+    (let ((*parse-object-as* (if *parse-object-as-alist*
+                                 :alist
+                                 *parse-object-as*)))
+      ;; end of backward compatibility code
+      (check-type *parse-object-as* (member :hash-table :alist :plist))
+      (ecase (peek-char-skipping-whitespace input)
+        (#\"
+         (parse-string input))
+        ((#\- #\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
+         (parse-number input))
 
-      (#\{
-       (parse-object input))
-      (#\[
-       (parse-array input))
-      ((#\t #\f #\n)
-       (parse-constant input))))
+        (#\{
+         (parse-object input))
+        (#\[
+         (parse-array input))
+        ((#\t #\f #\n)
+         (parse-constant input)))))
   (:method ((input pathname))
    (with-open-file (stream input)
      (parse stream)))
