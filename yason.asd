@@ -1,11 +1,11 @@
+;;;; -*- Mode: Lisp -*-
+
 ;; This file is part of yason, a Common Lisp JSON parser/encoder
 ;;
-;; Copyright (c) 2008 Hans Huebner
+;; Copyright (c) 2008, 2011 Hans Huebner and contributors
 ;; All rights reserved.
 ;;
 ;; Please see the file LICENSE in the distribution.
-
-;;;; -*- Mode: LISP -*-
 
 (in-package :cl-user)
 
@@ -17,11 +17,15 @@
 (defsystem :yason
   :name "yason"
   :author "Hans Huebner <hans@huebner.org>"
-  :version "1"
+  :version "0.3.0"
   :maintainer "Hans Huebner <hans@huebner.org>"
   :licence "BSD"
   :description "JSON parser/encoder"
-  :long-description ""
+  :long-description "YASON is a Common Lisp library for encoding and
+    decoding data in the JSON interchange format.  JSON is used as a
+    lightweight alternative to XML.  YASON has the sole purpose of
+    encoding and decoding data and does not impose any object model on
+    the Common Lisp application that uses it."
 
   :components ((:file "package")
 	       (:file "encode" :depends-on ("package"))
