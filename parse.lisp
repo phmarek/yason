@@ -186,10 +186,7 @@
                         (push element return-value)))
         (nreverse return-value))))
 
-(defgeneric parse (input)
-  (:documentation "Parse INPUT, which needs to be a string or a
-  stream, as JSON.  Returns the lisp representation of the JSON
-  structure parsed.")
+(defgeneric parse% (input)
   (:method ((input stream))
     (check-type *parse-object-as* (member :hash-table :alist :plist))
     (ecase (peek-char-skipping-whitespace input)
@@ -210,3 +207,18 @@
   (:method ((input string))
     (parse (make-string-input-stream input))))
 
+(defun parse (input
+              &key
+                (object-key-fn *parse-object-key-fn*)
+                (object-as *parse-object-as*)
+                (json-arrays-as-vectors *parse-json-arrays-as-vectors*)
+                (json-booleans-as-symbols *parse-json-booleans-as-symbols*))
+  "Parse INPUT, which needs to be a string or a stream, as JSON.
+  Returns the lisp representation of the JSON structure parsed.  The
+  keyword arguments can be used to override the parser settings as
+  defined by the respective special variables."
+  (let ((*parse-object-key-fn* object-key-fn)
+        (*parse-object-as* object-as)
+        (*parse-json-arrays-as-vectors* json-arrays-as-vectors)
+        (*parse-json-booleans-as-symbols* json-booleans-as-symbols))
+    (parse% input)))

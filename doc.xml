@@ -15,11 +15,10 @@
 
   <clix:abstract>
     YASON is a Common Lisp library for encoding and decoding data in
-    the <a href="http://json.org/">JSON</a> interchange format.
-    JSON is used in AJAX applications as a lightweight alternative
-    to XML.  YASON has the sole purpose of encoding and decoding
-    data and does not impose any object model on the Common Lisp
-    application that uses it.
+    the <a href="http://json.org/">JSON</a> interchange format.  JSON
+    is used as a lightweight alternative to XML.  YASON has the sole
+    purpose of encoding and decoding data and does not impose any
+    object model on the Common Lisp application that uses it.
   </clix:abstract>
 
   <clix:contents/>
@@ -48,7 +47,7 @@
       at <a href="http://common-lisp.net/project/yason/">common-lisp.net</a>.
       It can be obtained by downloading
       the <a href="http://common-lisp.net/project/yason/files/yason.tar.gz">release
-      tarball</a>.  The current release is 0.2.
+      tarball</a>.  The current release is 0.3.0.
     </p>
     <p>
       You may also check out the current development version from its
@@ -185,12 +184,25 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
 
     <clix:subchapter name="parser-dict" title="Parser dictionary">
       <clix:function name="parse" generic="true">
-        <clix:lambda-list>input</clix:lambda-list>
+        <clix:lambda-list>input &amp;key
+        (object-key-fn *parse-object-as-key-fn*)
+        (object-as *parse-object-as*)
+        (json-arrays-as-vectors *parse-json-arrays-as-vectors*)
+        (json-booleans-as-symbols *parse-json-booleans-as-symbols*)</clix:lambda-list>
         <clix:returns>object</clix:returns>
         <clix:description>
           Parse <clix:arg>input</clix:arg>, which needs to be a string
           or a stream, as JSON.  Returns the lisp representation of the
           JSON structure parsed.
+          <p>
+            The keyword arguments <clix:arg>object-key-fn</clix:arg>,
+            <clix:arg>object-as</clix:arg>,
+            <clix:arg>json-arrays-as-vectors</clix:arg> and
+            <clix:arg>json-booleans-as-symbols</clix:arg> can be used
+            to specify values for the parsing parameters to be
+            different from the bindings of the respective special
+            variables.
+          </p>
         </clix:description>
       </clix:function>
 
