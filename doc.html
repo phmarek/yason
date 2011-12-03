@@ -23,11 +23,18 @@
   a.noborder:focus { text-decoration: none; border: none; padding: 0; }  
         </style></head><body>
 
-  
+  <h1 xmlns="">YASON - A JSON encoder/decoder for Common Lisp</h1>
 
   
 
-  <blockquote xmlns=""><h3>Abstract</h3></blockquote>
+  <blockquote xmlns="">
+<h3>Abstract</h3>
+    YASON is a Common Lisp library for encoding and decoding data in
+    the <a xmlns="http://www.w3.org/1999/xhtml" href="http://json.org/">JSON</a> interchange format.  JSON
+    is used as a lightweight alternative to XML.  YASON has the sole
+    purpose of encoding and decoding data and does not impose any
+    object model on the Common Lisp application that uses it.
+  </blockquote>
 
   <h3 xmlns="">Contents</h3>
 <ol xmlns="">
@@ -73,7 +80,7 @@
       at <a href="http://common-lisp.net/project/yason/">common-lisp.net</a>.
       It can be obtained by downloading
       the <a href="http://common-lisp.net/project/yason/files/yason.tar.gz">release
-      tarball</a>.  The current release is 0.2.
+      tarball</a>.  The current release is 0.3.0.
     </p>
     <p>
       You may also check out the current development version from its
@@ -209,12 +216,25 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
     </p>
 
     <h4 xmlns=""><a name="parser-dict">Parser dictionary</a></h4>
-      <p xmlns="">[Generic function]<br><a class="none" name="parse"><b>parse</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">input</clix:lambda-list></i>
+      <p xmlns="">[Generic function]<br><a class="none" name="parse"><b>parse</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">input &amp;key
+        (object-key-fn *parse-object-as-key-fn*)
+        (object-as *parse-object-as*)
+        (json-arrays-as-vectors *parse-json-arrays-as-vectors*)
+        (json-booleans-as-symbols *parse-json-booleans-as-symbols*)</clix:lambda-list></i>
           =&gt;
           <i>object</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
           Parse <code><i>input</i></code>, which needs to be a string
           or a stream, as JSON.  Returns the lisp representation of the
           JSON structure parsed.
+          <p xmlns="http://www.w3.org/1999/xhtml">
+            The keyword arguments <code xmlns=""><i>object-key-fn</i></code>,
+            <code xmlns=""><i>object-as</i></code>,
+            <code xmlns=""><i>json-arrays-as-vectors</i></code> and
+            <code xmlns=""><i>json-booleans-as-symbols</i></code> can be used
+            to specify values for the parsing parameters to be
+            different from the bindings of the respective special
+            variables.
+          </p>
         </clix:description></blockquote></p>
 
       <p xmlns="">
