@@ -163,25 +163,30 @@ external source is not recommended practice.
 ### Parser dictionary ####
 
 **parse** *input* => *object*
+
 Parse *input*, which needs to be a string
 or a stream, as JSON.  Returns the Lisp representation of the
 JSON structure parsed.
 
 **\*parse-jason-arrays-as-vectors\***
+
 If set to a true value, JSON arrays will be parsed as vectors,
 not as lists.
 
 **\*parse-object-as\***
+
 Can be be set to **:hash-table** to parse objects as hash
 tables, **:alist** to parse them as alists or
 **:plist** to parse them as plists.  **:hash-table**
 is the default.
 
 **\*parse-json-booleans-as-symbols\***
+
 If set to a true value, JSON booleans will be read as the
 symbols TRUE and FALSE, not as T and NIL, respectively.
 
 **\*parse-object-key-fn\***
+
 Function to call to convert a key string in a JSON array to a
 key in the CL hash produced.
 
@@ -220,6 +225,7 @@ For example:
 ### DOM encoder dictionary ###
 
 **encode** *object &optional stream* => *object*
+
 Encode *object* to *stream* in JSON format.  May be
 specialized by applications to perform specific
 rendering.  *stream* defaults to *STANDARD-OUTPUT*.
@@ -258,20 +264,24 @@ For example:
 ### Streaming encoder dictionary ###
 
 **with-output\** *(stream) &body body* => *result\**
+
 Set up a JSON streaming encoder context on *stream*,
 then evaluate *body*.
 
 **with-output-to-string\*** *&body body* => *result\**
+
 Set up a JSON streaming encoder context, then
 evaluate *body*.  Return a string with the
 generated JSON output.
 
 **no-json-output-context**
+
 This condition is signalled when one of the stream encoding
 functions is used outside the dynamic context of a
 **WITH-OUTPUT** or **WITH-OUTPUT-TO-STRING\*** body.
 
 **with-array** *&body body* => *result\**
+
 Open a JSON array, then run *body*.  Inside
 the body, **ENCODE-ARRAY-ELEMENT** must be
 called to encode elements to the opened array.  Must be called
@@ -279,6 +289,7 @@ within an existing JSON encoder context, see
 **WITH-OUTPUT** and **WITH-OUTPUT-TO-STRING\***.
 
 **encode-array-element** *object* => *object*
+
 Encode *object* as next array element to
 the last JSON array opened
 with **WITH-ARRAY** in the dynamic
@@ -288,6 +299,7 @@ a type for which an **ENCODE** method is
 defined.
 
 **with-object** *&body body* => *result\**
+
 Open a JSON object, then run *body*.  Inside the body,
 **ENCODE-OBJECT-ELEMENT**
 or **WITH-OBJECT-ELEMENT** must be called to
@@ -297,6 +309,7 @@ see **WITH-OUTPUT**
 and **WITH-OUTPUT-TO-STRING***.
 
 **with-object-element** *&body body* => *result\**
+
 Open a new encoding context to encode a JSON object
 element.  *key* is the key of the element.
 The value will be whatever *body*
@@ -305,6 +318,7 @@ stream encoding functions.  This can be used to stream out
 nested object structures.
 
 **encode-object-element** *key value* => *value*
+
 Encode *key* and *value*
 as object element to the last JSON object opened
 with **WITH-OBJECT** in the dynamic
