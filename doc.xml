@@ -90,7 +90,7 @@
             <clix:ref>*parse-object-as*</clix:ref> to <b>:alist</b>
             value in order to have YASON parse objects as alists or to
             <b>:plist</b> to parse them as plists.  When using
-            :plists, you probably want to also set
+            plists, you probably want to also set
             <clix:ref>*parse-object-key-fn*</clix:ref> to a function
             that interns the object's keys to symbols.
           </td>
@@ -189,7 +189,7 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
         <clix:returns>object</clix:returns>
         <clix:description>
           Parse <clix:arg>input</clix:arg>, which needs to be a string
-          or a stream, as JSON.  Returns the lisp representation of the
+          or a stream, as JSON.  Returns the Lisp representation of the
           JSON structure parsed.
         </clix:description>
       </clix:function>
@@ -324,7 +324,7 @@ NIL</pre>
         <clix:condition name="no-json-output-context">
           <clix:description>
             This condition is signalled when one of the stream encoding
-            function is used outside the dynamic context of a
+            functions is used outside the dynamic context of a
             <clix:ref>WITH-OUTPUT</clix:ref> or
             <clix:ref>WITH-OUTPUT-TO-STRING*</clix:ref> body.
           </clix:description>
