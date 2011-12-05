@@ -290,13 +290,15 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
         </clix:function>
 
 	<clix:function name="pprint-json">
-	  <clix:lambda-list>s &amp;optional (i 0)</clix:lambda-list>
+	  <clix:lambda-list>json-string &amp;optional (indent-level
+	  0)</clix:lambda-list>
 	  <clix:returns>NIL</clix:returns>
 	  <clix:description>
-	    Prints <clix:arg>s</clix:arg>, a string containing JSON,
-	    to standard output with indentation and linefeeds.
-	    <clix:arg>i</clix:arg> is the number of spaces used to
-	    indent.
+	    Prints <clix:arg>json-string</clix:arg>, a string
+	    containing JSON, to standard output with indentation and
+	    linefeeds recurively.  <clix:arg>indent-level</clix:arg>
+	    is the number of spaces used to indent for the current
+	    recursion.
 	  </clix:description>
 	</clix:function>
       </clix:subchapter>
