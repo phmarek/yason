@@ -29,6 +29,7 @@
    #:encode-object
    #:encode-plist
    #:encode-alist
+   #:pprint-json
 
    ;; Streaming encoder interface
    #:with-output
