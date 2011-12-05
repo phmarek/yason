@@ -280,7 +280,7 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
           </clix:description>
         </clix:function>
 
-	<clix:function> name="pprint-json">
+	<clix:function name="pprint-json">
 	  <clix:lambda-list>s &amp;optional (i 0)</clix:lambda-list>
 	  <clix:returns>NIL</clix:returns>
 	  <clix:description>
