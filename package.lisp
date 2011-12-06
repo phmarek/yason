@@ -41,5 +41,4 @@
    #:with-object
    #:encode-object-element
    #:encode-object-elements
-   #:with-object-element
-   #:with-response))
+   #:with-object-element))

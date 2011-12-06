@@ -212,7 +212,7 @@ method is defined."
   (encode object (output-stream *json-output*)))
 
 (defun encode-array-elements (&rest objects)
-  "Encode OBJECTS, a list of JSON encodeable object, as array elements."
+  "Encode OBJECTS, a list of JSON encodable object, as array elements."
   (dolist (object objects)
     (encode-array-element object)))
 
@@ -245,7 +245,6 @@ type for which an ENCODE method is defined."
        (setf (car (stack *json-output*)) #\,))))
 
 (defgeneric encode-slots (object)
-  (:method-combination progn)
   (:documentation
    "Generic function to encode objects.  Every class in a hierarchy
    implements a method for ENCODE-OBJECT that serializes its slots.
@@ -261,29 +260,30 @@ type for which an ENCODE method is defined."
     (with-object ()
       (json:encode-slots object))))
 
-(defun pprint-json (s &optional (i 0))
+(defun pprint-json (json-string &optional (indent-level 0))
   "Prints a JSON encoded string with linefeeds and indentation. "
   (flet ((indent (n)
            (dotimes (i n)
              (princ #\Space))))
-    (when (> (length s) 0)
-      (let ((p (position-if #'(lambda (c) (find c "[]{},")) s)))
+    (when (> (length json-string) 0)
+      (let ((p (position-if #'(lambda (c) (find c "[]{},")) json-string)))
         (if (null p)
-            (princ s)                   ; last string - we're done
-            (case (elt s p)
-              (#\{ (format t "~a~%" (subseq s 0 (incf p)))
-                   (indent (incf i 4))
-                   (pprint-json (subseq s p) i))
-              (#\} (format t "~a~%" (subseq s 0 p))
-                   (indent i)
+            (princ json-string)           ; last string - we're done
+            (case (elt json-string p)
+              (#\{ (format t "~a~%" (subseq json-string 0 (incf p)))
+                   (indent (incf indent-level 4))
+                   (pprint-json (subseq json-string p) indent-level))
+              (#\} (format t "~a~%" (subseq json-string 0 p))
+                   (indent indent-level)
                    (princ "}")
-                   (pprint-json (subseq s (1+ p)) (- i 4)))
-              (#\, (when (char= #\{ (elt s (incf p)))
+                   (pprint-json (subseq json-string (1+ p))
+				(- indent-level 4)))
+              (#\, (when (char= #\{ (elt json-string (incf p)))
                      (incf p)
-                     (incf i 4))
-                   (format t "~a~%" (subseq s 0 p))
-                   (indent i)
-                   (pprint-json (subseq s p) i))
+                     (incf indent-level 4))
+                   (format t "~a~%" (subseq json-string 0 p))
+                   (indent indent-level)
+                   (pprint-json (subseq json-string p) indent-level))
               ((#\[ #\])
-               (princ (subseq s 0 (incf p)))
-               (pprint-json (subseq s p) i))))))))
+               (princ (subseq json-string 0 (incf p)))
+               (pprint-json (subseq json-string p) indent-level))))))))
