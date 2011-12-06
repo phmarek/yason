@@ -212,7 +212,7 @@ method is defined."
   (encode object (output-stream *json-output*)))
 
 (defun encode-array-elements (&rest objects)
-  "Encode OBJECTS, a list of JSON encodeable object, as array elements."
+  "Encode OBJECTS, a list of JSON encodable object, as array elements."
   (dolist (object objects)
     (encode-array-element object)))
 
@@ -245,7 +245,6 @@ type for which an ENCODE method is defined."
        (setf (car (stack *json-output*)) #\,))))
 
 (defgeneric encode-slots (object)
-  (:method-combination progn)
   (:documentation
    "Generic function to encode objects.  Every class in a hierarchy
    implements a method for ENCODE-OBJECT that serializes its slots.
