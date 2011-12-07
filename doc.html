@@ -415,14 +415,15 @@ NIL</pre>
 	<p xmlns="">[Function]<br><a class="none" name="encode-array-elements"><b>encode-array-elements</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">&amp;rest objects</clix:lambda-list></i>
           =&gt;
           <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
-	    Encode <code><i>objects</i></code>, a list of JSON
-	    encodable objects, as the next array elements in the last
-	    JSON array opened with <code><a href="#with-array">WITH-ARRAY</a></code> in
-	    the dynamic context using
-	    <code><a href="#encode-array-element">ENCODE-ARRAY-ELEMENT</a></code>, which must be
-	    applicable to each object in the list
+	    Encode <code><i>objects</i></code>, a series of JSON
+	    encodable objects, as the next array elements in a JSON
+	    array opened with
+	    <code><a href="#with-array">WITH-ARRAY</a></code>. ENCODE-ARRAY-ELEMENTS
+	    uses <code><a href="#encode-array-element">ENCODE-ARRAY-ELEMENT</a></code>, which must
+	    be applicable to each object in the list
 	    (i.e. <code><a href="#encode">ENCODE</a></code> must be defined for each
-	    object type).
+	    object type). Additionally, this must be called within a
+	    valid stream context.
 	  </clix:description></blockquote></p>
 
         <p xmlns="">[Macro]<br><a class="none" name="with-object"><b>with-object</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">() &amp;body body</clix:lambda-list></i>
@@ -433,7 +434,7 @@ NIL</pre>
             <code><a href="#encode-object-element">ENCODE-OBJECT-ELEMENT</a></code> or
             <code><a href="#with-object-element">WITH-OBJECT-ELEMENT</a></code> must be called to
             encode elements to the object.  Must be called within an
-            existing JSON encoder context, see
+            existing JSON encoder
             <code><a href="#with-output">WITH-OUTPUT</a></code> and
             <code><a href="#with-output-to-string*">WITH-OUTPUT-TO-STRING*</a></code>.
           </clix:description></blockquote></p>
@@ -465,10 +466,11 @@ NIL</pre>
 	<p xmlns="">[Function]<br><a class="none" name="encode-object-elements"><b>encode-object-elements</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">&amp;rest elements</clix:lambda-list></i>
           =&gt;
           <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
-	    Encodes <code><i>elements</i></code>, a plist of
-	    key/value pairs, into JSON in the last object opened with
-	    <code><a href="#with-object">WITH-OBJECT</a></code> using
-	    <code><a href="#encode-object-element">ENCODE-OBJECT-ELEMENT</a></code>.
+	    Encodes the parameters into JSON in the last object opened
+	    with <code><a href="#with-object">WITH-OBJECT</a></code> using
+	    <code><a href="#encode-object-element">ENCODE-OBJECT-ELEMENT</a></code>. The parameters
+	    should consist of alternating key/value pairs, and this
+	    must be called within a valid stream context.
 	  </clix:description></blockquote></p>
 
 	<p xmlns="">[Generic function]<br><a class="none" name="encode-slots"><b>encode-slots</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object</clix:lambda-list></i>
