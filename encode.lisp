@@ -212,7 +212,7 @@ method is defined."
   (encode object (output-stream *json-output*)))
 
 (defun encode-array-elements (&rest objects)
-  "Encode OBJECTS, a list of JSON encodable object, as array elements."
+  "Encode OBJECTS, a list of JSON encodable objects, as array elements."
   (dolist (object objects)
     (encode-array-element object)))
 

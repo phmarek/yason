@@ -415,14 +415,15 @@ NIL</pre>
 	  <clix:lambda-list>&amp;rest objects</clix:lambda-list>
 	  <clix:returns>result*</clix:returns>
 	  <clix:description>
-	    Encode <clix:arg>objects</clix:arg>, a list of JSON
-	    encodable objects, as the next array elements in the last
-	    JSON array opened with <clix:ref>WITH-ARRAY</clix:ref> in
-	    the dynamic context using
-	    <clix:ref>ENCODE-ARRAY-ELEMENT</clix:ref>, which must be
-	    applicable to each object in the list
+	    Encode <clix:arg>objects</clix:arg>, a series of JSON
+	    encodable objects, as the next array elements in a JSON
+	    array opened with
+	    <clix:ref>WITH-ARRAY</clix:ref>. ENCODE-ARRAY-ELEMENTS
+	    uses <clix:ref>ENCODE-ARRAY-ELEMENT</clix:ref>, which must
+	    be applicable to each object in the list
 	    (i.e. <clix:ref>ENCODE</clix:ref> must be defined for each
-	    object type).
+	    object type). Additionally, this must be called within a
+	    valid stream context.
 	  </clix:description>
 	</clix:function>
 
@@ -435,7 +436,7 @@ NIL</pre>
             <clix:ref>ENCODE-OBJECT-ELEMENT</clix:ref> or
             <clix:ref>WITH-OBJECT-ELEMENT</clix:ref> must be called to
             encode elements to the object.  Must be called within an
-            existing JSON encoder context, see
+            existing JSON encoder
             <clix:ref>WITH-OUTPUT</clix:ref> and
             <clix:ref>WITH-OUTPUT-TO-STRING*</clix:ref>.
           </clix:description>
@@ -473,10 +474,11 @@ NIL</pre>
 	  <clix:lambda-list>&amp;rest elements</clix:lambda-list>
 	  <clix:returns>result*</clix:returns>
 	  <clix:description>
-	    Encodes <clix:arg>elements</clix:arg>, a plist of
-	    key/value pairs, into JSON in the last object opened with
-	    <clix:ref>WITH-OBJECT</clix:ref> using
-	    <clix:ref>ENCODE-OBJECT-ELEMENT</clix:ref>.
+	    Encodes the parameters into JSON in the last object opened
+	    with <clix:ref>WITH-OBJECT</clix:ref> using
+	    <clix:ref>ENCODE-OBJECT-ELEMENT</clix:ref>. The parameters
+	    should consist of alternating key/value pairs, and this
+	    must be called within a valid stream context.
 	  </clix:description>
 	</clix:function>
 
