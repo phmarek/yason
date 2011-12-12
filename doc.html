@@ -322,15 +322,14 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
 	    format and write to <code><i>stream</i></code>.
 	  </clix:description></blockquote></p>
 
-	<p xmlns="">[Function]<br><a class="none" name="pprint-json"><b>pprint-json</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">json-string &amp;optional (indent-level
+	<p xmlns="">[Function]<br><a class="none" name="pprint-json"><b>pprint-json</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">json-string &amp;optional (indent-width
 	  0)</clix:lambda-list></i>
           =&gt;
           <i>NIL</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
 	    Prints <code><i>json-string</i></code>, a string
 	    containing JSON, to standard output with indentation and
-	    linefeeds recurively.  <code><i>indent-level</i></code>
-	    is the number of spaces used to indent for the current
-	    recursion; it should only be used internally.
+	    linefeeds recurively.  <code><i>indent-width</i></code>
+	    is the number of spaces used to indent for each indentation.
 	  </clix:description></blockquote></p>
       
     
