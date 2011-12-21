@@ -7,30 +7,30 @@
   <clix:title>YASON - A JSON encoder/decoder for Common Lisp</clix:title>
 
   <clix:short-description>
-    YASON is a JSON encoding and decoding library for Common Lisp.
-    It provides for functions to read JSON strings into Lisp data
+    YASON is a JSON encoding and decoding library for Common Lisp.  It
+    provides for functions to read JSON strings into Lisp data
     structures and for serializing Lisp data structures as JSON
     strings.
   </clix:short-description>
 
   <clix:abstract>
     YASON is a Common Lisp library for encoding and decoding data in
-    the <a href="http://json.org/">JSON</a> interchange format.
-    JSON is used in AJAX applications as a lightweight alternative
-    to XML.  YASON has the sole purpose of encoding and decoding
-    data and does not impose any object model on the Common Lisp
-    application that uses it.
+    the <a href="http://json.org/">JSON</a> interchange format.  JSON
+    is used as a lightweight alternative to XML.  YASON has the sole
+    purpose of encoding and decoding data and does not impose any
+    object model on the Common Lisp application that uses it.
   </clix:abstract>
 
   <clix:contents/>
 
   <clix:chapter name="intro" title="Introduction">
     <p>
-      <a href="http://json.org/">JSON</a> is an established alternative
-      to XML as a data interchange format for web applications.  YASON
-      implements reading and writing of JSON formatted data in Common
-      Lisp.  It does not attempt to provide a mapping between CLOS
-      objects and YASON, but can be used to implement such mappings.
+      <a href="http://json.org/">JSON</a> is an established
+      alternative to XML as a data interchange format for web
+      applications.  YASON implements reading and writing of JSON
+      formatted data in Common Lisp.  It does not attempt to provide a
+      mapping between CLOS objects and YASON, but can be used to
+      implement such mappings.
     </p>
     <p>
       <a href="http://common-lisp.net/project/cl-json/">CL-JSON</a> is
@@ -44,11 +44,11 @@
 
   <clix:chapter name="install" title="Download and Installation">
     <p>
-      YASON has its permanent home
-      at <a href="http://common-lisp.net/project/yason/">common-lisp.net</a>.
-      It can be obtained by downloading
-      the <a href="http://common-lisp.net/project/yason/files/yason.tar.gz">release
-      tarball</a>.  The current release is 0.2.
+      YASON has its permanent home at <a
+      href="http://common-lisp.net/project/yason/">common-lisp.net</a>.
+      It can be obtained by downloading the <a
+      href="http://common-lisp.net/project/yason/files/yason.tar.gz">release
+      tarball</a>.  The current release is 0.3.0.
     </p>
     <p>
       You may also check out the current development version from its
@@ -61,11 +61,12 @@
       other libraries.
     </p>
     <p>
-      YASON lives in the <b>:yason</b> package and creates a package nickname
-      <b>:json</b>.  Applications will not normally <b>:use</b> this
-      package, but rather use qualified names to access YASON's
-      symbols.  For that reason, YASON's symbols do not contain the
-      string "JSON" themselves.  See below for usage samples.
+      YASON lives in the <b>:yason</b> package and creates a package
+      nickname <b>:json</b>.  Applications will not normally
+      <b>:use</b> this package, but rather use qualified names to
+      access YASON's symbols.  For that reason, YASON's symbols do not
+      contain the string "JSON" themselves.  See below for usage
+      samples.
     </p>
   </clix:chapter>
 
@@ -85,12 +86,12 @@
           <td>object</td>
           <td>hash-table<br/>:test&#x00A0;#'equal</td>
           <td>
-            Keys are strings by default, see
-            <clix:ref>*parse-object-key-fn*</clix:ref>.  Set
-            <clix:ref>*parse-object-as*</clix:ref> to <b>:alist</b>
-            value in order to have YASON parse objects as alists or to
-            <b>:plist</b> to parse them as plists.  When using
-            :plists, you probably want to also set
+            Keys are strings by default (see
+            <clix:ref>*parse-object-key-fn*</clix:ref>).  Set
+            <clix:ref>*parse-object-as*</clix:ref> to <b>:alist</b> in
+            order to have YASON parse objects as alists or to
+            <b>:plist</b> to parse them as plists.  When using plists,
+            you probably want to also set
             <clix:ref>*parse-object-key-fn*</clix:ref> to a function
             that interns the object's keys to symbols.
           </td>
@@ -99,17 +100,17 @@
           <td>array</td>
           <td>list</td>
           <td>
-            Can be changed to read to vectors,
-            see <clix:ref>*parse-json-arrays-as-vectors*</clix:ref>
+            Can be changed to read to vectors (see
+            <clix:ref>*parse-json-arrays-as-vectors*</clix:ref>).
           </td>
         </tr>
         <tr>
           <td>string</td>
           <td>string</td>
           <td>
-            JSON escape characters are recognized upon reading.
-            Upon writing, known escape characters are used, but
-            non-ASCII Unicode characters are written as is.
+            JSON escape characters are recognized upon reading.  Upon
+            writing, known escape characters are used, but non-ASCII
+            Unicode characters are written as is.
           </td>
         </tr>
         <tr>
@@ -123,12 +124,18 @@
         <tr>
           <td>true</td>
           <td>t</td>
-          <td>Can be changed to read as TRUE, see <clix:ref>*parse-json-booleans-as-symbols*</clix:ref></td>
+          <td>
+	    Can be changed to read as TRUE (see
+	    <clix:ref>*parse-json-booleans-as-symbols*</clix:ref>).
+	  </td>
         </tr>
         <tr>
           <td>false</td>
           <td>nil</td>
-          <td>Can be changed to read as FALSE, see <clix:ref>*parse-json-booleans-as-symbols*</clix:ref></td>
+          <td>
+	    Can be changed to read as FALSE (see
+	    <clix:ref>*parse-json-booleans-as-symbols*</clix:ref>).
+	  </td>
         </tr>
         <tr>
           <td>null</td>
@@ -167,7 +174,7 @@ CL-USER&gt; :FOO ; intern the :FOO keyword
 :FOO
 CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
                 (json:*parse-json-booleans-as-symbols* t)
-                (json:*parse-object-key-fn* #'maybe-convert-to-string)
+                (json:*parse-object-key-fn* #'maybe-convert-to-keyword)
                 (result (json:parse *json-string*)))
            (print result)
            (alexandria:hash-table-plist (aref result 0)))
@@ -184,20 +191,33 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
     </p>
 
     <clix:subchapter name="parser-dict" title="Parser dictionary">
-      <clix:function name="parse" generic="true">
-        <clix:lambda-list>input</clix:lambda-list>
+      <clix:function name="parse">
+        <clix:lambda-list>input &amp;key (object-key-fn
+        *parse-object-as-key-fn*) (object-as *parse-object-as*)
+        (json-arrays-as-vectors *parse-json-arrays-as-vectors*)
+        (json-booleans-as-symbols
+        *parse-json-booleans-as-symbols*)</clix:lambda-list>
         <clix:returns>object</clix:returns>
         <clix:description>
-          Parse <clix:arg>input</clix:arg>, which needs to be a string
-          or a stream, as JSON.  Returns the lisp representation of the
+          Parse <clix:arg>input</clix:arg>, which must be a string or
+          a stream, as JSON.  Returns the Lisp representation of the
           JSON structure parsed.
+          <p>
+            The keyword arguments <clix:arg>object-key-fn</clix:arg>,
+            <clix:arg>object-as</clix:arg>,
+            <clix:arg>json-arrays-as-vectors</clix:arg> and
+            <clix:arg>json-booleans-as-symbols</clix:arg> can be used
+            to specify different values for the parsing parameters
+            from the current bindings of the respective special
+            variables.
+          </p>
         </clix:description>
       </clix:function>
 
       <clix:special-variable name="*parse-json-arrays-as-vectors*">
         <clix:description>
-          If set to a true value, JSON arrays will be parsed as vectors,
-          not as lists.
+          If set to a true value, JSON arrays will be parsed as
+          vectors, not as lists. NIL is the default.
         </clix:description>
       </clix:special-variable>
 
@@ -213,14 +233,15 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
       <clix:special-variable name="*parse-json-booleans-as-symbols*">
         <clix:description>
           If set to a true value, JSON booleans will be read as the
-          symbols TRUE and FALSE, not as T and NIL, respectively.
+          symbols TRUE and FALSE instead of T and NIL, respectively.
+          NIL is the default.
         </clix:description>
       </clix:special-variable>
 
       <clix:special-variable name="*parse-object-key-fn*">
         <clix:description>
-          Function to call to convert a key string in a JSON array to a
-          key in the CL hash produced.
+          Function to call to convert a key string in a JSON array to
+          a key in the CL hash produced. IDENTITY is the default.
         </clix:description>
       </clix:special-variable>
 
@@ -228,21 +249,21 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
   </clix:chapter>
 
   <clix:chapter name="encoding" title="Encoding JSON data">
-    YASON provides for two distinct modes to encode JSON data:
-    Applications can either create an in memory representation of the
+    YASON provides two distinct modes to encode JSON data:
+    applications can either create an in-memory representation of the
     data to be serialized, then have YASON convert it to JSON in one
     go, or they can use a set of macros to serialze the JSON data
-    element-by-element, thereby having fine grained control over the
-    layout of the generated data.
+    element-by-element, allowing fine-grained control over the layout
+    of the generated data.
 
     <clix:subchapter name="dom-encoder" title="Encoding a JSON DOM">
       <p>
-        In this mode, an in-memory structure is encoded in JSON format.
-        The structure must consist of objects that are serializable
-        using the <clix:ref>ENCODE</clix:ref> function.  YASON defines a
-        number of encoders for standard data types
+        In this mode, an in-memory structure is encoded in JSON
+        format.  The structure must consist of objects that are
+        serializable using the <clix:ref>ENCODE</clix:ref> function.
+        YASON defines a number of encoders for standard data types
         (see <clix:ref>MAPPING</clix:ref>), but the application can
-        define additional methods, e.g. for encoding CLOS objects.
+        define additional methods (e.g. for encoding CLOS objects).
       </p>
       For example:
       <pre>CL-USER&gt; (json:encode 
@@ -258,16 +279,48 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
 
       <clix:subchapter name="dom-encoder-dict" title="DOM encoder dictionary">
         <clix:function name="encode" generic="true">
-          <clix:lambda-list>object &amp;optional stream</clix:lambda-list>
+          <clix:lambda-list>object &amp;optional
+          stream</clix:lambda-list>
           <clix:returns>object</clix:returns>
           <clix:description>
-            Encode <clix:arg>object</clix:arg>
-            to <clix:arg>stream</clix:arg> in JSON format.  May be
-            specialized by applications to perform specific
-            rendering.  <clix:arg>stream</clix:arg> defaults to
-            *STANDARD-OUTPUT*.
+            Encode <clix:arg>object</clix:arg> in JSON format and
+            write to <clix:arg>stream</clix:arg>.  May be specialized
+            by applications to perform specific rendering. Stream
+            defaults to *STANDARD-OUTPUT*.
           </clix:description>
         </clix:function>
+
+	<clix:function name="encode-alist">
+	  <clix:lambda-list>object &amp;optional (stream
+	  *standard-output*)</clix:lambda-list>
+	  <clix:returns>object</clix:returns>
+	  <clix:description>
+	    Encodes <clix:arg>object</clix:arg>, an alist, in JSON
+	    format and write to <clix:arg>stream</clix:arg>.
+	  </clix:description>
+	</clix:function>
+
+	<clix:function name="encode-plist">
+	  <clix:lambda-list>object &amp;optional (stream
+	  *standard-output*)</clix:lambda-list>
+	  <clix:returns>object</clix:returns>
+	  <clix:description>
+	    Encodes <clix:arg>object</clix:arg>, a plist, in JSON
+	    format and write to <clix:arg>stream</clix:arg>.
+	  </clix:description>
+	</clix:function>
+
+	<clix:function name="pprint-json">
+	  <clix:lambda-list>json-string &amp;optional (indent-width
+	  0)</clix:lambda-list>
+	  <clix:returns>NIL</clix:returns>
+	  <clix:description>
+	    Prints <clix:arg>json-string</clix:arg>, a string
+	    containing JSON, to standard output with indentation and
+	    linefeeds recurively.  <clix:arg>indent-width</clix:arg>
+	    is the number of spaces used to indent for each indentation.
+	  </clix:description>
+	</clix:function>
       </clix:subchapter>
     </clix:subchapter>
 
@@ -278,10 +331,10 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
         in order to generate the JSON structure.  It provides for more
         control over the generated output, and can be used to generate
         arbitary JSON without requiring that there exists a directly
-        matching Lisp datastructure.  The streaming API uses
-        the <clix:ref>encode</clix:ref> function, so it is possible to
-        intermix the two.  See <clix:ref>app-encoders</clix:ref> for
-        an example.
+        matching Lisp data structure.  The streaming API uses the
+        <clix:ref>encode</clix:ref> function, so it is possible to
+        intermix the two (see <clix:ref>app-encoders</clix:ref> for an
+        example).
       </p>
       For example:
       <pre>CL-USER&gt; (json:with-output (*standard-output*)
@@ -305,9 +358,9 @@ NIL</pre>
           <clix:lambda-list>(stream) &amp;body body</clix:lambda-list>
           <clix:returns>result*</clix:returns>
           <clix:description>
-            Set up a JSON streaming encoder context
-            on <clix:arg>stream</clix:arg>, then
-            evaluate <clix:arg>body</clix:arg>.
+            Set up a JSON streaming encoder context on
+            <clix:arg>stream</clix:arg>, then evaluate
+            <clix:arg>body</clix:arg>.
           </clix:description>
         </clix:function>
 
@@ -315,17 +368,17 @@ NIL</pre>
           <clix:lambda-list>() &amp;body body</clix:lambda-list>
           <clix:returns>result*</clix:returns>
           <clix:description>
-            Set up a JSON streaming encoder context, then
-            evaluate <clix:arg>body</clix:arg>.  Return a string with the
+            Set up a JSON streaming encoder context, then evaluate
+            <clix:arg>body</clix:arg>.  Return a string with the
             generated JSON output.
           </clix:description>
         </clix:function>
 
         <clix:condition name="no-json-output-context">
           <clix:description>
-            This condition is signalled when one of the stream encoding
-            function is used outside the dynamic context of a
-            <clix:ref>WITH-OUTPUT</clix:ref> or
+            This condition is signalled when one of the stream
+            encoding functions is used outside the dynamic context of
+            a <clix:ref>WITH-OUTPUT</clix:ref> or
             <clix:ref>WITH-OUTPUT-TO-STRING*</clix:ref> body.
           </clix:description>
         </clix:condition>
@@ -334,12 +387,12 @@ NIL</pre>
           <clix:lambda-list>() &amp;body body</clix:lambda-list>
           <clix:returns>result*</clix:returns>
           <clix:description>
-            Open a JSON array, then run <clix:arg>body</clix:arg>.  Inside
-            the body, <clix:ref>ENCODE-ARRAY-ELEMENT</clix:ref> must be
-            called to encode elements to the opened array.  Must be called
-            within an existing JSON encoder context, see
-            <clix:ref>WITH-OUTPUT</clix:ref> and
-            <clix:ref>WITH-OUTPUT-TO-STRING*</clix:ref>.
+            Open a JSON array, then run <clix:arg>body</clix:arg>.
+            Inside the body, <clix:ref>ENCODE-ARRAY-ELEMENT</clix:ref>
+            must be called to encode elements to the opened array.
+            Must be called within an existing JSON encoder context
+            (see <clix:ref>WITH-OUTPUT</clix:ref> and
+            <clix:ref>WITH-OUTPUT-TO-STRING*</clix:ref>).
           </clix:description>
         </clix:function>
 
@@ -357,17 +410,34 @@ NIL</pre>
           </clix:description>
         </clix:function>
 
+	<clix:function name="encode-array-elements">
+	  <clix:lambda-list>&amp;rest objects</clix:lambda-list>
+	  <clix:returns>result*</clix:returns>
+	  <clix:description>
+	    Encode <clix:arg>objects</clix:arg>, a series of JSON
+	    encodable objects, as the next array elements in a JSON
+	    array opened with
+	    <clix:ref>WITH-ARRAY</clix:ref>. ENCODE-ARRAY-ELEMENTS
+	    uses <clix:ref>ENCODE-ARRAY-ELEMENT</clix:ref>, which must
+	    be applicable to each object in the list
+	    (i.e. <clix:ref>ENCODE</clix:ref> must be defined for each
+	    object type). Additionally, this must be called within a
+	    valid stream context.
+	  </clix:description>
+	</clix:function>
+
         <clix:function name="with-object" macro="true">
           <clix:lambda-list>() &amp;body body</clix:lambda-list>
           <clix:returns>result*</clix:returns>
           <clix:description>
-            Open a JSON object, then run <clix:arg>body</clix:arg>.  Inside the body,
-            <clix:ref>ENCODE-OBJECT-ELEMENT</clix:ref>
-            or <clix:ref>WITH-OBJECT-ELEMENT</clix:ref> must be called to
+            Open a JSON object, then run <clix:arg>body</clix:arg>.
+            Inside the body,
+            <clix:ref>ENCODE-OBJECT-ELEMENT</clix:ref> or
+            <clix:ref>WITH-OBJECT-ELEMENT</clix:ref> must be called to
             encode elements to the object.  Must be called within an
-            existing JSON encoder context,
-            see <clix:ref>WITH-OUTPUT</clix:ref>
-            and <clix:ref>WITH-OUTPUT-TO-STRING*</clix:ref>.
+            existing JSON encoder
+            <clix:ref>WITH-OUTPUT</clix:ref> and
+            <clix:ref>WITH-OUTPUT-TO-STRING*</clix:ref>.
           </clix:description>
         </clix:function>
 
@@ -376,11 +446,11 @@ NIL</pre>
           <clix:returns>result*</clix:returns>
           <clix:description>
             Open a new encoding context to encode a JSON object
-            element.  <clix:arg>key</clix:arg> is the key of the element.
-            The value will be whatever <clix:arg>body</clix:arg>
-            serializes to the current JSON output context using one of the
-            stream encoding functions.  This can be used to stream out
-            nested object structures.
+            element.  <clix:arg>key</clix:arg> is the key of the
+            element.  The value will be whatever
+            <clix:arg>body</clix:arg> serializes to the current JSON
+            output context using one of the stream encoding functions.
+            This can be used to stream out nested object structures.
           </clix:description>
         </clix:function>
 
@@ -388,26 +458,59 @@ NIL</pre>
           <clix:lambda-list>key value</clix:lambda-list>
           <clix:returns>value</clix:returns>
           <clix:description>
-            Encode <clix:arg>key</clix:arg> and <clix:arg>value</clix:arg>
-            as object element to the last JSON object opened
-            with <clix:ref>WITH-OBJECT</clix:ref> in the dynamic
-            context.  <clix:arg>key</clix:arg>
-            and <clix:arg>value</clix:arg> are encoded using
-            the <clix:ref>ENCODE</clix:ref> generic function, so they both
+            Encode <clix:arg>key</clix:arg> and
+            <clix:arg>value</clix:arg> as object element to the last
+            JSON object opened with <clix:ref>WITH-OBJECT</clix:ref>
+            in the dynamic context.  <clix:arg>key</clix:arg> and
+            <clix:arg>value</clix:arg> are encoded using the
+            <clix:ref>ENCODE</clix:ref> generic function, so they both
             must be of a type for which an <clix:ref>ENCODE</clix:ref>
             method is defined.
           </clix:description>
         </clix:function>
+
+	<clix:function name="encode-object-elements">
+	  <clix:lambda-list>&amp;rest elements</clix:lambda-list>
+	  <clix:returns>result*</clix:returns>
+	  <clix:description>
+	    Encodes the parameters into JSON in the last object opened
+	    with <clix:ref>WITH-OBJECT</clix:ref> using
+	    <clix:ref>ENCODE-OBJECT-ELEMENT</clix:ref>. The parameters
+	    should consist of alternating key/value pairs, and this
+	    must be called within a valid stream context.
+	  </clix:description>
+	</clix:function>
+
+	<clix:function name="encode-slots" generic="true">
+	  <clix:lambda-list>object</clix:lambda-list>
+	  <clix:returns>result*</clix:returns>
+	  <clix:description>
+	    Encodes all of the slots of <clix:arg>object</clix:arg>,
+	    presumably a CLOS object, to the current stream
+	    context. Must be defined for an object to use
+	    <clix:ref>ENCODE-OBJECT</clix:ref> on that object.
+	  </clix:description>
+	</clix:function>
+
+	<clix:function name="encode-object" generic="true">
+	  <clix:lambda-list>object</clix:lambda-list>
+	  <clix:returns>result*</clix:returns>
+	  <clix:description>
+	    Encodes <clix:arg>object</clix:arg>, presumably a CLOS
+	    object, by invoking <clix:ref>ENCODE-SLOTS</clix:ref>, to
+	    the current stream context.
+	  </clix:description>
+	</clix:function>
       </clix:subchapter>
     </clix:subchapter>
 
     <clix:subchapter name="app-encoders" title="Application specific encoders">
-
-      Suppose your application uses structs to represent its data, and
-      you want to encode such structs using JSON in order to send it
-      to a client application.  Suppose further that your structs also
-      include internal information that you do not want to send.  Here
-      is some code that illustrates how one could implement a
+      
+      Suppose your application uses structs to represent its data and
+      you want to encode these structs using JSON in order to send
+      them to a client application.  Suppose further that your structs
+      also include internal information that you do not want to send.
+      Here is some code that illustrates how one could implement a
       serialization function:
 
       <pre>CL-USER&gt; (defstruct user name age password)
@@ -472,8 +575,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <clix:chapter name="ack" title="Acknowledgements">
     Thanks go to Edi Weitz for being a great inspiration.  This
-    documentation as been generated with a hacked-up version of
-    his <a href="http://weitz.de/documentation-template/">DOCUMENTATION-TEMPLATE</a>
+    documentation as been generated with a hacked-up version of his <a
+    href="http://weitz.de/documentation-template/">DOCUMENTATION-TEMPLATE</a>
     software.  Thanks to David Lichteblau for coining YASON's name.
   </clix:chapter>
 
