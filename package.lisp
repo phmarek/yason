@@ -41,4 +41,8 @@
    #:encode-object-element
    #:encode-object-elements
    #:with-object-element
-   #:with-response))
+   #:with-response
+
+   ;; Pretty-printer
+   #:pprint-json
+   ))

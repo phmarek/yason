@@ -29,7 +29,6 @@ PLIST. Hash table is initialized using the HASH-TABLE-INITARGS."
   (plist-hash-table
    '(#\\ "\\\\"
      #\" "\\\""
-     #\/ "\\/"
      #\Backspace "\\b"
      #\Page "\\f"
      #\Newline "\\n"
