@@ -322,18 +322,6 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
 	    format and write to <code><i>stream</i></code>.
 	  </clix:description></blockquote></p>
 
-	<p xmlns="">[Function]<br><a class="none" name="pprint-json"><b>pprint-json</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">json-string &amp;optional (indent-width
-	  0)</clix:lambda-list></i>
-          =&gt;
-          <i>NIL</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
-	    Prints <code><i>json-string</i></code>, a string
-	    containing JSON, to standard output with indentation and
-	    linefeeds recurively.  <code><i>indent-width</i></code>
-	    is the number of spaces used to indent for each indentation.
-	  </clix:description></blockquote></p>
-      
-    
-
     <h4 xmlns=""><a name="stream-encoder">Encoding JSON in streaming mode</a></h4>
       <p>
         In this mode, the JSON structure is generated in a stream.
@@ -539,7 +527,6 @@ CL-USER&gt; (json:encode (list (make-user :name "horst" :age 27 :password "puppy
 <li><code><a href="#encode-slots">encode-slots</a></code></li>
 <li><code><a href="#no-json-output-context">no-json-output-context</a></code></li>
 <li><code><a href="#parse">parse</a></code></li>
-<li><code><a href="#pprint-json">pprint-json</a></code></li>
 <li><code><a href="#with-array">with-array</a></code></li>
 <li><code><a href="#with-object">with-object</a></code></li>
 <li><code><a href="#with-object-element">with-object-element</a></code></li>

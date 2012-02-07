@@ -29,7 +29,6 @@
    #:encode-object
    #:encode-plist
    #:encode-alist
-   #:pprint-json
 
    ;; Streaming encoder interface
    #:with-output
@@ -41,8 +40,4 @@
    #:with-object
    #:encode-object-element
    #:encode-object-elements
-   #:with-object-element
-
-   ;; Pretty-printer
-   #:pprint-json
-   ))
+   #:with-object-element))

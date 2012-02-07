@@ -309,18 +309,6 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
 	    format and write to <clix:arg>stream</clix:arg>.
 	  </clix:description>
 	</clix:function>
-
-	<clix:function name="pprint-json">
-	  <clix:lambda-list>json-string &amp;optional (indent-width
-	  0)</clix:lambda-list>
-	  <clix:returns>NIL</clix:returns>
-	  <clix:description>
-	    Prints <clix:arg>json-string</clix:arg>, a string
-	    containing JSON, to standard output with indentation and
-	    linefeeds recurively.  <clix:arg>indent-width</clix:arg>
-	    is the number of spaces used to indent for each indentation.
-	  </clix:description>
-	</clix:function>
       </clix:subchapter>
     </clix:subchapter>
 
