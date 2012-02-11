@@ -9,6 +9,14 @@
 
 (defvar *json-output*)
 
+(defparameter *default-indent* nil
+  "Set to T or an numeric indentation width in order to have YASON
+  indent its output by default.")
+
+(defparameter *default-indent-width* 2
+  "Default indentation width for output if indentation is selected
+  with no indentation width specified.")
+
 (defgeneric encode (object &optional stream)
 
   (:documentation "Encode OBJECT to STREAM in JSON format.  May be
@@ -57,71 +65,73 @@ PLIST. Hash table is initialized using the HASH-TABLE-INITARGS."
 (defmethod encode ((object integer) &optional (stream *standard-output*))
   (princ object stream))
 
+(defmacro with-aggregate/object ((stream opening-char closing-char) &body body)
+  "Set up serialization context for aggregate serialization with the
+  object encoder."
+  (alexandria:with-gensyms (printed)
+    `(progn
+       (write-delimiter ,opening-char ,stream)
+       (change-indentation ,stream #'+)
+       (prog1
+           (let (,printed)
+             (macrolet ((with-element-output (() &body body)
+                          `(progn
+                             (cond
+                               (,',printed
+                                (write-delimiter #\, ,',stream))
+                               (t
+                                (setf ,',printed t)))
+                             (write-indentation ,',stream)
+                             ,@body)))
+               ,@body))
+         (change-indentation ,stream #'-)
+         (write-indentation ,stream)
+         (write-delimiter ,closing-char ,stream)))))
+
 (defun encode-key/value (key value stream)
   (encode key stream)
   (write-char #\: stream)
   (encode value stream))
 
 (defmethod encode ((object hash-table) &optional (stream *standard-output*))
-  (write-char #\{ stream)
-  (let (printed)
+  (with-aggregate/object (stream #\{ #\})
     (maphash (lambda (key value)
-               (if printed
-                   (write-char #\, stream)
-                   (setf printed t))
-               (encode-key/value key value stream))
-             object))
-  (write-char #\} stream)
-  object)
-
+               (with-element-output ()
+                 (encode-key/value key value stream)))
+             object)
+    object))
+                 
 (defmethod encode ((object vector) &optional (stream *standard-output*))
-  (write-char #\[ stream)
-  (let (printed)
-    (loop
-      for value across object
-      do (when printed
-           (write-char #\, stream))
-         (setf printed t)
-         (encode value stream)))
-  (write-char #\] stream)
-  object)
+  (with-aggregate/object (stream #\[ #\])
+    (loop for value across object
+          do (with-element-output ()
+               (encode value stream)))
+    object))
 
 (defmethod encode ((object list) &optional (stream *standard-output*))
-  (write-char #\[ stream)
-  (let (printed)
+  (with-aggregate/object (stream #\[ #\])
     (dolist (value object)
-      (if printed
-          (write-char #\, stream)
-          (setf printed t))
-      (encode value stream)))
-  (write-char #\] stream)
-  object)
+      (with-element-output ()
+        (encode value stream)))
+    object))
 
 (defun encode-symbol/value (symbol value stream)
   (let ((string (symbol-name symbol)))
     (encode-key/value string value stream)))
 
 (defun encode-alist (object &optional (stream *standard-output*))
-  (loop initially (write-char #\{ stream)
-        with printed = nil
-        for (key . value) in object
-        do (if printed
-               (write-char #\, stream)
-               (setf printed t))
-           (encode-symbol/value key value stream)
-        finally (write-char #\} stream)
-                (return object)))
+  (with-aggregate/object (stream #\{ #\})
+    (loop for (key . value) in object
+          do (with-element-output ()
+               (encode-symbol/value key value stream)))
+    object))
 
 (defun encode-plist (object &optional (stream *standard-output*))
-  (loop initially (write-char #\{ stream)
-        with printed = nil
-        for (key value . rest) on object by #'cddr
-        do (if printed
-               (write-char #\, stream)
-               (setf printed t))
-           (encode-symbol/value key value stream)
-        finally (write-char #\} stream)
-                (return object)))
+  (with-aggregate/object (stream #\{ #\})
+    (loop for (key value) on object by #'cddr
+          do (with-element-output ()
+               (encode-symbol/value key value stream)))
+    object))
 
 (defmethod encode ((object (eql 'true)) &optional (stream *standard-output*))
   (write-string "true" stream)
@@ -143,21 +153,58 @@ PLIST. Hash table is initialized using the HASH-TABLE-INITARGS."
   (write-string "null" stream)
   object)
 
-(defclass json-output-stream ()
+(defclass json-output-stream (trivial-gray-streams:fundamental-character-output-stream)
   ((output-stream :reader output-stream
                   :initarg :output-stream)
    (stack :accessor stack
-          :initform nil))
+          :initform nil)
+   (indent :initarg :indent
+           :reader indent
+           :accessor indent%)
+   (indent-string :initform ""
+                  :accessor indent-string))
+  (:default-initargs :indent *default-indent*)
   (:documentation "Objects of this class capture the state of a JSON stream encoder."))
+
+(defmethod initialize-instance :after ((stream json-output-stream) &key indent)
+  (when (eq indent t)
+    (setf (indent% stream) *default-indent-width*)))
+
+(defmethod trivial-gray-streams:stream-write-char ((stream json-output-stream) char)
+  (write-char char (output-stream stream)))
+
+(defgeneric write-indentation (stream)
+  (:method ((stream t))
+    nil)
+  (:method ((stream json-output-stream))
+    (when (indent stream)
+      (fresh-line (output-stream stream))
+      (write-string (indent-string stream) (output-stream stream)))))
+
+(defgeneric write-delimiter (char stream)
+  (:method (char stream)
+    (write-char char stream))
+  (:method (char (stream json-output-stream))
+    (write-char char (output-stream stream))))
+
+(defgeneric change-indentation (stream operator)
+  (:method ((stream t) (operator t))
+    nil)
+  (:method ((stream json-output-stream) operator)
+    (when (indent stream)
+      (setf (indent-string stream) (make-string (funcall operator (length (indent-string stream))
+                                                         (indent stream))
+                                                :initial-element #\Space)))))
 
 (defun next-aggregate-element ()
   (if (car (stack *json-output*))
       (write-char (car (stack *json-output*)) (output-stream *json-output*))
       (setf (car (stack *json-output*)) #\,)))
 
-(defmacro with-output ((stream) &body body)
+(defmacro with-output ((stream &rest args &key indent) &body body)
+  (declare (ignore indent))
   "Set up a JSON streaming encoder context on STREAM, then evaluate BODY."
-  `(let ((*json-output* (make-instance 'json-output-stream :output-stream ,stream)))
+  `(let ((*json-output* (make-instance 'json-output-stream :output-stream ,stream ,@args)))
      ,@body))
 
 (defmacro with-output-to-string* (() &body body)
@@ -174,32 +221,37 @@ Return a string with the generated JSON output."
   encoding function is used outside the dynamic context of a
   WITH-OUTPUT or WITH-OUTPUT-TO-STRING* body."))
 
-(defmacro with-aggregate ((begin-char end-char) &body body)
+(defmacro with-aggregate/stream ((begin-char end-char) &body body)
+  "Set up context for aggregate serialization for the stream encoder."
   `(progn
      (unless (boundp '*json-output*)
        (error 'no-json-output-context))
      (when (stack *json-output*)
        (next-aggregate-element))
-     (write-char ,begin-char (output-stream *json-output*))
+     (write-indentation *json-output*)
+     (write-delimiter ,begin-char *json-output*)
+     (change-indentation *json-output* #'+)
      (push nil (stack *json-output*))
      (prog1
          (progn ,@body)
        (pop (stack *json-output*))
-       (write-char ,end-char (output-stream *json-output*)))))
+       (change-indentation *json-output* #'-)
+       (write-indentation *json-output*)
+       (write-delimiter ,end-char *json-output*))))
 
 (defmacro with-array (() &body body)
   "Open a JSON array, then run BODY.  Inside the body,
 ENCODE-ARRAY-ELEMENT must be called to encode elements to the opened
 array.  Must be called within an existing JSON encoder context, see
 WITH-OUTPUT and WITH-OUTPUT-TO-STRING*."
-  `(with-aggregate (#\[ #\]) ,@body))
+  `(with-aggregate/stream (#\[ #\]) ,@body))
 
 (defmacro with-object (() &body body)
   "Open a JSON object, then run BODY.  Inside the body,
 ENCODE-OBJECT-ELEMENT or WITH-OBJECT-ELEMENT must be called to encode
 elements to the object.  Must be called within an existing JSON
 encoder context, see WITH-OUTPUT and WITH-OUTPUT-TO-STRING*."
-  `(with-aggregate (#\{ #\}) ,@body))
+  `(with-aggregate/stream (#\{ #\}) ,@body))
 
 (defun encode-array-element (object)
   "Encode OBJECT as next array element to the last JSON array opened
@@ -207,6 +259,7 @@ with WITH-ARRAY in the dynamic context.  OBJECT is encoded using the
 ENCODE generic function, so it must be of a type for which an ENCODE
 method is defined."
   (next-aggregate-element)
+  (write-indentation *json-output*)
   (encode object (output-stream *json-output*)))
 
 (defun encode-array-elements (&rest objects)
@@ -220,6 +273,7 @@ opened with WITH-OBJECT in the dynamic context.  KEY and VALUE are
 encoded using the ENCODE generic function, so they both must be of a
 type for which an ENCODE method is defined."
   (next-aggregate-element)
+  (write-indentation *json-output*)
   (encode-key/value key value (output-stream *json-output*))
   value)
 
@@ -236,6 +290,7 @@ type for which an ENCODE method is defined."
   object structures."
   `(progn
      (next-aggregate-element)
+     (write-indentation *json-output*)
      (encode ,key (output-stream *json-output*))
      (setf (car (stack *json-output*)) #\:)
      (unwind-protect
