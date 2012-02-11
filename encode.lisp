@@ -78,12 +78,11 @@ PLIST. Hash table is initialized using the HASH-TABLE-INITARGS."
   (write-char #\[ stream)
   (let (printed)
     (loop
-       for value across object
-       do
-       (when printed
-         (write-char #\, stream))
-       (setf printed t)
-       (encode value stream)))
+      for value across object
+      do (when printed
+           (write-char #\, stream))
+         (setf printed t)
+         (encode value stream)))
   (write-char #\] stream)
   object)
 
@@ -104,25 +103,25 @@ PLIST. Hash table is initialized using the HASH-TABLE-INITARGS."
 
 (defun encode-alist (object &optional (stream *standard-output*))
   (loop initially (write-char #\{ stream)
-     with printed = nil
-     for (key . value) in object
-     do (if printed
-            (write-char #\, stream)
-            (setf printed t))
-       (encode-symbol/value key value stream)
-     finally (write-char #\} stream)
-       (return object)))
+        with printed = nil
+        for (key . value) in object
+        do (if printed
+               (write-char #\, stream)
+               (setf printed t))
+           (encode-symbol/value key value stream)
+        finally (write-char #\} stream)
+                (return object)))
 
 (defun encode-plist (object &optional (stream *standard-output*))
   (loop initially (write-char #\{ stream)
-     with printed = nil
-     for (key value . rest) on object by #'cddr
-     do (if printed
-            (write-char #\, stream)
-            (setf printed t))
-       (encode-symbol/value key value stream)
-     finally (write-char #\} stream)
-       (return object)))
+        with printed = nil
+        for (key value . rest) on object by #'cddr
+        do (if printed
+               (write-char #\, stream)
+               (setf printed t))
+           (encode-symbol/value key value stream)
+        finally (write-char #\} stream)
+                (return object)))
 
 (defmethod encode ((object (eql 'true)) &optional (stream *standard-output*))
   (write-string "true" stream)
@@ -227,7 +226,7 @@ type for which an ENCODE method is defined."
 (defun encode-object-elements (&rest elements)
   "Encode plist ELEMENTS as object elements."
   (loop for (key value) on elements by #'cddr
-     do (encode-object-element key value)))
+        do (encode-object-element key value)))
 
 (defmacro with-object-element ((key) &body body)
   "Open a new encoding context to encode a JSON object element.  KEY
