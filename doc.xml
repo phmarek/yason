@@ -48,7 +48,7 @@
       href="http://common-lisp.net/project/yason/">common-lisp.net</a>.
       It can be obtained by downloading the <a
       href="http://common-lisp.net/project/yason/files/yason.tar.gz">release
-      tarball</a>.  The current release is 0.3.0.
+      tarball</a>.  The current release is 0.4.0.
     </p>
     <p>
       You may also check out the current development version from its
@@ -57,8 +57,11 @@
       email me at <i>hans.huebner@gmail.com</i>.
     </p>
     <p>
-      YASON is written in ANSI Common Lisp and does not depend on
-      other libraries.
+      YASON is written in ANSI Common Lisp.  It depends on UNIT-TEST,
+      TRIVIAL-GRAY-STREAMS and ALEXANDRIA open source libraries.  The
+      recommended way to install YASON and its dependencies is through
+      the excellent <a href="http://www.quicklisp.org/">Quicklisp</a>
+      library management system.
     </p>
     <p>
       YASON lives in the <b>:yason</b> package and creates a package
@@ -256,6 +259,19 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
     element-by-element, allowing fine-grained control over the layout
     of the generated data.
 
+    <p>
+      Optionally, the JSON that is produced can be indented.
+      Indentation requires the use of a
+      <clix:ref>JSON-OUTPUT-STREAM</clix:ref> as serialization target.
+      With the stream serializer, such a stream is automatically used.
+      If indentation is desired with the DOM serializer, such a stream
+      can be obtained by calling the
+      <clix:ref>MAKE-JSON-OUTPUT-STREAM</clix:ref> function with the
+      target output string as argument.  Please be aware that indented
+      output not requires more space, but is also slower and should
+      not be enabled in performance critical applications.
+    </p>
+
     <clix:subchapter name="dom-encoder" title="Encoding a JSON DOM">
       <p>
         In this mode, an in-memory structure is encoded in JSON
@@ -309,6 +325,21 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
 	    format and write to <clix:arg>stream</clix:arg>.
 	  </clix:description>
 	</clix:function>
+
+        <clix:function name="make-json-output-stream">
+          <clix:lambda-list>stream &amp;key (indent t)</clix:lambda-list>
+          <clix:returns>stream</clix:returns>
+          <clix:description>
+            Creates a <clix:ref>json-output-stream</clix:ref> instance
+            that wraps the supplied <clix:arg>stream</clix:arg> and
+            optionally performs indentation of the generated JSON
+            data.  The <clix:arg>indent</clix:arg> argument is
+            described in <clix:ref>WITH-OUTPUT</clix:ref>.  Note that
+            if the <clix:arg>indent</clix:arg> argument is NIL, the
+            original stream is returned in order to avoid the
+            performance penalty of the indentation algorithm.
+          </clix:description>
+        </clix:function>
       </clix:subchapter>
     </clix:subchapter>
 
@@ -343,22 +374,28 @@ NIL</pre>
 
       <clix:subchapter name="stream-encoder-dict" title="Streaming encoder dictionary">
         <clix:function name="with-output" macro="true">
-          <clix:lambda-list>(stream) &amp;body body</clix:lambda-list>
+          <clix:lambda-list>(stream &amp;key indent) &amp;body body</clix:lambda-list>
           <clix:returns>result*</clix:returns>
           <clix:description>
             Set up a JSON streaming encoder context on
             <clix:arg>stream</clix:arg>, then evaluate
-            <clix:arg>body</clix:arg>.
+            <clix:arg>body</clix:arg>.  <clix:arg>indent</clix:arg>
+            can be set to T to enable indentation with a default
+            indentation width or to an integer specifying the desired
+            indentation width.  By default, indentation is switched
+            off.
           </clix:description>
         </clix:function>
 
         <clix:function name="with-output-to-string*" macro="true">
-          <clix:lambda-list>() &amp;body body</clix:lambda-list>
+          <clix:lambda-list>(&amp;key indent) &amp;body body</clix:lambda-list>
           <clix:returns>result*</clix:returns>
           <clix:description>
             Set up a JSON streaming encoder context, then evaluate
             <clix:arg>body</clix:arg>.  Return a string with the
-            generated JSON output.
+            generated JSON output.  See
+            <clix:ref>WITH-OUTPUT</clix:ref> for the description of
+            the <clix:arg>indent</clix:arg> keyword argument.
           </clix:description>
         </clix:function>
 
@@ -489,6 +526,17 @@ NIL</pre>
 	    the current stream context.
 	  </clix:description>
 	</clix:function>
+
+        <clix:class name="json-output-stream">
+          <clix:description>
+            Instances of this class are used to wrap an output stream
+            that is used as a serialization target in the stream
+            encoder and optionally in the DOM encoder if indentation
+            is desired.  The class name is not exported, use
+            <clix:ref>make-json-output-stream</clix:ref> to create a
+            wrapper stream if required.
+          </clix:description>
+        </clix:class>
       </clix:subchapter>
     </clix:subchapter>
 
@@ -528,7 +576,7 @@ CL-USER&gt; (json:encode (list (make-user :name "horst" :age 27 :password "puppy
   </clix:chapter>
 
   <clix:chapter name="license" title="License">
-    <pre class="none">Copyright (c) 2008 Hans Huebner
+    <pre class="none">Copyright (c) 2008-2012 Hans Huebner
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
