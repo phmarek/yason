@@ -30,6 +30,8 @@
    #:encode-plist
    #:encode-alist
 
+   #:make-json-output-stream
+
    ;; Streaming encoder interface
    #:with-output
    #:with-output-to-string*
