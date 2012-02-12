@@ -23,18 +23,8 @@
   specialized by applications to perform specific rendering.  STREAM
   defaults to *STANDARD-OUTPUT*."))
 
-;; from alexandria
-(defun plist-hash-table (plist &rest hash-table-initargs)
-  "Returns a hash table containing the keys and values of the property list
-PLIST. Hash table is initialized using the HASH-TABLE-INITARGS."
-  (let ((table (apply #'make-hash-table hash-table-initargs)))
-    (do ((tail plist (cddr tail)))
-        ((not tail))
-      (setf (gethash (car tail) table) (cadr tail)))
-    table))
-
 (defparameter *char-replacements*
-  (plist-hash-table
+  (alexandria:plist-hash-table
    '(#\\ "\\\\"
      #\" "\\\""
      #\Backspace "\\b"
