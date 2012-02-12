@@ -34,6 +34,23 @@
               (with-output-to-string (s)
                 (json:encode *basic-test-json-dom* s))))
 
+(defun whitespace-char-p (char)
+  (member char '(#\space #\tab #\return #\newline #\linefeed)))
+
+(deftest :yason "dom-encoder.indentation"
+  (test-equal "[
+          1,
+          2,
+          3
+]"
+              (with-output-to-string (s)
+                (json:encode '(1 2 3) (yason:make-json-output-stream s :indent 10))))
+  (dolist (indentation-arg '(nil t 2 20))
+    (test-equal "[1,2,3]" (remove-if #'whitespace-char-p
+                                     (with-output-to-string (s)
+                                       (json:encode '(1 2 3)
+                                                    (yason:make-json-output-stream s :indent indentation-arg)))))))
+    
 (deftest :yason "stream-encoder.basic-array"
   (test-equal "[0,1,2]"
               (with-output-to-string (s)
@@ -67,3 +84,4 @@
                 (json:encode (list (make-user :name "horst" :age 27 :password "puppy")
                                    (make-user :name "uschi" :age 28 :password "kitten"))
                              s))))
+
