@@ -203,11 +203,12 @@
   `(let ((*json-output* (make-instance 'json-output-stream :output-stream ,stream ,@args)))
      ,@body))
 
-(defmacro with-output-to-string* (() &body body)
+(defmacro with-output-to-string* ((&rest args &key indent) &body body)
   "Set up a JSON streaming encoder context, then evaluate BODY.
 Return a string with the generated JSON output."
+  (declare (ignore indent))
   `(with-output-to-string (s)
-     (with-output (s)
+     (with-output (s ,@args)
        ,@body)))
 
 (define-condition no-json-output-context (error)
