@@ -14,10 +14,17 @@
 
 (in-package :yason.system)
 
+(defmethod perform ((op test-op) (c (eql (find-system :yason))))
+  (oos 'test-op 'yason-tests))
+
+;;; A tester's job is never done!
+(defmethod operation-done-p ((op test-op) (c (eql (find-system :yason))))
+  nil)
+
 (defsystem :yason
-  :name "yason"
+  :name "YASON"
   :author "Hans Huebner <hans@huebner.org>"
-  :version "0.3.0"
+  :version "0.4.0"
   :maintainer "Hans Huebner <hans@huebner.org>"
   :licence "BSD"
   :description "JSON parser/encoder"
@@ -27,6 +34,16 @@
     encoding and decoding data and does not impose any object model on
     the Common Lisp application that uses it."
 
+  :depends-on (:alexandria :trivial-gray-streams)
+  :in-order-to ((test-op (load-op :yason-test)))
   :components ((:file "package")
 	       (:file "encode" :depends-on ("package"))
-	       (:file "parse" :depends-on ("package"))))
+	       (:file "parse" :depends-on ("package"))
+               (:file "test")))
+
+(defsystem :yason-test
+  :name "yason-test"
+  :description "YASON tests"
+
+  :depends-on (:unit-test :yason :alexandria)
+  :components ((:file "test")))
