@@ -14,13 +14,6 @@
 
 (in-package :yason.system)
 
-(defmethod perform ((op test-op) (c (eql (find-system :yason))))
-  (oos 'test-op 'yason-tests))
-
-;;; A tester's job is never done!
-(defmethod operation-done-p ((op test-op) (c (eql (find-system :yason))))
-  nil)
-
 (defsystem :yason
   :name "YASON"
   :author "Hans Huebner <hans@huebner.org>"
@@ -35,15 +28,6 @@
     the Common Lisp application that uses it."
 
   :depends-on (:alexandria :trivial-gray-streams)
-  :in-order-to ((test-op (load-op :yason-test)))
   :components ((:file "package")
 	       (:file "encode" :depends-on ("package"))
-	       (:file "parse" :depends-on ("package"))
-               (:file "test")))
-
-(defsystem :yason-test
-  :name "yason-test"
-  :description "YASON tests"
-
-  :depends-on (:unit-test :yason :alexandria)
-  :components ((:file "test")))
+	       (:file "parse" :depends-on ("package"))))
