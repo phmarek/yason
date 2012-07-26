@@ -245,7 +245,7 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
       <clix:special-variable name="*parse-json-null-as-keyword*">
         <clix:description>
           If set to a true value, JSON null will be read as the
-          keyword :NULL, instead NIL.
+          keyword :NULL, instead of NIL.
           NIL is the default.
         </clix:description>
       </clix:special-variable>
