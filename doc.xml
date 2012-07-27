@@ -198,8 +198,8 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
         <clix:lambda-list>input &amp;key (object-key-fn
         *parse-object-as-key-fn*) (object-as *parse-object-as*)
         (json-arrays-as-vectors *parse-json-arrays-as-vectors*)
-        (json-booleans-as-symbols
-        *parse-json-booleans-as-symbols*)</clix:lambda-list>
+        (json-booleans-as-symbols *parse-json-booleans-as-symbols*)
+        (json-nulls-as-keyword *parse-json-null-as-keyword*)</clix:lambda-list>
         <clix:returns>object</clix:returns>
         <clix:description>
           Parse <clix:arg>input</clix:arg>, which must be a string or
@@ -208,8 +208,9 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
           <p>
             The keyword arguments <clix:arg>object-key-fn</clix:arg>,
             <clix:arg>object-as</clix:arg>,
-            <clix:arg>json-arrays-as-vectors</clix:arg> and
-            <clix:arg>json-booleans-as-symbols</clix:arg> can be used
+            <clix:arg>json-arrays-as-vectors</clix:arg>, 
+            <clix:arg>json-booleans-as-symbols</clix:arg>, and
+            <clix:arg>json-null-as-keyword</clix:arg> may be used
             to specify different values for the parsing parameters
             from the current bindings of the respective special
             variables.
@@ -237,6 +238,14 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
         <clix:description>
           If set to a true value, JSON booleans will be read as the
           symbols TRUE and FALSE instead of T and NIL, respectively.
+          NIL is the default.
+        </clix:description>
+      </clix:special-variable>
+
+      <clix:special-variable name="*parse-json-null-as-keyword*">
+        <clix:description>
+          If set to a true value, JSON null will be read as the
+          keyword :NULL, instead of NIL.
           NIL is the default.
         </clix:description>
       </clix:special-variable>

@@ -19,9 +19,11 @@
    #:*parse-object-as-alist* ; deprecated
    #:*parse-json-arrays-as-vectors*
    #:*parse-json-booleans-as-symbols*
+   #:*parse-json-null-as-keyword*
 
    #:true
    #:false
+   #:null
 
    ;; Basic encoder interface
    #:encode
