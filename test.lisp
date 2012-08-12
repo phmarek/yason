@@ -30,9 +30,11 @@
     (test-equal (rest *basic-test-json-dom*) (rest result))))
 
 (deftest :yason "dom-encoder.basic"
-  (test-equal *basic-test-json-string*
-              (with-output-to-string (s)
-                (json:encode *basic-test-json-dom* s))))
+  (let ((result (json:parse
+                 (with-output-to-string (s)
+                   (json:encode *basic-test-json-dom* s)))))
+    (test-equal (first *basic-test-json-dom*) (first result) :test #'equalp)
+    (test-equal (rest *basic-test-json-dom*) (rest result))))
 
 (defun whitespace-char-p (char)
   (member char '(#\space #\tab #\return #\newline #\linefeed)))
