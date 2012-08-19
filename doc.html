@@ -78,7 +78,7 @@
     <p>
       YASON has its permanent home at <a href="http://common-lisp.net/project/yason/">common-lisp.net</a>.
       It can be obtained by downloading the <a href="http://common-lisp.net/project/yason/files/yason.tar.gz">release
-      tarball</a>.  The current release is 0.4.0.
+      tarball</a>.  The current release is 0.5.0.
     </p>
     <p>
       You may also check out the current development version from its
@@ -229,8 +229,8 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
       <br><b>parse</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">input &amp;key (object-key-fn
         *parse-object-as-key-fn*) (object-as *parse-object-as*)
         (json-arrays-as-vectors *parse-json-arrays-as-vectors*)
-        (json-booleans-as-symbols
-        *parse-json-booleans-as-symbols*)</clix:lambda-list></i>
+        (json-booleans-as-symbols *parse-json-booleans-as-symbols*)
+        (json-nulls-as-keyword *parse-json-null-as-keyword*)</clix:lambda-list></i>
         =&gt;
         <i>object</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
           Parse <code><i>input</i></code>, which must be a string or
@@ -239,8 +239,9 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
           <p xmlns="http://www.w3.org/1999/xhtml">
             The keyword arguments <code xmlns=""><i>object-key-fn</i></code>,
             <code xmlns=""><i>object-as</i></code>,
-            <code xmlns=""><i>json-arrays-as-vectors</i></code> and
-            <code xmlns=""><i>json-booleans-as-symbols</i></code> can be used
+            <code xmlns=""><i>json-arrays-as-vectors</i></code>, 
+            <code xmlns=""><i>json-booleans-as-symbols</i></code>, and
+            <code xmlns=""><i>json-null-as-keyword</i></code> may be used
             to specify different values for the parsing parameters
             from the current bindings of the respective special
             variables.
@@ -268,6 +269,14 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
       <br><b>*parse-json-booleans-as-symbols*</b><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
           If set to a true value, JSON booleans will be read as the
           symbols TRUE and FALSE instead of T and NIL, respectively.
+          NIL is the default.
+        </clix:description></blockquote></p>
+
+      <p xmlns=""><a class="none" name="*parse-json-null-as-keyword*"></a>
+      [Special variable]
+      <br><b>*parse-json-null-as-keyword*</b><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+          If set to a true value, JSON null will be read as the
+          keyword :NULL, instead of NIL.
           NIL is the default.
         </clix:description></blockquote></p>
 
@@ -608,6 +617,9 @@ CL-USER&gt; (json:encode (list (make-user :name "horst" :age 27 :password "puppy
 </li>
 <li>
 <code><a href="#*parse-json-booleans-as-symbols*">*parse-json-booleans-as-symbols*</a></code><span class="entry-type">Special variable</span>
+</li>
+<li>
+<code><a href="#*parse-json-null-as-keyword*">*parse-json-null-as-keyword*</a></code><span class="entry-type">Special variable</span>
 </li>
 <li>
 <code><a href="#*parse-object-as*">*parse-object-as*</a></code><span class="entry-type">Special variable</span>
