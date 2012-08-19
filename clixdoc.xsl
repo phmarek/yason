@@ -46,7 +46,8 @@
         <title><xsl:value-of select="clix:title"/></title>
         <meta name="description"><xsl:attribute name="content"><xsl:value-of select="clix:short-description"/></xsl:attribute></meta>
         <style type="text/css">
-  body { background-color: #ffffff; max-width: 50em }
+  body { background-color: #ffffff; max-width: 50em; margin-left: 2em; }
+  blockquote { margin-left: 2em; margin-right: 2em; }
   pre { padding:5px; background-color:#e0e0e0 }
   pre.none { padding:5px; background-color:#ffffff }
   h3, h4, h5 { text-decoration: underline; }
@@ -353,9 +354,9 @@
   </xsl:template>
 
   <xsl:template match="clix:abstract">
+    <h3>Abstract</h3>
     <blockquote>
-      <h3>Abstract</h3>
-
+      <xsl:apply-templates/>
     </blockquote>
   </xsl:template>
 
