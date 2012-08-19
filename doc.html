@@ -5,11 +5,10 @@
     structures and for serializing Lisp data structures as JSON
     strings.
   "></meta><style type="text/css">
-  body { background-color: #ffffff }
+  body { background-color: #ffffff; max-width: 50em }
   pre { padding:5px; background-color:#e0e0e0 }
   pre.none { padding:5px; background-color:#ffffff }
   h3, h4, h5 { text-decoration: underline; }
-  .entry-type { padding-left: 1em; font-size: 60%; font-style: italic }
   a { text-decoration: none; padding: 1px 2px 1px 2px; }
   a:visited { text-decoration: none; padding: 1px 2px 1px 2px; }
   a:hover { text-decoration: none; padding: 1px 1px 1px 1px; border: 1px solid #000000; } 
@@ -24,19 +23,14 @@
   a.noborder:focus { text-decoration: none; border: none; padding: 0; }  
         </style></head><body>
 
-  
+  <h1 xmlns="">YASON - A JSON encoder/decoder for Common Lisp</h1>
 
   
 
-  <clix:abstract xmlns:clix="http://bknr.net/clixdoc">
-    YASON is a Common Lisp library for encoding and decoding data in
-    the <a href="http://json.org/">JSON</a> interchange format.  JSON
-    is used as a lightweight alternative to XML.  YASON has the sole
-    purpose of encoding and decoding data and does not impose any
-    object model on the Common Lisp application that uses it.
-  </clix:abstract>
+  <blockquote xmlns=""><h3>Abstract</h3></blockquote>
 
-  <ol xmlns="">
+  <h3 xmlns="">Contents</h3>
+<ol xmlns="">
 <li><a href="#intro">Introduction</a></li>
 <li><a href="#install">Download and Installation</a></li>
 <li><a href="#mapping">Mapping between JSON and CL datatypes</a></li>
@@ -224,15 +218,13 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
     </p>
 
     <h4 xmlns=""><a name="parser-dict">Parser dictionary</a></h4>
-      <p xmlns=""><a class="none" name="parse"></a>
-      [Function]
-      <br><b>parse</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">input &amp;key (object-key-fn
+      <p xmlns="">[Function]<br><a class="none" name="parse"><b>parse</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">input &amp;key (object-key-fn
         *parse-object-as-key-fn*) (object-as *parse-object-as*)
         (json-arrays-as-vectors *parse-json-arrays-as-vectors*)
         (json-booleans-as-symbols *parse-json-booleans-as-symbols*)
         (json-nulls-as-keyword *parse-json-null-as-keyword*)</clix:lambda-list></i>
-        =&gt;
-        <i>object</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+          =&gt;
+          <i>object</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
           Parse <code><i>input</i></code>, which must be a string or
           a stream, as JSON.  Returns the Lisp representation of the
           JSON structure parsed.
@@ -248,41 +240,36 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
           </p>
         </clix:description></blockquote></p>
 
-      <p xmlns=""><a class="none" name="*parse-json-arrays-as-vectors*"></a>
-      [Special variable]
-      <br><b>*parse-json-arrays-as-vectors*</b><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+      <p xmlns="">
+      [Special variable]<br><a class="none" name="*parse-json-arrays-as-vectors*"><b>*parse-json-arrays-as-vectors*</b></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
           If set to a true value, JSON arrays will be parsed as
           vectors, not as lists. NIL is the default.
         </clix:description></blockquote></p>
 
-      <p xmlns=""><a class="none" name="*parse-object-as*"></a>
-      [Special variable]
-      <br><b>*parse-object-as*</b><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+      <p xmlns="">
+      [Special variable]<br><a class="none" name="*parse-object-as*"><b>*parse-object-as*</b></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
           Can be set to <b xmlns="http://www.w3.org/1999/xhtml">:hash-table</b> to parse objects as hash
           tables, <b xmlns="http://www.w3.org/1999/xhtml">:alist</b> to parse them as alists or
           <b xmlns="http://www.w3.org/1999/xhtml">:plist</b> to parse them as plists.  <b xmlns="http://www.w3.org/1999/xhtml">:hash-table</b>
           is the default.
         </clix:description></blockquote></p>
 
-      <p xmlns=""><a class="none" name="*parse-json-booleans-as-symbols*"></a>
-      [Special variable]
-      <br><b>*parse-json-booleans-as-symbols*</b><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+      <p xmlns="">
+      [Special variable]<br><a class="none" name="*parse-json-booleans-as-symbols*"><b>*parse-json-booleans-as-symbols*</b></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
           If set to a true value, JSON booleans will be read as the
           symbols TRUE and FALSE instead of T and NIL, respectively.
           NIL is the default.
         </clix:description></blockquote></p>
 
-      <p xmlns=""><a class="none" name="*parse-json-null-as-keyword*"></a>
-      [Special variable]
-      <br><b>*parse-json-null-as-keyword*</b><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+      <p xmlns="">
+      [Special variable]<br><a class="none" name="*parse-json-null-as-keyword*"><b>*parse-json-null-as-keyword*</b></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
           If set to a true value, JSON null will be read as the
           keyword :NULL, instead of NIL.
           NIL is the default.
         </clix:description></blockquote></p>
 
-      <p xmlns=""><a class="none" name="*parse-object-key-fn*"></a>
-      [Special variable]
-      <br><b>*parse-object-key-fn*</b><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+      <p xmlns="">
+      [Special variable]<br><a class="none" name="*parse-object-key-fn*"><b>*parse-object-key-fn*</b></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
           Function to call to convert a key string in a JSON array to
           a key in the CL hash produced. IDENTITY is the default.
         </clix:description></blockquote></p>
@@ -333,43 +320,35 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
 (#&lt;HASH-TABLE :TEST EQUAL :COUNT 2 {59942D21}&gt; 2 3 4 (5 6 7) T NIL)</pre>
 
       <h4 xmlns=""><a name="dom-encoder-dict">DOM encoder dictionary</a></h4>
-        <p xmlns=""><a class="none" name="encode"></a>
-      [Generic function]
-      <br><b>encode</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object &amp;optional
+        <p xmlns="">[Generic function]<br><a class="none" name="encode"><b>encode</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object &amp;optional
           stream</clix:lambda-list></i>
-        =&gt;
-        <i>object</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+          =&gt;
+          <i>object</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
             Encode <code><i>object</i></code> in JSON format and
             write to <code><i>stream</i></code>.  May be specialized
             by applications to perform specific rendering. Stream
             defaults to *STANDARD-OUTPUT*.
           </clix:description></blockquote></p>
 
-	<p xmlns=""><a class="none" name="encode-alist"></a>
-      [Function]
-      <br><b>encode-alist</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object &amp;optional (stream
+	<p xmlns="">[Function]<br><a class="none" name="encode-alist"><b>encode-alist</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object &amp;optional (stream
 	  *standard-output*)</clix:lambda-list></i>
-        =&gt;
-        <i>object</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+          =&gt;
+          <i>object</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
 	    Encodes <code><i>object</i></code>, an alist, in JSON
 	    format and write to <code><i>stream</i></code>.
 	  </clix:description></blockquote></p>
 
-	<p xmlns=""><a class="none" name="encode-plist"></a>
-      [Function]
-      <br><b>encode-plist</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object &amp;optional (stream
+	<p xmlns="">[Function]<br><a class="none" name="encode-plist"><b>encode-plist</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object &amp;optional (stream
 	  *standard-output*)</clix:lambda-list></i>
-        =&gt;
-        <i>object</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+          =&gt;
+          <i>object</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
 	    Encodes <code><i>object</i></code>, a plist, in JSON
 	    format and write to <code><i>stream</i></code>.
 	  </clix:description></blockquote></p>
 
-        <p xmlns=""><a class="none" name="make-json-output-stream"></a>
-      [Function]
-      <br><b>make-json-output-stream</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">stream &amp;key (indent t)</clix:lambda-list></i>
-        =&gt;
-        <i>stream</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+        <p xmlns="">[Function]<br><a class="none" name="make-json-output-stream"><b>make-json-output-stream</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">stream &amp;key (indent t)</clix:lambda-list></i>
+          =&gt;
+          <i>stream</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
             Creates a <code><a href="#json-output-stream">json-output-stream</a></code> instance
             that wraps the supplied <code><i>stream</i></code> and
             optionally performs indentation of the generated JSON
@@ -412,11 +391,9 @@ CL-USER&gt; (json:with-output (*standard-output*)
 NIL</pre>
 
       <h4 xmlns=""><a name="stream-encoder-dict">Streaming encoder dictionary</a></h4>
-        <p xmlns=""><a class="none" name="with-output"></a>
-      [Macro]
-      <br><b>with-output</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">(stream &amp;key indent) &amp;body body</clix:lambda-list></i>
-        =&gt;
-        <i>result*</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+        <p xmlns="">[Macro]<br><a class="none" name="with-output"><b>with-output</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">(stream &amp;key indent) &amp;body body</clix:lambda-list></i>
+          =&gt;
+          <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
             Set up a JSON streaming encoder context on
             <code><i>stream</i></code>, then evaluate
             <code><i>body</i></code>.  <code><i>indent</i></code>
@@ -426,11 +403,9 @@ NIL</pre>
             off.
           </clix:description></blockquote></p>
 
-        <p xmlns=""><a class="none" name="with-output-to-string*"></a>
-      [Macro]
-      <br><b>with-output-to-string*</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">(&amp;key indent) &amp;body body</clix:lambda-list></i>
-        =&gt;
-        <i>result*</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+        <p xmlns="">[Macro]<br><a class="none" name="with-output-to-string*"><b>with-output-to-string*</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">(&amp;key indent) &amp;body body</clix:lambda-list></i>
+          =&gt;
+          <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
             Set up a JSON streaming encoder context, then evaluate
             <code><i>body</i></code>.  Return a string with the
             generated JSON output.  See
@@ -438,20 +413,17 @@ NIL</pre>
             the <code><i>indent</i></code> keyword argument.
           </clix:description></blockquote></p>
 
-        <p xmlns=""><a class="none" name="no-json-output-context"></a>
-      [Condition type]
-      <br><b>no-json-output-context</b><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+        <p xmlns="">
+      [Condition type]<br><a class="none" name="no-json-output-context"><b>no-json-output-context</b></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
             This condition is signalled when one of the stream
             encoding functions is used outside the dynamic context of
             a <code><a href="#with-output">WITH-OUTPUT</a></code> or
             <code><a href="#with-output-to-string*">WITH-OUTPUT-TO-STRING*</a></code> body.
           </clix:description></blockquote></p>
 
-        <p xmlns=""><a class="none" name="with-array"></a>
-      [Macro]
-      <br><b>with-array</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">() &amp;body body</clix:lambda-list></i>
-        =&gt;
-        <i>result*</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+        <p xmlns="">[Macro]<br><a class="none" name="with-array"><b>with-array</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">() &amp;body body</clix:lambda-list></i>
+          =&gt;
+          <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
             Open a JSON array, then run <code><i>body</i></code>.
             Inside the body, <code><a href="#encode-array-element">ENCODE-ARRAY-ELEMENT</a></code>
             must be called to encode elements to the opened array.
@@ -460,11 +432,9 @@ NIL</pre>
             <code><a href="#with-output-to-string*">WITH-OUTPUT-TO-STRING*</a></code>).
           </clix:description></blockquote></p>
 
-        <p xmlns=""><a class="none" name="encode-array-element"></a>
-      [Function]
-      <br><b>encode-array-element</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object</clix:lambda-list></i>
-        =&gt;
-        <i>object</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+        <p xmlns="">[Function]<br><a class="none" name="encode-array-element"><b>encode-array-element</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object</clix:lambda-list></i>
+          =&gt;
+          <i>object</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
             Encode <code><i>object</i></code> as next array element to
             the last JSON array opened
             with <code><a href="#with-array">WITH-ARRAY</a></code> in the dynamic
@@ -474,11 +444,9 @@ NIL</pre>
             defined.
           </clix:description></blockquote></p>
 
-	<p xmlns=""><a class="none" name="encode-array-elements"></a>
-      [Function]
-      <br><b>encode-array-elements</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">&amp;rest objects</clix:lambda-list></i>
-        =&gt;
-        <i>result*</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+	<p xmlns="">[Function]<br><a class="none" name="encode-array-elements"><b>encode-array-elements</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">&amp;rest objects</clix:lambda-list></i>
+          =&gt;
+          <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
 	    Encode <code><i>objects</i></code>, a series of JSON
 	    encodable objects, as the next array elements in a JSON
 	    array opened with
@@ -490,11 +458,9 @@ NIL</pre>
 	    valid stream context.
 	  </clix:description></blockquote></p>
 
-        <p xmlns=""><a class="none" name="with-object"></a>
-      [Macro]
-      <br><b>with-object</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">() &amp;body body</clix:lambda-list></i>
-        =&gt;
-        <i>result*</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+        <p xmlns="">[Macro]<br><a class="none" name="with-object"><b>with-object</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">() &amp;body body</clix:lambda-list></i>
+          =&gt;
+          <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
             Open a JSON object, then run <code><i>body</i></code>.
             Inside the body,
             <code><a href="#encode-object-element">ENCODE-OBJECT-ELEMENT</a></code> or
@@ -505,11 +471,9 @@ NIL</pre>
             <code><a href="#with-output-to-string*">WITH-OUTPUT-TO-STRING*</a></code>.
           </clix:description></blockquote></p>
 
-        <p xmlns=""><a class="none" name="with-object-element"></a>
-      [Macro]
-      <br><b>with-object-element</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">(key) &amp;body body</clix:lambda-list></i>
-        =&gt;
-        <i>result*</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+        <p xmlns="">[Macro]<br><a class="none" name="with-object-element"><b>with-object-element</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">(key) &amp;body body</clix:lambda-list></i>
+          =&gt;
+          <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
             Open a new encoding context to encode a JSON object
             element.  <code><i>key</i></code> is the key of the
             element.  The value will be whatever
@@ -518,11 +482,9 @@ NIL</pre>
             This can be used to stream out nested object structures.
           </clix:description></blockquote></p>
 
-        <p xmlns=""><a class="none" name="encode-object-element"></a>
-      [Function]
-      <br><b>encode-object-element</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">key value</clix:lambda-list></i>
-        =&gt;
-        <i>value</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+        <p xmlns="">[Function]<br><a class="none" name="encode-object-element"><b>encode-object-element</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">key value</clix:lambda-list></i>
+          =&gt;
+          <i>value</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
             Encode <code><i>key</i></code> and
             <code><i>value</i></code> as object element to the last
             JSON object opened with <code><a href="#with-object">WITH-OBJECT</a></code>
@@ -533,11 +495,9 @@ NIL</pre>
             method is defined.
           </clix:description></blockquote></p>
 
-	<p xmlns=""><a class="none" name="encode-object-elements"></a>
-      [Function]
-      <br><b>encode-object-elements</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">&amp;rest elements</clix:lambda-list></i>
-        =&gt;
-        <i>result*</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+	<p xmlns="">[Function]<br><a class="none" name="encode-object-elements"><b>encode-object-elements</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">&amp;rest elements</clix:lambda-list></i>
+          =&gt;
+          <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
 	    Encodes the parameters into JSON in the last object opened
 	    with <code><a href="#with-object">WITH-OBJECT</a></code> using
 	    <code><a href="#encode-object-element">ENCODE-OBJECT-ELEMENT</a></code>. The parameters
@@ -545,30 +505,25 @@ NIL</pre>
 	    must be called within a valid stream context.
 	  </clix:description></blockquote></p>
 
-	<p xmlns=""><a class="none" name="encode-slots"></a>
-      [Generic function]
-      <br><b>encode-slots</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object</clix:lambda-list></i>
-        =&gt;
-        <i>result*</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+	<p xmlns="">[Generic function]<br><a class="none" name="encode-slots"><b>encode-slots</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object</clix:lambda-list></i>
+          =&gt;
+          <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
 	    Encodes all of the slots of <code><i>object</i></code>,
 	    presumably a CLOS object, to the current stream
 	    context. Must be defined for an object to use
 	    <code><a href="#encode-object">ENCODE-OBJECT</a></code> on that object.
 	  </clix:description></blockquote></p>
 
-	<p xmlns=""><a class="none" name="encode-object"></a>
-      [Generic function]
-      <br><b>encode-object</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object</clix:lambda-list></i>
-        =&gt;
-        <i>result*</i><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+	<p xmlns="">[Generic function]<br><a class="none" name="encode-object"><b>encode-object</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object</clix:lambda-list></i>
+          =&gt;
+          <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
 	    Encodes <code><i>object</i></code>, presumably a CLOS
 	    object, by invoking <code><a href="#encode-slots">ENCODE-SLOTS</a></code>, to
 	    the current stream context.
 	  </clix:description></blockquote></p>
 
-        <p xmlns=""><a class="none" name="json-output-stream"></a>
-      [Standard class]
-      <br><b>json-output-stream</b><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+        <p xmlns="">
+      [Standard class]<br><a class="none" name="json-output-stream"><b>json-output-stream</b></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
             Instances of this class are used to wrap an output stream
             that is used as a serialization target in the stream
             encoder and optionally in the DOM encoder if indentation
@@ -612,75 +567,29 @@ CL-USER&gt; (json:encode (list (make-user :name "horst" :age 27 :password "puppy
 
   <h3 xmlns=""><a class="none" name="index">Symbol index</a></h3>
     <ul xmlns="">
-<li>
-<code><a href="#*parse-json-arrays-as-vectors*">*parse-json-arrays-as-vectors*</a></code><span class="entry-type">Special variable</span>
-</li>
-<li>
-<code><a href="#*parse-json-booleans-as-symbols*">*parse-json-booleans-as-symbols*</a></code><span class="entry-type">Special variable</span>
-</li>
-<li>
-<code><a href="#*parse-json-null-as-keyword*">*parse-json-null-as-keyword*</a></code><span class="entry-type">Special variable</span>
-</li>
-<li>
-<code><a href="#*parse-object-as*">*parse-object-as*</a></code><span class="entry-type">Special variable</span>
-</li>
-<li>
-<code><a href="#*parse-object-key-fn*">*parse-object-key-fn*</a></code><span class="entry-type">Special variable</span>
-</li>
-<li>
-<code><a href="#encode">encode</a></code><span class="entry-type">Generic function</span>
-</li>
-<li>
-<code><a href="#encode-alist">encode-alist</a></code><span class="entry-type">Function</span>
-</li>
-<li>
-<code><a href="#encode-array-element">encode-array-element</a></code><span class="entry-type">Function</span>
-</li>
-<li>
-<code><a href="#encode-array-elements">encode-array-elements</a></code><span class="entry-type">Function</span>
-</li>
-<li>
-<code><a href="#encode-object">encode-object</a></code><span class="entry-type">Generic function</span>
-</li>
-<li>
-<code><a href="#encode-object-element">encode-object-element</a></code><span class="entry-type">Function</span>
-</li>
-<li>
-<code><a href="#encode-object-elements">encode-object-elements</a></code><span class="entry-type">Function</span>
-</li>
-<li>
-<code><a href="#encode-plist">encode-plist</a></code><span class="entry-type">Function</span>
-</li>
-<li>
-<code><a href="#encode-slots">encode-slots</a></code><span class="entry-type">Generic function</span>
-</li>
-<li>
-<code><a href="#json-output-stream">json-output-stream</a></code><span class="entry-type">Standard class</span>
-</li>
-<li>
-<code><a href="#make-json-output-stream">make-json-output-stream</a></code><span class="entry-type">Function</span>
-</li>
-<li>
-<code><a href="#no-json-output-context">no-json-output-context</a></code><span class="entry-type">Condition type</span>
-</li>
-<li>
-<code><a href="#parse">parse</a></code><span class="entry-type">Function</span>
-</li>
-<li>
-<code><a href="#with-array">with-array</a></code><span class="entry-type">Macro</span>
-</li>
-<li>
-<code><a href="#with-object">with-object</a></code><span class="entry-type">Macro</span>
-</li>
-<li>
-<code><a href="#with-object-element">with-object-element</a></code><span class="entry-type">Macro</span>
-</li>
-<li>
-<code><a href="#with-output">with-output</a></code><span class="entry-type">Macro</span>
-</li>
-<li>
-<code><a href="#with-output-to-string*">with-output-to-string*</a></code><span class="entry-type">Macro</span>
-</li>
+<li><code><a href="#*parse-json-arrays-as-vectors*">*parse-json-arrays-as-vectors*</a></code></li>
+<li><code><a href="#*parse-json-booleans-as-symbols*">*parse-json-booleans-as-symbols*</a></code></li>
+<li><code><a href="#*parse-json-null-as-keyword*">*parse-json-null-as-keyword*</a></code></li>
+<li><code><a href="#*parse-object-as*">*parse-object-as*</a></code></li>
+<li><code><a href="#*parse-object-key-fn*">*parse-object-key-fn*</a></code></li>
+<li><code><a href="#encode">encode</a></code></li>
+<li><code><a href="#encode-alist">encode-alist</a></code></li>
+<li><code><a href="#encode-array-element">encode-array-element</a></code></li>
+<li><code><a href="#encode-array-elements">encode-array-elements</a></code></li>
+<li><code><a href="#encode-object">encode-object</a></code></li>
+<li><code><a href="#encode-object-element">encode-object-element</a></code></li>
+<li><code><a href="#encode-object-elements">encode-object-elements</a></code></li>
+<li><code><a href="#encode-plist">encode-plist</a></code></li>
+<li><code><a href="#encode-slots">encode-slots</a></code></li>
+<li><code><a href="#json-output-stream">json-output-stream</a></code></li>
+<li><code><a href="#make-json-output-stream">make-json-output-stream</a></code></li>
+<li><code><a href="#no-json-output-context">no-json-output-context</a></code></li>
+<li><code><a href="#parse">parse</a></code></li>
+<li><code><a href="#with-array">with-array</a></code></li>
+<li><code><a href="#with-object">with-object</a></code></li>
+<li><code><a href="#with-object-element">with-object-element</a></code></li>
+<li><code><a href="#with-output">with-output</a></code></li>
+<li><code><a href="#with-output-to-string*">with-output-to-string*</a></code></li>
 </ul>
   
 
