@@ -47,8 +47,8 @@
       YASON has its permanent home at <a
       href="http://common-lisp.net/project/yason/">common-lisp.net</a>.
       It can be obtained by downloading the <a
-      href="http://common-lisp.net/project/yason/files/yason.tar.gz">release
-      tarball</a>.  The current release is 0.5.1.
+      href="https://github.com/downloads/hanshuebner/yason/yason.tar.gz">release
+      tarball</a>.  The current release is 0.5.2.
     </p>
     <p>
       You may also check out the current development version from its
