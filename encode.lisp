@@ -105,22 +105,22 @@
         (encode value stream)))
     object))
 
-(defun encode-symbol/value (symbol value stream)
-  (let ((string (symbol-name symbol)))
+(defun encode-assoc-key/value (key value stream)
+  (let ((string (string key)))
     (encode-key/value string value stream)))
 
 (defun encode-alist (object &optional (stream *standard-output*))
   (with-aggregate/object (stream #\{ #\})
     (loop for (key . value) in object
           do (with-element-output ()
-               (encode-symbol/value key value stream)))
+               (encode-assoc-key/value key value stream)))
     object))
 
 (defun encode-plist (object &optional (stream *standard-output*))
   (with-aggregate/object (stream #\{ #\})
     (loop for (key value) on object by #'cddr
           do (with-element-output ()
-               (encode-symbol/value key value stream)))
+               (encode-assoc-key/value key value stream)))
     object))
 
 (defmethod encode ((object (eql 'true)) &optional (stream *standard-output*))
