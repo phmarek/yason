@@ -9,8 +9,6 @@
 
   (:use :cl)
 
-  (:nicknames :json)
-
   (:export
    ;; Parser
    #:parse
