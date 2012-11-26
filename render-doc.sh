@@ -2,4 +2,4 @@
 
 xmllint --noout doc.xml
 [ -f clixdoc.xsl ] || wget -q https://raw.github.com/hanshuebner/clixdoc/master/clixdoc.xsl
-xsltproc -o doc.html clixdoc.xsl doc.xml 
+xsltproc --stringparam current-release `perl -ne 'if (/^ *:version +"(.*)"/) { print "$1\n" }' yason.asd` -o doc.html clixdoc.xsl doc.xml 
