@@ -73,6 +73,25 @@
     </p>
   </clix:chapter>
 
+  <clix:chapter name="json-package" title="Using JSON as package name">
+    Versions of YASON preceding the v0.6.0 release provided a package
+    nickname "JSON" for the "YASON" package.  This made it impossible
+    to load both YASON and CL-JSON into the same image, because
+    CL-JSON uses the "JSON" package name as well.
+
+    <p>
+      As CL-JSON's use of "JSON" as package name has a much longer
+      history and loading of both CL-JSON and YASON into the same
+      image has become more common, the "JSON" nickname was removed
+      from the YASON package with the v0.6.0 release.  Users will need
+      to change their applications so that the "JSON" nickname is no
+      longer used to refer to the "YASON" package.  It is understood
+      that this is a disruptive change, but as there is no
+      all-encompassing workaround, this step was felt to be the right
+      one to make
+    </p>
+  </clix:chapter>
+
   <clix:chapter name="mapping" title="Mapping between JSON and CL datatypes">
     By default, YASON performs the following mappings between JSON and
     CL datatypes:

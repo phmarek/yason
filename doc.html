@@ -41,6 +41,7 @@
 <ol xmlns="">
 <li><a href="#intro">Introduction</a></li>
 <li><a href="#install">Download and Installation</a></li>
+<li><a href="#json-package">Using JSON as package name</a></li>
 <li><a href="#mapping">Mapping between JSON and CL datatypes</a></li>
 <li>
 <a href="#parsing">Parsing JSON data</a><ol><li><a href="#parser-dict">Parser dictionary</a></li></ol>
@@ -102,6 +103,25 @@
       access YASON's symbols.  For that reason, YASON's symbols do not
       contain the string "JSON" themselves.  See below for usage
       samples.
+    </p>
+  
+
+  <h3 xmlns=""><a class="none" name="json-package">Using JSON as package name</a></h3>
+    Versions of YASON preceding the v0.6.0 release provided a package
+    nickname "JSON" for the "YASON" package.  This made it impossible
+    to load both YASON and CL-JSON into the same image, because
+    CL-JSON uses the "JSON" package name as well.
+
+    <p>
+      As CL-JSON's use of "JSON" as package name has a much longer
+      history and loading of both CL-JSON and YASON into the same
+      image has become more common, the "JSON" nickname was removed
+      from the YASON package with the v0.6.0 release.  Users will need
+      to change their applications so that the "JSON" nickname is no
+      longer used to refer to the "YASON" package.  It is understood
+      that this is a disruptive change, but as there is no
+      all-encompassing workaround, this step was felt to be the right
+      one to make
     </p>
   
 
