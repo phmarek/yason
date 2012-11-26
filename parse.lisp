@@ -105,7 +105,7 @@
       (find (peek-char nil input nil)
             `(("true" ,(if *parse-json-booleans-as-symbols* 'true t))
               ("false" ,(if *parse-json-booleans-as-symbols* 'false nil))
-              ("null"  ,(if *parse-json-null-as-keyword* :null nil)))
+              ("null"  ,(if *parse-json-null-as-keyword* 'null nil)))
             :key (lambda (entry) (aref (car entry) 0))
             :test #'eql)
     (loop
