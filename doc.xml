@@ -163,7 +163,7 @@
 
     <pre>CL-USER> (defvar *json-string* "[{\"foo\":1,\"bar\":[7,8,9]},2,3,4,[5,6,7],true,null]")
 *JSON-STRING*
-CL-USER&gt; (let* ((result (json:parse *json-string*)))
+CL-USER&gt; (let* ((result (yason:parse *json-string*)))
            (print result)
            (alexandria:hash-table-plist (first result)))
 
@@ -175,10 +175,10 @@ CL-USER&gt; (defun maybe-convert-to-keyword (js-name)
 MAYBE-CONVERT-TO-KEYWORD
 CL-USER&gt; :FOO ; intern the :FOO keyword
 :FOO
-CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
-                (json:*parse-json-booleans-as-symbols* t)
-                (json:*parse-object-key-fn* #'maybe-convert-to-keyword)
-                (result (json:parse *json-string*)))
+CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
+                (yason:*parse-json-booleans-as-symbols* t)
+                (yason:*parse-object-key-fn* #'maybe-convert-to-keyword)
+                (result (yason:parse *json-string*)))
            (print result)
            (alexandria:hash-table-plist (aref result 0)))
 
@@ -291,7 +291,7 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
         define additional methods (e.g. for encoding CLOS objects).
       </p>
       For example:
-      <pre>CL-USER&gt; (json:encode 
+      <pre>CL-USER&gt; (yason:encode 
           (list (alexandria:plist-hash-table
                  '("foo" 1 "bar" (7 8 9))
                  :test #'equal)
@@ -365,19 +365,19 @@ CL-USER&gt; (let* ((json:*parse-json-arrays-as-vectors* t)
         example).
       </p>
       For example:
-      <pre>CL-USER&gt; (json:with-output (*standard-output*)
-           (json:with-array ()
+      <pre>CL-USER&gt; (yason:with-output (*standard-output*)
+           (yason:with-array ()
              (dotimes (i 3)
-               (json:encode-array-element i))))
+               (yason:encode-array-element i))))
 [0,1,2]
 NIL
-CL-USER&gt; (json:with-output (*standard-output*)
-           (json:with-object ()
-             (json:encode-object-element "hello" "hu hu")
-             (json:with-object-element ("harr")
-               (json:with-array ()
+CL-USER&gt; (yason:with-output (*standard-output*)
+           (yason:with-object ()
+             (yason:encode-object-element "hello" "hu hu")
+             (yason:with-object-element ("harr")
+               (yason:with-array ()
                  (dotimes (i 3)
-                   (json:encode-array-element i))))))
+                   (yason:encode-array-element i))))))
 {"hello":"hu hu","harr":[0,1,2]}
 NIL</pre>
 
@@ -560,13 +560,13 @@ NIL</pre>
 
       <pre>CL-USER&gt; (defstruct user name age password)
 USER
-CL-USER&gt; (defmethod json:encode ((user user) &amp;optional (stream *standard-output*))
-           (json:with-output (stream)
-             (json:with-object ()
-               (json:encode-object-element "name" (user-name user))
-               (json:encode-object-element "age" (user-age user)))))
+CL-USER&gt; (defmethod yason:encode ((user user) &amp;optional (stream *standard-output*))
+           (yason:with-output (stream)
+             (yason:with-object ()
+               (yason:encode-object-element "name" (user-name user))
+               (yason:encode-object-element "age" (user-age user)))))
 #&lt;STANDARD-METHOD YASON:ENCODE (USER) {5B40A591}&gt;
-CL-USER&gt; (json:encode (list (make-user :name "horst" :age 27 :password "puppy")
+CL-USER&gt; (yason:encode (list (make-user :name "horst" :age 27 :password "puppy")
                             (make-user :name "uschi" :age 28 :password "kitten")))
 [{"name":"horst","age":27},{"name":"uschi","age":28}]
 (#S(USER :NAME "horst" :AGE 27 :PASSWORD "puppy")

@@ -308,4 +308,4 @@ type for which an ENCODE method is defined."
    the ENCODE-SLOTS method as appropriate.")
   (:method (object)
     (with-object ()
-      (json:encode-slots object))))
+      (yason:encode-slots object))))
