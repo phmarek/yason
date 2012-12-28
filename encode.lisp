@@ -160,6 +160,8 @@
   (when (eq indent t)
     (setf (indent% stream) *default-indent-width*)))
 
+(defgeneric make-json-output-stream (stream &key indent))
+
 (defmethod make-json-output-stream (stream &key (indent t))
   "Create a JSON output stream with indentation enabled."
   (if indent
