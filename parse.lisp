@@ -138,6 +138,13 @@
      (setf (gethash key to) value)
      to)))
 
+(define-condition expected-colon (error)
+  ((key-string :initarg :key-string
+               :reader key-string))
+  (:report (lambda (c stream)
+             (format stream "expected colon to follow key ~S used in JSON object"
+                     (key-string c)))))
+
 (defun parse-object (input)
   (let ((return-value (create-container)))
     (read-char input)
@@ -148,14 +155,14 @@
        (skip-whitespace input)
        (setf return-value
              (add-attribute return-value
-                            (prog1
-                                (let ((key-string (parse-string input)))
+                            (let ((key-string (parse-string input)))
+                              (prog1
                                   (or (funcall *parse-object-key-fn* key-string)
-                                      (error 'cannot-convert-key :key-string key-string)))
-                              (skip-whitespace input)
-                              (unless (eql #\: (read-char input))
-                                (error 'expected-colon))
-                              (skip-whitespace input))
+                                      (error 'cannot-convert-key :key-string key-string))
+                                (skip-whitespace input)
+                                (unless (eql #\: (read-char input))
+                                  (error 'expected-colon :key-string key-string))
+                                (skip-whitespace input)))
                             (parse input)))
        (ecase (peek-char-skipping-whitespace input)
          (#\, (read-char input))
