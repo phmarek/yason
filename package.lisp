@@ -42,4 +42,13 @@
    #:with-object
    #:encode-object-element
    #:encode-object-elements
-   #:with-object-element))
+   #:with-object-element
+
+   ;; Errors
+   #:yason-error
+   #:yason-parse-error
+   #:encode-error
+   #:invalid-constant-error
+   #:invalid-key-error
+   #:colon-expected-error
+   #:output-context-error))

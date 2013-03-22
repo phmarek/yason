@@ -213,18 +213,11 @@ Return a string with the generated JSON output."
      (with-output (s ,@args)
        ,@body)))
 
-(define-condition no-json-output-context (error)
-  ()
-  (:report "No JSON output context is active")
-  (:documentation "This condition is signalled when one of the stream
-  encoding function is used outside the dynamic context of a
-  WITH-OUTPUT or WITH-OUTPUT-TO-STRING* body."))
-
 (defmacro with-aggregate/stream ((begin-char end-char) &body body)
   "Set up context for aggregate serialization for the stream encoder."
   `(progn
      (unless (boundp '*json-output*)
-       (error 'no-json-output-context))
+       (error 'output-context-error))
      (when (stack *json-output*)
        (next-aggregate-element))
      (write-indentation *json-output*)

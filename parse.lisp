@@ -111,15 +111,8 @@
     (loop
        for char across expected-string
        unless (eql (read-char input nil) char)
-       do (error "invalid constant"))
+       do (error 'invalid-constant-error))
     return-value))
-
-(define-condition cannot-convert-key (error)
-  ((key-string :initarg :key-string
-               :reader key-string))
-  (:report (lambda (c stream)
-             (format stream "cannot convert key ~S used in JSON object to hash table key"
-                     (key-string c)))))
 
 (defun create-container ()
   (ecase *parse-object-as*
@@ -138,13 +131,6 @@
      (setf (gethash key to) value)
      to)))
 
-(define-condition expected-colon (error)
-  ((key-string :initarg :key-string
-               :reader key-string))
-  (:report (lambda (c stream)
-             (format stream "expected colon to follow key ~S used in JSON object"
-                     (key-string c)))))
-
 (defun parse-object (input)
   (let ((return-value (create-container)))
     (read-char input)
@@ -158,10 +144,10 @@
                             (let ((key-string (parse-string input)))
                               (prog1
                                   (or (funcall *parse-object-key-fn* key-string)
-                                      (error 'cannot-convert-key :key-string key-string))
+                                      (error 'invalid-key-error :key-string key-string))
                                 (skip-whitespace input)
                                 (unless (eql #\: (read-char input))
-                                  (error 'expected-colon :key-string key-string))
+                                  (error 'colon-expected-error :key-string key-string))
                                 (skip-whitespace input)))
                             (parse input)))
        (ecase (peek-char-skipping-whitespace input)
