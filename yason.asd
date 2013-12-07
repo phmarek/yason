@@ -17,7 +17,7 @@
 (defsystem :yason
   :name "YASON"
   :author "Hans Huebner <hans@huebner.org>"
-  :version "0.6.3"
+  :version "0.6.4"
   :maintainer "Hans Huebner <hans@huebner.org>"
   :licence "BSD"
   :description "JSON parser/encoder"
