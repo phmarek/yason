@@ -81,7 +81,7 @@
     <p>
       YASON has its permanent home at <a href="http://common-lisp.net/project/yason/">common-lisp.net</a>.
       It can be obtained by downloading the <a href="https://github.com/downloads/hanshuebner/yason/yason.tar.gz">release
-      tarball</a>.  The current release is 0.6.4.
+      tarball</a>.  The current release is 0.6.5.
     </p>
     <p>
       You may also check out the current development version from its
@@ -97,11 +97,12 @@
       library management system.
     </p>
     <p>
-      YASON lives in the "YASON" package.  Applications will not
-      normally <b>:USE</b> this package, but rather use qualified
-      names to access YASON's symbols.  For that reason, YASON's
-      symbols do not contain the string "JSON" themselves.  See below
-      for usage samples.
+      YASON lives in the <b>:yason</b> package and creates a package
+      nickname <b>:json</b>.  Applications will not normally
+      <b>:use</b> this package, but rather use qualified names to
+      access YASON's symbols.  For that reason, YASON's symbols do not
+      contain the string "JSON" themselves.  See below for usage
+      samples.
     </p>
   
 
