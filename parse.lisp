@@ -47,6 +47,30 @@
        do (vector-push-extend (read-char input) buffer))
     (values (read-from-string buffer))))
 
+(defun parse-unicode-escape (input)
+  (let ((char-code
+    (let ((buffer (make-string 4)))
+      (read-sequence buffer input)
+      (parse-integer buffer :radix 16))))
+    (if (and
+    (>= char-code #xd800)
+    (<= char-code #xdbff))
+   (let ((buffer (make-string 6)))
+     (read-sequence buffer input)
+     (when (not (and (char= (char buffer 0) #\\)
+             (char= (char buffer 1) #\u)))
+       (error "Lead Surrogate without Tail Surrogate"))
+     (let ((tail-code (parse-integer buffer :radix 16 :start 2)))
+       (when (not (and (>= tail-code #xdc00)
+               (<= tail-code #xdfff)))
+       (error "Lead Surrogate without Tail Surrogate"))
+       (code-char
+        (+ #x010000
+       (ash (- char-code #xd800) 10)
+       (- tail-code #xdc00)))))
+   (code-char char-code))))
+
+
 (defun parse-string (input)
   (let ((output (make-adjustable-string)))
     (labels ((outc (c)
@@ -77,9 +101,9 @@
              (#\n (outc #\Newline))
              (#\r (outc #\Return))
              (#\t (outc #\Tab))
-             (#\u (outc (code-char (let ((buffer (make-string 4)))
-                                     (read-sequence buffer input)
-                                     (parse-integer buffer :radix 16)))))))
+             (#\u (outc
+          (parse-unicode-escape input)
+          ))))
          ((and (or (whitespace-p (peek)) 
                    (eql (peek) #\:)) 
                (not string-quoted)) 
