@@ -42,34 +42,28 @@
   ;; (cl-ppcre:scan-to-strings "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+|)(?:[eE][-+]?[0-9]+|)" buffer)
   ;; but we want to operate on streams
   (let ((buffer (make-adjustable-string)))
-    (loop
-       while (position (peek-char nil input nil) ".0123456789+-Ee")
-       do (vector-push-extend (read-char input) buffer))
+    (loop while (position (peek-char nil input nil) ".0123456789+-Ee")
+          do (vector-push-extend (read-char input) buffer))
     (values (read-from-string buffer))))
 
 (defun parse-unicode-escape (input)
-  (let ((char-code
-    (let ((buffer (make-string 4)))
-      (read-sequence buffer input)
-      (parse-integer buffer :radix 16))))
-    (if (and
-    (>= char-code #xd800)
-    (<= char-code #xdbff))
-   (let ((buffer (make-string 6)))
-     (read-sequence buffer input)
-     (when (not (and (char= (char buffer 0) #\\)
-             (char= (char buffer 1) #\u)))
-       (error "Lead Surrogate without Tail Surrogate"))
-     (let ((tail-code (parse-integer buffer :radix 16 :start 2)))
-       (when (not (and (>= tail-code #xdc00)
-               (<= tail-code #xdfff)))
-       (error "Lead Surrogate without Tail Surrogate"))
-       (code-char
-        (+ #x010000
-       (ash (- char-code #xd800) 10)
-       (- tail-code #xdc00)))))
-   (code-char char-code))))
-
+  (let ((char-code (let ((buffer (make-string 4)))
+                     (read-sequence buffer input)
+                     (parse-integer buffer :radix 16))))
+    (if (and (>= char-code #xd800)
+             (<= char-code #xdbff))
+        (let ((buffer (make-string 6)))
+          (read-sequence buffer input)
+          (when (not (string= buffer "\\u" :end1 2))
+            (error "Lead Surrogate without Tail Surrogate"))
+          (let ((tail-code (parse-integer buffer :radix 16 :start 2)))
+            (when (not (and (>= tail-code #xdc00)
+                            (<= tail-code #xdfff)))
+              (error "Lead Surrogate without Tail Surrogate"))
+            (code-char (+ #x010000
+                          (ash (- char-code #xd800) 10)
+                          (- tail-code #xdc00)))))
+        (code-char char-code))))
 
 (defun parse-string (input)
   (let ((output (make-adjustable-string)))
@@ -79,46 +73,41 @@
                (read-char input))
              (peek ()
                (peek-char nil input)))
-      (let*
-       (
-        (starting-symbol (next))
-        (string-quoted (equal starting-symbol #\"))
-        )
-       (unless string-quoted (outc starting-symbol))
-       (loop
-        (cond
-         ((eql (peek) #\")
-          (next)
-          (return-from parse-string output))
-         ((eql (peek) #\\)
-          (next)
-          (ecase (next)
-             (#\" (outc #\"))
-             (#\\ (outc #\\))
-             (#\/ (outc #\/))
-             (#\b (outc #\Backspace))
-             (#\f (outc #\Page))
-             (#\n (outc #\Newline))
-             (#\r (outc #\Return))
-             (#\t (outc #\Tab))
-             (#\u (outc
-          (parse-unicode-escape input)
-          ))))
-         ((and (or (whitespace-p (peek)) 
-                   (eql (peek) #\:)) 
-               (not string-quoted)) 
-          (return-from parse-string output))
-         (t
-          (outc (next)))))))))
+      (let* ((starting-symbol (next))
+             (string-quoted (equal starting-symbol #\")))
+        (unless string-quoted
+          (outc starting-symbol))
+        (loop
+          (cond
+            ((eql (peek) #\")
+             (next)
+             (return-from parse-string output))
+            ((eql (peek) #\\)
+             (next)
+             (ecase (next)
+               (#\" (outc #\"))
+               (#\\ (outc #\\))
+               (#\/ (outc #\/))
+               (#\b (outc #\Backspace))
+               (#\f (outc #\Page))
+               (#\n (outc #\Newline))
+               (#\r (outc #\Return))
+               (#\t (outc #\Tab))
+               (#\u (outc (parse-unicode-escape input)))))
+            ((and (or (whitespace-p (peek)) 
+                      (eql (peek) #\:)) 
+                  (not string-quoted)) 
+             (return-from parse-string output))
+            (t
+             (outc (next)))))))))
 
 (defun whitespace-p (char)
   (member char '(#\Space #\Newline #\Tab #\Linefeed #\Return)))
 
 (defun skip-whitespace (input)
-  (loop
-     while (and (listen input)
-                (whitespace-p (peek-char nil input)))
-     do (read-char input)))
+  (loop while (and (listen input)
+                   (whitespace-p (peek-char nil input)))
+        do (read-char input)))
 
 (defun peek-char-skipping-whitespace (input &optional (eof-error-p t))
   (skip-whitespace input)
@@ -132,10 +121,9 @@
               ("null"  ,(if *parse-json-null-as-keyword* :null nil)))
             :key (lambda (entry) (aref (car entry) 0))
             :test #'eql)
-    (loop
-       for char across expected-string
-       unless (eql (read-char input nil) char)
-       do (error "invalid constant"))
+    (loop for char across expected-string
+          unless (eql (read-char input nil) char)
+            do (error "invalid constant"))
     return-value))
 
 (define-condition cannot-convert-key (error)
@@ -173,24 +161,24 @@
   (let ((return-value (create-container)))
     (read-char input)
     (loop
-       (when (eql (peek-char-skipping-whitespace input)
-                  #\})
-         (return))
-       (skip-whitespace input)
-       (setf return-value
-             (add-attribute return-value
-                            (let ((key-string (parse-string input)))
-                              (prog1
-                                  (or (funcall *parse-object-key-fn* key-string)
-                                      (error 'cannot-convert-key :key-string key-string))
-                                (skip-whitespace input)
-                                (unless (eql #\: (read-char input))
-                                  (error 'expected-colon :key-string key-string))
-                                (skip-whitespace input)))
-                            (parse input)))
-       (ecase (peek-char-skipping-whitespace input)
-         (#\, (read-char input))
-         (#\} nil)))
+      (when (eql (peek-char-skipping-whitespace input)
+                 #\})
+        (return))
+      (skip-whitespace input)
+      (setf return-value
+            (add-attribute return-value
+                           (let ((key-string (parse-string input)))
+                             (prog1
+                                 (or (funcall *parse-object-key-fn* key-string)
+                                     (error 'cannot-convert-key :key-string key-string))
+                               (skip-whitespace input)
+                               (unless (eql #\: (read-char input))
+                                 (error 'expected-colon :key-string key-string))
+                               (skip-whitespace input)))
+                           (parse input)))
+      (ecase (peek-char-skipping-whitespace input)
+        (#\, (read-char input))
+        (#\} nil)))
     (read-char input)
     return-value))
 
@@ -201,13 +189,13 @@
   "Parse JSON array from input, calling ADD-ELEMENT-FUNCTION for each array element parsed."
   (read-char input)
   (loop
-     (when (eql (peek-char-skipping-whitespace input)
-                #\])
-       (return))
-     (funcall add-element-function (parse input))
-     (ecase (peek-char-skipping-whitespace input)
-       (#\, (read-char input))
-       (#\] nil)))
+    (when (eql (peek-char-skipping-whitespace input)
+               #\])
+      (return))
+    (funcall add-element-function (parse input))
+    (ecase (peek-char-skipping-whitespace input)
+      (#\, (read-char input))
+      (#\] nil)))
   (read-char input))
 
 (defun parse-array (input)
@@ -239,7 +227,6 @@
          (parse-string input))
         ((#\- #\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
          (parse-number input))
-
         (#\{
          (parse-object input))
         (#\[
@@ -247,8 +234,8 @@
         ((#\t #\f #\n)
          (parse-constant input)))))
   (:method ((input pathname))
-   (with-open-file (stream input)
-     (parse stream)))
+    (with-open-file (stream input)
+      (parse stream)))
   (:method ((input string))
     (parse (make-string-input-stream input))))
 
