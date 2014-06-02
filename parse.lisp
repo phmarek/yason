@@ -139,8 +139,8 @@
      nil)
     (:hash-table
      (make-hash-table :test #'equal))
-	(otherwise
-	 (make-instance *parse-object-as*))))
+    (otherwise
+     (make-instance *parse-object-as*))))
 
 (defun add-attribute (to key value)
   (case *parse-object-as*
@@ -151,12 +151,12 @@
     (:hash-table
      (setf (gethash key to) value)
      to)
-	(otherwise
-	 (let* ((package (symbol-package (class-name (class-of to))))
-			(symbol-key (find-symbol (string-upcase key) package)))
-	   (when (slot-exists-p to symbol-key)
-		 (setf (slot-value to symbol-key) value))
-	   to))))
+    (otherwise
+     (let* ((package (symbol-package (class-name (class-of to))))
+            (symbol-key (find-symbol (string-upcase key) package)))
+       (when (slot-exists-p to symbol-key)
+         (setf (slot-value to symbol-key) value))
+       to))))
 
 (define-condition expected-colon (error)
   ((key-string :initarg :key-string
@@ -172,27 +172,27 @@
       (when (eql (peek-char-skipping-whitespace input)
                  #\})
         (return))
-	   (skip-whitespace input)
-	   (let ((key
-			  (let ((key-string (parse-string input)))
-				(prog1
-					(or (funcall *parse-object-key-fn* key-string)
-						(error 'cannot-convert-key :key-string key-string))
-				  (skip-whitespace input)
-				  (unless (eql #\: (read-char input))
-					(error 'expected-colon :key-string key-string))
-				  (skip-whitespace input)))))
-		 (let* ((package (symbol-package (class-name (class-of return-value))))
-				(symbol-key (find-symbol (string-upcase key) package))
-				(clz (find-class symbol-key nil))
-				(obj-as (if (null clz)
-							*parse-object-as*
-							symbol-key))
-				(val (parse input :object-as obj-as)))
-		   (setf return-value
-				 (add-attribute return-value
-								key
-								val))))
+       (skip-whitespace input)
+       (let ((key
+              (let ((key-string (parse-string input)))
+                (prog1
+                    (or (funcall *parse-object-key-fn* key-string)
+                        (error 'cannot-convert-key :key-string key-string))
+                  (skip-whitespace input)
+                  (unless (eql #\: (read-char input))
+                    (error 'expected-colon :key-string key-string))
+                  (skip-whitespace input)))))
+         (let* ((package (symbol-package (class-name (class-of return-value))))
+                (symbol-key (find-symbol (string-upcase key) package))
+                (clz (find-class symbol-key nil))
+                (obj-as (if (null clz)
+                            *parse-object-as*
+                            symbol-key))
+                (val (parse input :object-as obj-as)))
+           (setf return-value
+                 (add-attribute return-value
+                                key
+                                val))))
       (ecase (peek-char-skipping-whitespace input)
         (#\, (read-char input))
         (#\} nil)))

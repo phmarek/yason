@@ -47,14 +47,14 @@
 
 (deftest :yason "parser.class"
   (let* ((result (yason:parse *class-test-foo-string* :object-as 'foo))
-		 (result-bar (slot-value result 'bar))
-		 (bar (slot-value *foo* 'bar)))
-	(describe result-bar)
-	(describe bar)
-	(test-equal (slot-value result-bar 'bar-slot-1)
-				(slot-value bar 'bar-slot-1) :test #'equalp)
-	(test-equal (slot-value result-bar 'bar-slot-2)
-				(slot-value bar 'bar-slot-2) :test #'equalp)))
+         (result-bar (slot-value result 'bar))
+         (bar (slot-value *foo* 'bar)))
+    (describe result-bar)
+    (describe bar)
+    (test-equal (slot-value result-bar 'bar-slot-1)
+                (slot-value bar 'bar-slot-1) :test #'equalp)
+    (test-equal (slot-value result-bar 'bar-slot-2)
+                (slot-value bar 'bar-slot-2) :test #'equalp)))
 
 (defun whitespace-char-p (char)
   (member char '(#\space #\tab #\return #\newline #\linefeed)))
@@ -109,16 +109,16 @@
 
 (defmethod yason:encode ((bar bar) &optional (stream *standard-output*))
   (yason:with-output (stream)
-	(yason:with-object ()
-	  (yason:encode-object-element "bar-slot-1" (slot-value bar 'bar-slot-1))
-	  (yason:encode-object-element "bar-slot-2" (slot-value bar 'bar-slot-2)))))
+    (yason:with-object ()
+      (yason:encode-object-element "bar-slot-1" (slot-value bar 'bar-slot-1))
+      (yason:encode-object-element "bar-slot-2" (slot-value bar 'bar-slot-2)))))
 
 (defmethod yason:encode ((foo foo) &optional (stream *standard-output*))
   (yason:with-output (stream)
-	(yason:with-object ()
-	  (yason:encode-object-element "bar" (slot-value foo 'bar)))))
+    (yason:with-object ()
+      (yason:encode-object-element "bar" (slot-value foo 'bar)))))
 
 (deftest :yason "stream-encoder.application-class"
   (test-equal "{\"bar\":{\"bar-slot-1\":\"slot1\",\"bar-slot-2\":\"slot2\"}}"
-			  (with-output-to-string (s)
-				(yason:encode *foo* s))))
+              (with-output-to-string (s)
+                (yason:encode *foo* s))))
