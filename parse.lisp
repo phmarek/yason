@@ -154,8 +154,8 @@
 	(otherwise
 	 (let* ((package (symbol-package (class-name (class-of to))))
 			(symbol-key (find-symbol (string-upcase key) package)))
-	   (if (slot-exists-p to symbol-key)
-		   (setf (slot-value to symbol-key) value))
+	   (when (slot-exists-p to symbol-key)
+		 (setf (slot-value to symbol-key) value))
 	   to))))
 
 (define-condition expected-colon (error)
