@@ -44,12 +44,13 @@
   (write-char #\" stream)
   string)
 
-(defmethod encode ((object rational) &optional (stream *standard-output*))
-  (encode (float object) stream)
+(defmethod encode ((object ratio) &optional (stream *standard-output*))
+  (encode (coerce object 'double-float) stream)
   object)
 
 (defmethod encode ((object float) &optional (stream *standard-output*))
-  (princ (coerce object 'single-float) stream)
+  (let ((*read-default-float-format* 'double-float))
+    (princ (coerce object 'double-float) stream))
   object)
 
 (defmethod encode ((object integer) &optional (stream *standard-output*))
