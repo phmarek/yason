@@ -115,7 +115,10 @@
             <b>:plist</b> to parse them as plists.  When using plists,
             you probably want to also set
             <clix:ref>*parse-object-key-fn*</clix:ref> to a function
-            that interns the object's keys to symbols.
+            that interns the object's keys to symbols.<br/>
+            Set <clix:ref>*parse-object-as*</clix:ref> to a <b>clos class
+            symbol</b> in order to have YASON parse objects as instance 
+            of a spcific class. 
           </td>
         </tr>
         <tr>
@@ -211,6 +214,24 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
       the <b>:keyword</b> package.  Interning strings coming from an
       external source is not recommended practice.
     </p>
+    
+    Another example is to parse clos instance using <b>:object-as</b> keyword
+
+    <pre>
+CL-USER&gt; (defclass foo ()
+           (slot1 slot2))
+#&lt;STANDARD-CLASS FOO&gt;
+CL-USER&gt; (yason:parse "{\"slot1\":1,\"slot2\":\"two\"}" :object-as 'foo)
+#&lt;FOO {BC97B09}&gt;
+CL-USER&gt; (describe *)
+
+#&lt;FOO {BC97B09}&gt;
+  [standard-object]
+
+Slots with :INSTANCE allocation:
+  SLOT1  = 1
+  SLOT2  = "two"
+; No value </pre>
 
     <clix:subchapter name="parser-dict" title="Parser dictionary">
       <clix:function name="parse">
@@ -248,7 +269,8 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
         <clix:description>
           Can be set to <b>:hash-table</b> to parse objects as hash
           tables, <b>:alist</b> to parse them as alists or
-          <b>:plist</b> to parse them as plists.  <b>:hash-table</b>
+          <b>:plist</b> to parse them as plists, <b>clos class symbol</b>
+		  to parse them as instance of class. <b>:hash-table</b>
           is the default.
         </clix:description>
       </clix:special-variable>
@@ -595,6 +617,28 @@ CL-USER&gt; (yason:encode (list (make-user :name "horst" :age 27 :password "pupp
       used together.  <clix:ref>ENCODE</clix:ref> invokes itself
       recursively, so any application defined method will be called
       while encoding in-memory objects as appropriate.
+      <br/>
+      You can also encode a class instance as following:
+      
+      <pre>
+;; define the class bar
+(defclass bar ()
+  ((bar-slot-1 :initform "slot1")
+   (bar-slot-2 :initform "slot2")))
+
+;; implement the encode of class bar
+(defmethod yason:encode ((bar bar) &amp;optional (stream *standard-output*))
+  (yason:with-output (stream)
+    (yason:with-object ()
+      (yason:encode-object-element "bar-slot-1" (slot-value bar 'bar-slot-1))
+      (yason:encode-object-element "bar-slot-2" (slot-value bar 'bar-slot-2)))))
+
+;; encode the instance of bar
+(yason:encode (make-instance 'bar))
+
+;; the result is:
+{"bar-slot-1":"slot1","bar-slot-2":"slot2"}
+      </pre>
 
     </clix:subchapter>
   </clix:chapter>

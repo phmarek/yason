@@ -17,6 +17,15 @@
                                           2 3 4
                                           '(5 6 7)
                                           t nil))
+(defclass bar ()
+  ((bar-slot-1 :initform "slot1")
+   (bar-slot-2 :initform "slot2")))
+
+(defclass foo ()
+  ((bar :initform (make-instance 'bar))))
+
+(defparameter *foo* (make-instance 'foo))
+(defparameter *class-test-foo-string* "{\"bar\":{\"bar-slot-1\":\"slot1\",\"bar-slot-2\":\"slot2\"}}")
 
 
 (deftest :yason "parser.basic"
@@ -35,6 +44,17 @@
                    (yason:encode *basic-test-json-dom* s)))))
     (test-equal (first *basic-test-json-dom*) (first result) :test #'equalp)
     (test-equal (rest *basic-test-json-dom*) (rest result))))
+
+(deftest :yason "parser.class"
+  (let* ((result (yason:parse *class-test-foo-string* :object-as 'foo))
+         (result-bar (slot-value result 'bar))
+         (bar (slot-value *foo* 'bar)))
+    (describe result-bar)
+    (describe bar)
+    (test-equal (slot-value result-bar 'bar-slot-1)
+                (slot-value bar 'bar-slot-1) :test #'equalp)
+    (test-equal (slot-value result-bar 'bar-slot-2)
+                (slot-value bar 'bar-slot-2) :test #'equalp)))
 
 (defun whitespace-char-p (char)
   (member char '(#\space #\tab #\return #\newline #\linefeed)))
@@ -87,3 +107,18 @@
                                    (make-user :name "uschi" :age 28 :password "kitten"))
                              s))))
 
+(defmethod yason:encode ((bar bar) &optional (stream *standard-output*))
+  (yason:with-output (stream)
+    (yason:with-object ()
+      (yason:encode-object-element "bar-slot-1" (slot-value bar 'bar-slot-1))
+      (yason:encode-object-element "bar-slot-2" (slot-value bar 'bar-slot-2)))))
+
+(defmethod yason:encode ((foo foo) &optional (stream *standard-output*))
+  (yason:with-output (stream)
+    (yason:with-object ()
+      (yason:encode-object-element "bar" (slot-value foo 'bar)))))
+
+(deftest :yason "stream-encoder.application-class"
+  (test-equal "{\"bar\":{\"bar-slot-1\":\"slot1\",\"bar-slot-2\":\"slot2\"}}"
+              (with-output-to-string (s)
+                (yason:encode *foo* s))))
