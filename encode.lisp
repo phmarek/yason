@@ -121,7 +121,13 @@
   (with-aggregate/object (stream #\{ #\})
     (loop for (key value) on object by #'cddr
           do (with-element-output ()
-               (encode-assoc-key/value key value stream)))
+               (if (consp value)
+                   (if (keywordp (car value))
+                       (progn
+                         (format stream "\"~a\":" key)
+                         (encode-plist value stream))
+                       (encode-assoc-key/value key value stream))
+                   (encode-assoc-key/value key value stream))))
     object))
 
 (defmethod encode ((object (eql 'true)) &optional (stream *standard-output*))
