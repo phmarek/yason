@@ -27,7 +27,7 @@
    #:encode
    #:encode-slots
    #:encode-object
-   #:*list-object-convention*
+   #:*list->object-convention*
 
    #:make-json-output-stream
 

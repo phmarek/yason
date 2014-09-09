@@ -110,10 +110,10 @@
         (encode value stream)))
     object))
 
-(defvar *list-object-convention* :plist)
+(defvar *list->object-convention* :plist)
 
 (defun can-map-to-json-object (my-list)
-  (case *list-object-convention*
+  (case *list->object-convention*
     (:plist (keywordp (car my-list)))
     (:alist (if (consp (car my-list))
                 (keywordp (caar my-list))))))
@@ -145,7 +145,7 @@
 
 (defmethod encode ((object list) &optional (stream *standard-output*))
   (if (can-map-to-json-object object)
-      (case *list-object-convention*
+      (case *list->object-convention*
         (:plist 
          (encode-plist object stream))
         (:alist
