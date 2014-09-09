@@ -99,36 +99,58 @@
                (encode value stream)))
     object))
 
-(defmethod encode ((object list) &optional (stream *standard-output*))
+(defun encode-assoc-key/value (key value stream)
+  (let ((string (string key)))
+    (encode-key/value string value stream)))
+
+(defun encode-list (object &optional (stream *standard-output*))
   (with-aggregate/object (stream #\[ #\])
     (dolist (value object)
       (with-element-output ()
         (encode value stream)))
     object))
 
-(defun encode-assoc-key/value (key value stream)
-  (let ((string (string key)))
-    (encode-key/value string value stream)))
+(defvar *list-object-convention* :plist)
+
+(defun can-map-to-json-object (my-list)
+  (case *list-object-convention*
+    (:plist (keywordp (car my-list)))
+    (:alist (if (consp (car my-list))
+                (keywordp (caar my-list))))))
 
 (defun encode-alist (object &optional (stream *standard-output*))
   (with-aggregate/object (stream #\{ #\})
     (loop for (key . value) in object
-          do (with-element-output ()
-               (encode-assoc-key/value key value stream)))
+       do
+         (with-element-output ()
+           (if (consp value)
+               (progn
+                 (format stream "\"~a\":" key)
+                 (encode value stream))
+               (progn
+                 (encode-assoc-key/value key value stream)))))
     object))
-
+  
 (defun encode-plist (object &optional (stream *standard-output*))
   (with-aggregate/object (stream #\{ #\})
     (loop for (key value) on object by #'cddr
-          do (with-element-output ()
-               (if (consp value)
-                   (if (keywordp (car value))
-                       (progn
-                         (format stream "\"~a\":" key)
-                         (encode-plist value stream))
-                       (encode-assoc-key/value key value stream))
-                   (encode-assoc-key/value key value stream))))
+       do
+         (with-element-output ()
+           (if (consp value)
+               (progn
+                 (format stream "\"~a\":" key)
+                 (encode value stream))
+               (encode-assoc-key/value key value stream))))
     object))
+
+(defmethod encode ((object list) &optional (stream *standard-output*))
+  (if (can-map-to-json-object object)
+      (case *list-object-convention*
+        (:plist 
+         (encode-plist object stream))
+        (:alist
+         (encode-alist object stream)))
+      (encode-list object stream)))
 
 (defmethod encode ((object (eql 'true)) &optional (stream *standard-output*))
   (write-string "true" stream)
