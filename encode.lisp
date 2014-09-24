@@ -99,7 +99,7 @@
                (encode value stream)))
     object))
 
-(defun _encode-list (object &optional (stream *standard-output*))
+(defun encode-list% (object &optional (stream *standard-output*))
   (with-aggregate/object (stream #\[ #\])
     (dolist (value object)
       (with-element-output ()
@@ -110,7 +110,7 @@
   (let ((string (string key)))
     (encode-key/value string value stream)))
 
-(defun _encode-alist (object &optional (stream *standard-output*))
+(defun encode-alist% (object &optional (stream *standard-output*))
   (with-aggregate/object (stream #\{ #\})
     (loop for (key . value) in object
        do
@@ -123,7 +123,7 @@
                  (encode-assoc-key/value key value stream)))))
     object))
   
-(defun _encode-plist (object &optional (stream *standard-output*))
+(defun encode-plist% (object &optional (stream *standard-output*))
   (with-aggregate/object (stream #\{ #\})
     (loop for (key value) on object by #'cddr
        do
@@ -147,10 +147,10 @@
   (if (can-map-to-json-object object)
       (case *list->object-convention*
         (:plist
-         (_encode-plist object stream))
+         (encode-plist% object stream))
         (:alist
-         (_encode-alist object stream)))
-      (_encode-list object stream)))
+         (encode-alist% object stream)))
+      (encode-list% object stream)))
 
 (defun encode-alist (object &optional (stream *standard-output*))
   (let ((*list->object-convention* :alist))
