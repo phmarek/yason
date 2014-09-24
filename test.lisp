@@ -87,3 +87,53 @@
                                    (make-user :name "uschi" :age 28 :password "kitten"))
                              s))))
 
+(defun compare-tree (tree1 tree2 &optional (test #'equal))
+  (if (atom tree1)
+      (funcall test tree1 tree2)
+      (and (compare-tree (car tree1)
+                         (car tree2))
+           (compare-tree (cdr tree1)
+                         (cdr tree2)))))
+
+(defun roundtrip (sexp convention)
+  (case convention
+    (:plist (yason:parse (with-output-to-string (stream)
+                           (yason:encode-plist sexp stream))
+                         :object-as :plist
+                         :object-key-fn (lambda (str)
+                                           (intern str :keyword))))
+    (:alist (yason:parse (with-output-to-string (stream)
+                           (yason:encode-alist sexp stream))
+                         :object-as :alist
+                         :object-key-fn (lambda (str)
+                                           (intern str :keyword))))
+    (otherwise (yason:parse (with-output-to-string (stream)
+                              (yason:encode sexp stream))))))
+
+(defparameter *serialisable-plists*
+  '((:a "a" :one 1)
+    (:a-b-c "a-b-c")
+    (:a "a" :b-and-c (:b "b" :c "c"))
+    (:a "a" :b "b" :c "c" :1-2-3 (1 2 3))
+    (:a "a" :b-and-c-and-d ("b" (:c "c" :d "d")))))
+
+(deftest :yason "plist-roundtrip"
+  (dolist (plist *serialisable-plists*)
+    (test-assert (compare-tree plist
+                               (roundtrip plist :plist)))))
+
+(defparameter *serialisable-alists*
+  '(((:a . "a") (:one . 1))
+    ((:a-b-c . "a-b-c"))
+    ((:a . "a") (:b-and-c . ((:b . "b") (:c . "c"))))
+    ((:a . "a") (:b . "b") (:c . "c") (:1-2-3 . (1 2 3)))
+    ((:a . "a") (:b-and-c-and-d . ("b" ((:c . "c") (:d . "d")))))))
+
+(deftest :yason "alist-roundtrip"
+  (dolist (alist *serialisable-alists*)
+    (test-assert (compare-tree alist
+                               (roundtrip alist :alist)))))
+
+(deftest :yason "no-keywords-in-alist/plist-content"
+  (test-condition (yason:encode-plist '(:a :b0rk)) 'condition)
+  (test-condition (yason:encode-plist '((:a . :b0rk))) 'condition))
