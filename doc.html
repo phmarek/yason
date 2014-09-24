@@ -65,7 +65,9 @@
       applications.  YASON implements reading and writing of JSON
       formatted data in Common Lisp.  It does not attempt to provide a
       mapping between CLOS objects and YASON, but can be used to
-      implement such mappings.
+      implement such mappings. It does include an optional
+      feature which enables mapping between JSON and either plists or
+      alists with a 1:1 correspondance.
     </p>
     <p>
       <a href="http://common-lisp.net/project/cl-json/">CL-JSON</a> is
@@ -362,16 +364,22 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
 	  *standard-output*)</clix:lambda-list></i>
           =&gt;
           <i>object</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
-	    Encodes <code><i>object</i></code>, an alist, in JSON
-	    format and write to <code><i>stream</i></code>.
+            Encodes <code><i>object</i></code> in JSON format and
+            write to <code><i>stream</i></code>. If alists are
+            encountered whilst traversing the list structure of
+            <code><i>object</i></code>, they will be encoded as JSON
+            objects.
 	  </clix:description></blockquote></p>
 
 	<p xmlns="">[Function]<br><a class="none" name="encode-plist"><b>encode-plist</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object &amp;optional (stream
 	  *standard-output*)</clix:lambda-list></i>
           =&gt;
           <i>object</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
-	    Encodes <code><i>object</i></code>, a plist, in JSON
-	    format and write to <code><i>stream</i></code>.
+            Encodes <code><i>object</i></code> in JSON format and
+            write to <code><i>stream</i></code>. If plists are 
+            encountered whilst traversing the list structure of
+            <code><i>object</i></code>, they will be encoded as JSON
+            objects.
 	  </clix:description></blockquote></p>
 
         <p xmlns="">[Function]<br><a class="none" name="make-json-output-stream"><b>make-json-output-stream</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">stream &amp;key (indent t)</clix:lambda-list></i>

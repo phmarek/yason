@@ -30,7 +30,9 @@
       applications.  YASON implements reading and writing of JSON
       formatted data in Common Lisp.  It does not attempt to provide a
       mapping between CLOS objects and YASON, but can be used to
-      implement such mappings.
+      implement such mappings. It does include an optional
+      feature which enables mapping between JSON and either plists or
+      alists with a 1:1 correspondance.
     </p>
     <p>
       <a href="http://common-lisp.net/project/cl-json/">CL-JSON</a> is
@@ -339,8 +341,11 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
 	  *standard-output*)</clix:lambda-list>
 	  <clix:returns>object</clix:returns>
 	  <clix:description>
-	    Encodes <clix:arg>object</clix:arg>, an alist, in JSON
-	    format and write to <clix:arg>stream</clix:arg>.
+            Encodes <clix:arg>object</clix:arg> in JSON format and
+            write to <clix:arg>stream</clix:arg>. If alists are
+            encountered whilst traversing the list structure of
+            <clix:arg>object</clix:arg>, they will be encoded as JSON
+            objects.
 	  </clix:description>
 	</clix:function>
 
@@ -349,8 +354,11 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
 	  *standard-output*)</clix:lambda-list>
 	  <clix:returns>object</clix:returns>
 	  <clix:description>
-	    Encodes <clix:arg>object</clix:arg>, a plist, in JSON
-	    format and write to <clix:arg>stream</clix:arg>.
+            Encodes <clix:arg>object</clix:arg> in JSON format and
+            write to <clix:arg>stream</clix:arg>. If plists are 
+            encountered whilst traversing the list structure of
+            <clix:arg>object</clix:arg>, they will be encoded as JSON
+            objects.
 	  </clix:description>
 	</clix:function>
 
