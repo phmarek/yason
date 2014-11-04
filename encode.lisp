@@ -1,6 +1,6 @@
 ;; This file is part of yason, a Common Lisp JSON parser/encoder
 ;;
-;; Copyright (c) 2008-2012 Hans Huebner and contributors
+;; Copyright (c) 2008-2014 Hans Huebner and contributors
 ;; All rights reserved.
 ;;
 ;; Please see the file LICENSE in the distribution.
@@ -332,19 +332,3 @@ type for which an ENCODE method is defined."
      (unwind-protect
           (progn ,@body)
        (setf (car (stack *json-output*)) #\,))))
-
-(defgeneric encode-slots (object)
-  (:documentation
-   "Generic function to encode objects.  Every class in a hierarchy
-   implements a method for ENCODE-OBJECT that serializes its slots.
-   It is a PROGN generic function so that for a given instance, all
-   slots are serialized by invoking the ENCODE-OBJECT method for all
-   classes that it inherits from."))
-
-(defgeneric encode-object (object)
-  (:documentation
-   "Encode OBJECT, presumably a CLOS object as a JSON object, invoking
-   the ENCODE-SLOTS method as appropriate.")
-  (:method (object)
-    (with-object ()
-      (yason:encode-slots object))))

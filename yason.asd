@@ -2,7 +2,7 @@
 
 ;; This file is part of yason, a Common Lisp JSON parser/encoder
 ;;
-;; Copyright (c) 2008-2012 Hans Huebner and contributors
+;; Copyright (c) 2008-2014 Hans Huebner and contributors
 ;; All rights reserved.
 ;;
 ;; Please see the file LICENSE in the distribution.
@@ -17,7 +17,7 @@
 (defsystem :yason
   :name "YASON"
   :author "Hans Huebner <hans@huebner.org>"
-  :version "0.6.7"
+  :version "0.7.0"
   :maintainer "Hans Huebner <hans@huebner.org>"
   :licence "BSD"
   :description "JSON parser/encoder"

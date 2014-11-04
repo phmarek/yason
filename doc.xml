@@ -542,27 +542,6 @@ NIL</pre>
 	  </clix:description>
 	</clix:function>
 
-	<clix:function name="encode-slots" generic="true">
-	  <clix:lambda-list>object</clix:lambda-list>
-	  <clix:returns>result*</clix:returns>
-	  <clix:description>
-	    Encodes all of the slots of <clix:arg>object</clix:arg>,
-	    presumably a CLOS object, to the current stream
-	    context. Must be defined for an object to use
-	    <clix:ref>ENCODE-OBJECT</clix:ref> on that object.
-	  </clix:description>
-	</clix:function>
-
-	<clix:function name="encode-object" generic="true">
-	  <clix:lambda-list>object</clix:lambda-list>
-	  <clix:returns>result*</clix:returns>
-	  <clix:description>
-	    Encodes <clix:arg>object</clix:arg>, presumably a CLOS
-	    object, by invoking <clix:ref>ENCODE-SLOTS</clix:ref>, to
-	    the current stream context.
-	  </clix:description>
-	</clix:function>
-
         <clix:class name="json-output-stream">
           <clix:description>
             Instances of this class are used to wrap an output stream
