@@ -542,6 +542,28 @@ NIL</pre>
 	  </clix:description>
 	</clix:function>
 
+	<clix:function name="encode-slots">
+	  <clix:lambda-list>object</clix:lambda-list>
+	  <clix:returns>result*</clix:returns>
+	  <clix:description>
+            Generic function to encode object slots. There is no default
+            implementation.
+            It should be called in an object encoding context. It uses
+            PROGN combinatation with MOST-SPECIFIC-LAST order, so that
+            base class slots are encoded before derived class slots.
+	  </clix:description>
+	</clix:function>
+
+	<clix:function name="encode-object">
+	  <clix:lambda-list>object</clix:lambda-list>
+	  <clix:returns>result*</clix:returns>
+	  <clix:description>
+            Generic function to encode an object. The default implementation
+            opens a new object encoding context and calls
+            <clix:ref>ENCODE-SLOTS</clix:ref> on the argument.
+	  </clix:description>
+	</clix:function>
+
         <clix:class name="json-output-stream">
           <clix:description>
             Instances of this class are used to wrap an output stream
@@ -583,6 +605,42 @@ CL-USER&gt; (yason:encode (list (make-user :name "horst" :age 27 :password "pupp
       recursively, so any application defined method will be called
       while encoding in-memory objects as appropriate.
 
+      <p>For an example of the interplay between
+      <clix:ref>ENCODE-OBJECT</clix:ref> and
+      <clix:ref>ENCODE-SLOTS</clix:ref>, suppose you have the following
+      CLOS class heirarchy:
+
+      <pre>(defclass shape ()
+  ((color :reader color)))
+
+(defclass square (shape)
+  ((side-length :reader side-length)))
+
+(defclass circle (shape)
+  ((radius :reader radius)))</pre>
+
+      In order to implement encoding of circles and squares without
+      duplicating code you can specialize
+      <clix:ref>ENCODE-SLOTS</clix:ref> for all three classes
+
+      <pre>(defmethod yason:encode-slots progn ((shape shape))
+  (yason:encode-object-element "color" (color shape)))
+
+(defmethod yason:encode-slots progn ((square square))
+  (yason:encode-object-element "side-length" (side-length square)))
+
+(defmethod yason:encode-slots progn ((circle circle))
+  (yason:encode-object-element "radius" (radius circle)))</pre>
+
+      and then use <clix:ref>ENCODE-OBJECT</clix:ref>:
+
+      <pre>CL-USER&gt; (yason:with-output-to-string* ()
+           (yason:encode-object (make-instance 'square :color "red" :side-length 3)))
+"{\"color\":\"red\",\"side-length\":3}"
+CL-USER&gt; (yason:with-output-to-string* ()
+           (yason:encode-object (make-instance 'circle :color "blue" :side-length 5)))
+"{\"color\":\"blue\",\"radius\":5}"</pre>
+      </p>
     </clix:subchapter>
   </clix:chapter>
 
