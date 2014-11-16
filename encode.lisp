@@ -332,3 +332,20 @@ type for which an ENCODE method is defined."
      (unwind-protect
           (progn ,@body)
        (setf (car (stack *json-output*)) #\,))))
+
+(defgeneric encode-slots (object)
+  (:documentation
+   "Generic function to encode object slots. It should be called in an
+    object encoding context. It uses PROGN combinatation with
+    MOST-SPECIFIC-LAST order, so that base class slots are encoded
+    before derived class slots.")
+  (:method-combination progn :most-specific-last))
+
+(defgeneric encode-object (object)
+  (:documentation
+   "Generic function to encode an object. The default implementation
+    opens a new object encoding context and calls ENCODE-SLOTS on
+    the argument.")
+  (:method (object)
+    (with-object ()
+      (yason:encode-slots object))))

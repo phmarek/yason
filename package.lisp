@@ -25,6 +25,8 @@
 
    ;; Basic encoder interface
    #:encode
+   #:encode-slots
+   #:encode-object
    #:encode-plist
    #:encode-alist
 

@@ -541,6 +541,24 @@ NIL</pre>
 	    must be called within a valid stream context.
 	  </clix:description></blockquote></p>
 
+	<p xmlns="">[Function]<br><a class="none" name="encode-slots"><b>encode-slots</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object</clix:lambda-list></i>
+          =&gt;
+          <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+            Generic function to encode object slots. There is no default
+            implementation.
+            It should be called in an object encoding context. It uses
+            PROGN combinatation with MOST-SPECIFIC-LAST order, so that
+            base class slots are encoded before derived class slots.
+	  </clix:description></blockquote></p>
+
+	<p xmlns="">[Function]<br><a class="none" name="encode-object"><b>encode-object</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object</clix:lambda-list></i>
+          =&gt;
+          <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+            Generic function to encode an object. The default implementation
+            opens a new object encoding context and calls
+            <code><a href="#encode-slots">ENCODE-SLOTS</a></code> on the argument.
+	  </clix:description></blockquote></p>
+
         <p xmlns="">
       [Standard class]<br><a class="none" name="json-output-stream"><b>json-output-stream</b></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
             Instances of this class are used to wrap an output stream
@@ -581,6 +599,42 @@ CL-USER&gt; (yason:encode (list (make-user :name "horst" :age 27 :password "pupp
       recursively, so any application defined method will be called
       while encoding in-memory objects as appropriate.
 
+      <p>For an example of the interplay between
+      <code xmlns=""><a href="#encode-object">ENCODE-OBJECT</a></code> and
+      <code xmlns=""><a href="#encode-slots">ENCODE-SLOTS</a></code>, suppose you have the following
+      CLOS class heirarchy:
+
+      <pre>(defclass shape ()
+  ((color :reader color)))
+
+(defclass square (shape)
+  ((side-length :reader side-length)))
+
+(defclass circle (shape)
+  ((radius :reader radius)))</pre>
+
+      In order to implement encoding of circles and squares without
+      duplicating code you can specialize
+      <code xmlns=""><a href="#encode-slots">ENCODE-SLOTS</a></code> for all three classes
+
+      <pre>(defmethod yason:encode-slots progn ((shape shape))
+  (yason:encode-object-element "color" (color shape)))
+
+(defmethod yason:encode-slots progn ((square square))
+  (yason:encode-object-element "side-length" (side-length square)))
+
+(defmethod yason:encode-slots progn ((circle circle))
+  (yason:encode-object-element "radius" (radius circle)))</pre>
+
+      and then use <code xmlns=""><a href="#encode-object">ENCODE-OBJECT</a></code>:
+
+      <pre>CL-USER&gt; (yason:with-output-to-string* ()
+           (yason:encode-object (make-instance 'square :color "red" :side-length 3)))
+"{\"color\":\"red\",\"side-length\":3}"
+CL-USER&gt; (yason:with-output-to-string* ()
+           (yason:encode-object (make-instance 'circle :color "blue" :side-length 5)))
+"{\"color\":\"blue\",\"radius\":5}"</pre>
+      </p>
     
   
 
@@ -595,9 +649,11 @@ CL-USER&gt; (yason:encode (list (make-user :name "horst" :age 27 :password "pupp
 <li><code><a href="#encode-alist">encode-alist</a></code></li>
 <li><code><a href="#encode-array-element">encode-array-element</a></code></li>
 <li><code><a href="#encode-array-elements">encode-array-elements</a></code></li>
+<li><code><a href="#encode-object">encode-object</a></code></li>
 <li><code><a href="#encode-object-element">encode-object-element</a></code></li>
 <li><code><a href="#encode-object-elements">encode-object-elements</a></code></li>
 <li><code><a href="#encode-plist">encode-plist</a></code></li>
+<li><code><a href="#encode-slots">encode-slots</a></code></li>
 <li><code><a href="#json-output-stream">json-output-stream</a></code></li>
 <li><code><a href="#make-json-output-stream">make-json-output-stream</a></code></li>
 <li><code><a href="#no-json-output-context">no-json-output-context</a></code></li>
