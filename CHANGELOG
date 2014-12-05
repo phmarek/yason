@@ -1,3 +1,8 @@
+Version 0.7.2
+2014-12-05
+Avoid using e notation because Lisp, JS and JSON numeral syntaxes are incompatible. (Grim Schjetne)
+readd encode-object/encode-slots API with proper documentation (Philipp Matthias Schaefer)
+
 Version 0.7.1
 2014-11-04
 Remove unused ENCODE-SLOTS and ENCODE-OBJECT stubs
