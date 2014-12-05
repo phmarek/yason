@@ -50,7 +50,7 @@
 
 (defmethod encode ((object float) &optional (stream *standard-output*))
   (let ((*read-default-float-format* 'double-float))
-    (princ (coerce object 'double-float) stream))
+    (format stream "~F" (coerce object 'double-float)))
   object)
 
 (defmethod encode ((object integer) &optional (stream *standard-output*))
