@@ -10,4 +10,4 @@ YASON
 > mapping between JSON and either plists or alists with a 1:1
 > correspondance.
 
-Please proceed to the [Documentation](http://common-lisp.net/project/yason/)
+Please proceed to the [Documentation](http://hanshuebner.github.io/yason)
