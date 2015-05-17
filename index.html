@@ -12,16 +12,16 @@
   h3, h4, h5 { text-decoration: underline; }
   a { text-decoration: none; padding: 1px 2px 1px 2px; }
   a:visited { text-decoration: none; padding: 1px 2px 1px 2px; }
-  a:hover { text-decoration: none; padding: 1px 1px 1px 1px; border: 1px solid #000000; } 
+  a:hover { text-decoration: none; padding: 1px 1px 1px 1px; border: 1px solid #000000; }
   a:focus { text-decoration: none; padding: 1px 2px 1px 2px; border: none; }
   a.none { text-decoration: none; padding: 0; }
-  a.none:visited { text-decoration: none; padding: 0; } 
-  a.none:hover { text-decoration: none; border: none; padding: 0; } 
-  a.none:focus { text-decoration: none; border: none; padding: 0; } 
-  a.noborder { text-decoration: none; padding: 0; } 
-  a.noborder:visited { text-decoration: none; padding: 0; } 
-  a.noborder:hover { text-decoration: none; border: none; padding: 0; } 
-  a.noborder:focus { text-decoration: none; border: none; padding: 0; }  
+  a.none:visited { text-decoration: none; padding: 0; }
+  a.none:hover { text-decoration: none; border: none; padding: 0; }
+  a.none:focus { text-decoration: none; border: none; padding: 0; }
+  a.noborder { text-decoration: none; padding: 0; }
+  a.noborder:visited { text-decoration: none; padding: 0; }
+  a.noborder:hover { text-decoration: none; border: none; padding: 0; }
+  a.noborder:focus { text-decoration: none; border: none; padding: 0; }
         </style></head><body>
 
   <h1 xmlns="">YASON - A JSON encoder/decoder for Common Lisp</h1>
@@ -221,7 +221,7 @@ CL-USER&gt; (let* ((result (yason:parse *json-string*)))
            (print result)
            (alexandria:hash-table-plist (first result)))
 
-(#&lt;HASH-TABLE :TEST EQUAL :COUNT 2 {5A4420F1}&gt; 2 3 4 (5 6 7) T NIL) 
+(#&lt;HASH-TABLE :TEST EQUAL :COUNT 2 {5A4420F1}&gt; 2 3 4 (5 6 7) T NIL)
 ("bar" (7 8 9) "foo" 1)
 CL-USER&gt; (defun maybe-convert-to-keyword (js-name)
            (or (find-symbol (string-upcase js-name) :keyword)
@@ -236,7 +236,7 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
            (print result)
            (alexandria:hash-table-plist (aref result 0)))
 
-#(#&lt;HASH-TABLE :TEST EQUAL :COUNT 2 {59B4EAD1}&gt; 2 3 4 #(5 6 7) YASON:TRUE NIL) 
+#(#&lt;HASH-TABLE :TEST EQUAL :COUNT 2 {59B4EAD1}&gt; 2 3 4 #(5 6 7) YASON:TRUE NIL)
 ("bar" #(7 8 9) :FOO 1)</pre>
 
     <p>
@@ -261,7 +261,7 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
           <p xmlns="http://www.w3.org/1999/xhtml">
             The keyword arguments <code xmlns=""><i>object-key-fn</i></code>,
             <code xmlns=""><i>object-as</i></code>,
-            <code xmlns=""><i>json-arrays-as-vectors</i></code>, 
+            <code xmlns=""><i>json-arrays-as-vectors</i></code>,
             <code xmlns=""><i>json-booleans-as-symbols</i></code>, and
             <code xmlns=""><i>json-null-as-keyword</i></code> may be used
             to specify different values for the parsing parameters
@@ -338,7 +338,7 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
         define additional methods (e.g. for encoding CLOS objects).
       </p>
       For example:
-      <pre>CL-USER&gt; (yason:encode 
+      <pre>CL-USER&gt; (yason:encode
           (list (alexandria:plist-hash-table
                  '("foo" 1 "bar" (7 8 9))
                  :test #'equal)
@@ -376,7 +376,7 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
           =&gt;
           <i>object</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
             Encodes <code><i>object</i></code> in JSON format and
-            write to <code><i>stream</i></code>. If plists are 
+            write to <code><i>stream</i></code>. If plists are
             encountered whilst traversing the list structure of
             <code><i>object</i></code>, they will be encoded as JSON
             objects.
@@ -541,6 +541,20 @@ NIL</pre>
 	    must be called within a valid stream context.
 	  </clix:description></blockquote></p>
 
+	<p xmlns="">[Function]<br><a class="none" name="encode-object-slots"><b>encode-object-slots</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object slots</clix:lambda-list></i>
+          =&gt;
+          <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+			Encodes each slot in SLOTS for OBJECT in the last object
+			opened with <code><a href="#with-object">WITH-OBJECT</a></code> using
+			<code><a href="#encode-object-element">ENCODE-OBJECT-ELEMENT</a></code>. The key is the
+			slot name, and the value is the slot value for the slot on
+			OBJECT. It is equivalent to
+			<pre xmlns="http://www.w3.org/1999/xhtml">(loop for slot in slots
+    do (encode-object-element (string slot)
+                              (slot-value object slot)))
+			</pre>
+		</clix:description></blockquote></p>
+
 	<p xmlns="">[Function]<br><a class="none" name="encode-slots"><b>encode-slots</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object</clix:lambda-list></i>
           =&gt;
           <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
@@ -572,7 +586,7 @@ NIL</pre>
     
 
     <h4 xmlns=""><a name="app-encoders">Application specific encoders</a></h4>
-      
+
       Suppose your application uses structs to represent its data and
       you want to encode these structs using JSON in order to send
       them to a client application.  Suppose further that your structs
@@ -635,6 +649,26 @@ CL-USER&gt; (yason:with-output-to-string* ()
            (yason:encode-object (make-instance 'circle :color "blue" :side-length 5)))
 "{\"color\":\"blue\",\"radius\":5}"</pre>
       </p>
+	  <p>Alternatively, you can use the shortcut <code xmlns=""><a href="#encode-object-slots">ENCODE-OBJECT-SLOTS</a></code>
+	  if you want the keys to be the slot names. For example:
+	  <pre>(defclass person ()
+  ((name :reader name :initarg :name)
+   (address :reader address :initarg :address)
+   (phone-number :reader phone-number :initarg :phone)
+   (favorite-color :reader favorite-color :initarg :color)))
+
+(defmethod yason:encode-slots progn ((person person))
+  (yason:encode-object-slots person '(name address phone-number favorite-color)))</pre>
+  and then:
+
+  <pre>CL-USER&gt; (yason:with-output-to-string* ()
+       (yason:encode-object (make-instance 'person :name "John Doe"
+                                                   :address "123 Main St."
+                                                   :phone "(123)-456-7890"
+                                                   :color "blue")))
+"{\"NAME\":\"John Doe\",\"ADDRESS\":\"123 Main St.\",\"PHONE-NUMBER\":\"(123)-456-7890\",
+\"FAVORITE-COLOR\":\"blue\"}"</pre>
+	  </p>
     
   
 
@@ -652,6 +686,7 @@ CL-USER&gt; (yason:with-output-to-string* ()
 <li><code><a href="#encode-object">encode-object</a></code></li>
 <li><code><a href="#encode-object-element">encode-object-element</a></code></li>
 <li><code><a href="#encode-object-elements">encode-object-elements</a></code></li>
+<li><code><a href="#encode-object-slots">encode-object-slots</a></code></li>
 <li><code><a href="#encode-plist">encode-plist</a></code></li>
 <li><code><a href="#encode-slots">encode-slots</a></code></li>
 <li><code><a href="#json-output-stream">json-output-stream</a></code></li>

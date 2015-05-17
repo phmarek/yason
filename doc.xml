@@ -188,7 +188,7 @@ CL-USER&gt; (let* ((result (yason:parse *json-string*)))
            (print result)
            (alexandria:hash-table-plist (first result)))
 
-(#&lt;HASH-TABLE :TEST EQUAL :COUNT 2 {5A4420F1}&gt; 2 3 4 (5 6 7) T NIL) 
+(#&lt;HASH-TABLE :TEST EQUAL :COUNT 2 {5A4420F1}&gt; 2 3 4 (5 6 7) T NIL)
 ("bar" (7 8 9) "foo" 1)
 CL-USER&gt; (defun maybe-convert-to-keyword (js-name)
            (or (find-symbol (string-upcase js-name) :keyword)
@@ -203,7 +203,7 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
            (print result)
            (alexandria:hash-table-plist (aref result 0)))
 
-#(#&lt;HASH-TABLE :TEST EQUAL :COUNT 2 {59B4EAD1}&gt; 2 3 4 #(5 6 7) YASON:TRUE NIL) 
+#(#&lt;HASH-TABLE :TEST EQUAL :COUNT 2 {59B4EAD1}&gt; 2 3 4 #(5 6 7) YASON:TRUE NIL)
 ("bar" #(7 8 9) :FOO 1)</pre>
 
     <p>
@@ -229,7 +229,7 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
           <p>
             The keyword arguments <clix:arg>object-key-fn</clix:arg>,
             <clix:arg>object-as</clix:arg>,
-            <clix:arg>json-arrays-as-vectors</clix:arg>, 
+            <clix:arg>json-arrays-as-vectors</clix:arg>,
             <clix:arg>json-booleans-as-symbols</clix:arg>, and
             <clix:arg>json-null-as-keyword</clix:arg> may be used
             to specify different values for the parsing parameters
@@ -312,7 +312,7 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
         define additional methods (e.g. for encoding CLOS objects).
       </p>
       For example:
-      <pre>CL-USER&gt; (yason:encode 
+      <pre>CL-USER&gt; (yason:encode
           (list (alexandria:plist-hash-table
                  '("foo" 1 "bar" (7 8 9))
                  :test #'equal)
@@ -355,7 +355,7 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
 	  <clix:returns>object</clix:returns>
 	  <clix:description>
             Encodes <clix:arg>object</clix:arg> in JSON format and
-            write to <clix:arg>stream</clix:arg>. If plists are 
+            write to <clix:arg>stream</clix:arg>. If plists are
             encountered whilst traversing the list structure of
             <clix:arg>object</clix:arg>, they will be encoded as JSON
             objects.
@@ -542,6 +542,22 @@ NIL</pre>
 	  </clix:description>
 	</clix:function>
 
+	<clix:function name="encode-object-slots">
+		<clix:lambda-list>object slots</clix:lambda-list>
+		<clix:returns>result*</clix:returns>
+		<clix:description>
+			Encodes each slot in SLOTS for OBJECT in the last object
+			opened with <clix:ref>WITH-OBJECT</clix:ref> using
+			<clix:ref>ENCODE-OBJECT-ELEMENT</clix:ref>. The key is the
+			slot name, and the value is the slot value for the slot on
+			OBJECT. It is equivalent to
+			<pre>(loop for slot in slots
+    do (encode-object-element (string slot)
+                              (slot-value object slot)))
+			</pre>
+		</clix:description>
+	</clix:function>
+
 	<clix:function name="encode-slots">
 	  <clix:lambda-list>object</clix:lambda-list>
 	  <clix:returns>result*</clix:returns>
@@ -578,7 +594,7 @@ NIL</pre>
     </clix:subchapter>
 
     <clix:subchapter name="app-encoders" title="Application specific encoders">
-      
+
       Suppose your application uses structs to represent its data and
       you want to encode these structs using JSON in order to send
       them to a client application.  Suppose further that your structs
@@ -641,6 +657,26 @@ CL-USER&gt; (yason:with-output-to-string* ()
            (yason:encode-object (make-instance 'circle :color "blue" :side-length 5)))
 "{\"color\":\"blue\",\"radius\":5}"</pre>
       </p>
+	  <p>Alternatively, you can use the shortcut <clix:ref>ENCODE-OBJECT-SLOTS</clix:ref>
+	  if you want the keys to be the slot names. For example:
+	  <pre>(defclass person ()
+  ((name :reader name :initarg :name)
+   (address :reader address :initarg :address)
+   (phone-number :reader phone-number :initarg :phone)
+   (favorite-color :reader favorite-color :initarg :color)))
+
+(defmethod yason:encode-slots progn ((person person))
+  (yason:encode-object-slots person '(name address phone-number favorite-color)))</pre>
+  and then:
+
+  <pre>CL-USER&gt; (yason:with-output-to-string* ()
+       (yason:encode-object (make-instance 'person :name "John Doe"
+                                                   :address "123 Main St."
+                                                   :phone "(123)-456-7890"
+                                                   :color "blue")))
+"{\"NAME\":\"John Doe\",\"ADDRESS\":\"123 Main St.\",\"PHONE-NUMBER\":\"(123)-456-7890\",
+\"FAVORITE-COLOR\":\"blue\"}"</pre>
+	  </p>
     </clix:subchapter>
   </clix:chapter>
 
