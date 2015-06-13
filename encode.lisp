@@ -326,6 +326,18 @@ key is the slot name, and the value is the (SLOT-VALUE OBJECT slot)"
      do (encode-object-element (string slot)
                                (slot-value object slot))))
 
+(define-compiler-macro encode-object-slots (&whole form &environment env object raw-slots)
+  "Compiler macro to allow open-coding with encode-object-slots when slots are literal list."
+  (let ((slots (macroexpand raw-slots env)))
+    (cond
+      ((null slots) nil)
+      ((eq (car slots) 'quote)
+       (setf slots (cadr slots))        ; Get the quoted list
+       `(with-slots ,slots ,object
+          ,@(loop for slot in slots
+               collect `(encode-object-element ,(string slot) ,slot))))
+      (t form))))
+
 (defmacro with-object-element ((key) &body body)
   "Open a new encoding context to encode a JSON object element.  KEY
   is the key of the element.  The value will be whatever BODY
@@ -338,6 +350,7 @@ key is the slot name, and the value is the (SLOT-VALUE OBJECT slot)"
      (encode ,key (output-stream *json-output*))
      (setf (car (stack *json-output*)) #\:)
      (unwind-protect
+
           (progn ,@body)
        (setf (car (stack *json-output*)) #\,))))
 
