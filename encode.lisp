@@ -350,7 +350,6 @@ key is the slot name, and the value is the (SLOT-VALUE OBJECT slot)"
      (encode ,key (output-stream *json-output*))
      (setf (car (stack *json-output*)) #\:)
      (unwind-protect
-
           (progn ,@body)
        (setf (car (stack *json-output*)) #\,))))
 
