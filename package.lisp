@@ -42,4 +42,5 @@
    #:with-object
    #:encode-object-element
    #:encode-object-elements
+   #:encode-object-slots
    #:with-object-element))
