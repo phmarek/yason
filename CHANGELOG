@@ -1,3 +1,10 @@
+Version 0.7.3
+2015-06-14
+Fix #28 Add ENCODE-OBJECT-SLOTS (Thayne McCombs)
+Update html documentation (Hans Huebner)
+update documentation link (Hans Huebner)
+Documentation work (Hans Huebner)
+
 Version 0.7.2
 2014-12-05
 Avoid using e notation because Lisp, JS and JSON numeral syntaxes are incompatible. (Grim Schjetne)
