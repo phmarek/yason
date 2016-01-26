@@ -65,9 +65,7 @@
       applications.  YASON implements reading and writing of JSON
       formatted data in Common Lisp.  It does not attempt to provide a
       mapping between CLOS objects and YASON, but can be used to
-      implement such mappings. It does include an optional
-      feature which enables mapping between JSON and either plists or
-      alists with a 1:1 correspondance.
+      implement such mappings.
     </p>
     <p>
       <a href="http://common-lisp.net/project/cl-json/">CL-JSON</a> is
@@ -83,7 +81,7 @@
     <p>
       YASON has its permanent home at <a href="https://github.com/hanshuebner/yason/">GitHub</a>.
       It can be obtained by downloading the <a href="https://github.com/downloads/hanshuebner/yason/yason.tar.gz">release
-      tarball</a>.  The current release is 0.7.5.
+      tarball</a>.  The current release is 0.7.6.
     </p>
     <p>
       You may also check out the current development version from its
@@ -364,22 +362,16 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
 	  *standard-output*)</clix:lambda-list></i>
           =&gt;
           <i>object</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
-            Encodes <code><i>object</i></code> in JSON format and
-            write to <code><i>stream</i></code>. If alists are
-            encountered whilst traversing the list structure of
-            <code><i>object</i></code>, they will be encoded as JSON
-            objects.
+	    Encodes <code><i>object</i></code>, an alist, in JSON
+	    format and write to <code><i>stream</i></code>.
 	  </clix:description></blockquote></p>
 
 	<p xmlns="">[Function]<br><a class="none" name="encode-plist"><b>encode-plist</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">object &amp;optional (stream
 	  *standard-output*)</clix:lambda-list></i>
           =&gt;
           <i>object</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
-            Encodes <code><i>object</i></code> in JSON format and
-            write to <code><i>stream</i></code>. If plists are
-            encountered whilst traversing the list structure of
-            <code><i>object</i></code>, they will be encoded as JSON
-            objects.
+	    Encodes <code><i>object</i></code>, a plist, in JSON
+	    format and write to <code><i>stream</i></code>.
 	  </clix:description></blockquote></p>
 
         <p xmlns="">[Function]<br><a class="none" name="make-json-output-stream"><b>make-json-output-stream</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">stream &amp;key (indent t)</clix:lambda-list></i>

@@ -1,3 +1,7 @@
+Version 0.7.6
+2016-01-26
+Revert Rick's changes for alist/plist behavior (Hans Huebner)
+
 Version 0.7.5
 2015-06-14
 Fixed release script (Hans Huebner)
