@@ -145,7 +145,7 @@
     (:plist
      (append to (list key value)))
     (:alist
-     (append to (list (cons key value))))
+     (acons key value to))
     (:hash-table
      (setf (gethash key to) value)
      to)))
