@@ -271,7 +271,7 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
 
       <clix:special-variable name="*parse-object-key-fn*">
         <clix:description>
-          Function to call to convert a key string in a JSON array to
+          Function to call to convert a key string in a JSON object to
           a key in the CL hash produced. IDENTITY is the default.
         </clix:description>
       </clix:special-variable>
