@@ -94,9 +94,9 @@
                (#\r (outc #\Return))
                (#\t (outc #\Tab))
                (#\u (outc (parse-unicode-escape input)))))
-            ((and (or (whitespace-p (peek)) 
-                      (eql (peek) #\:)) 
-                  (not string-quoted)) 
+            ((and (or (whitespace-p (peek))
+                      (eql (peek) #\:))
+                  (not string-quoted))
              (return-from parse-string output))
             (t
              (outc (next)))))))))
