@@ -94,9 +94,9 @@
                (#\r (outc #\Return))
                (#\t (outc #\Tab))
                (#\u (outc (parse-unicode-escape input)))))
-            ((and (or (whitespace-p (peek)) 
-                      (eql (peek) #\:)) 
-                  (not string-quoted)) 
+            ((and (or (whitespace-p (peek))
+                      (eql (peek) #\:))
+                  (not string-quoted))
              (return-from parse-string output))
             (t
              (outc (next)))))))))
@@ -105,9 +105,9 @@
   (member char '(#\Space #\Newline #\Tab #\Linefeed #\Return)))
 
 (defun skip-whitespace (input)
-  (loop while (and (listen input)
-                   (whitespace-p (peek-char nil input)))
-        do (read-char input)))
+  (loop for c = (peek-char nil input nil nil)
+     while (and c (whitespace-p c))
+     do (read-char input)))
 
 (defun peek-char-skipping-whitespace (input &optional (eof-error-p t))
   (skip-whitespace input)
