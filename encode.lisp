@@ -132,7 +132,7 @@
   (write-string "false" stream)
   object)
 
-(defmethod encode ((object (eql 'null)) &optional (stream *standard-output*))
+(defmethod encode ((object (eql :null)) &optional (stream *standard-output*))
   (write-string "null" stream)
   object)
 
