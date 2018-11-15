@@ -72,6 +72,11 @@
                         (dotimes (i 3)
                           (yason:encode-array-element i)))))))))
 
+(deftest :yason "stream-encode.unicode-string"
+  (test-equal "\"ab\\u0002 cde \\uD834\\uDD1E\""
+              (with-output-to-string (s)
+                (yason:encode (format nil "ab~C cde ~C" (code-char #x02) (code-char #x1d11e)) s))))
+
 (defstruct user name age password)
 
 (defmethod yason:encode ((user user) &optional (stream *standard-output*))
