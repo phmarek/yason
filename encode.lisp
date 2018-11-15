@@ -33,14 +33,33 @@
      #\Return "\\r"
      #\Tab "\\t")))
 
+(defun unicode-code (char)
+  (char-code char))
+
+(defun unicode-char (code)
+  (code-char code))
+
+(defun write-surrogate-pair-escape (code stream)
+  (let ((upper (+ (ldb (byte 10 10) (- code #x10000))
+                  #xD800))
+        (lower (+ (ldb (byte 10 0) (- code #x10000))
+                  #xDC00)))
+    (format stream "\\u~4,'0X\\u~4,'0X" upper lower)))
+
 (defmethod encode ((string string) &optional (stream *standard-output*))
   (write-char #\" stream)
   (dotimes (i (length string))
     (let* ((char (aref string i))
            (replacement (gethash char *char-replacements*)))
-      (if replacement
-          (write-string replacement stream)
-          (write-char char stream))))
+      (cond
+        (replacement (write-string replacement stream))
+        ;; Control characters (U+0000 - U+001F) must be escaped.
+        ((<= #x0000 (unicode-code char) #x001F)
+         (format stream "\\u~4,'0X" (unicode-code char)))
+        ;; Non-BMP characters must be escaped as a UTF-16 surrogate pair.
+        ((<= #x010000 (unicode-code char) #x10FFFF)
+         (write-surrogate-pair-escape (unicode-code char) stream))
+        (t (write-char char stream)))))
   (write-char #\" stream)
   string)
 
