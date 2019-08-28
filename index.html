@@ -302,6 +302,20 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
           a key in the CL hash produced. IDENTITY is the default.
         </clix:description></blockquote></p>
 
+      <p xmlns="">
+      [Special variable]<br><a class="none" name="*list-encoder*"><b>*list-encoder*</b></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+          Function to call to translate a CL list into JSON data.
+		  <code><i>'YASON:ENCODE-PLAIN-LIST-TO-ARRAY</i></code> is the default;
+		  <code><i>'YASON:ENCODE-PLIST</i></code> and
+		  <code><i>'YASON:ENCODE-ALIST</i></code> are available to produce
+		  JSON objects.
+		  <p xmlns="http://www.w3.org/1999/xhtml">
+			  This is useful to translate a deeply recursive structure in a single
+			  <code xmlns=""><i>YASON:ENCODE</i></code> call.
+          </p>
+        </clix:description></blockquote></p>
+
+
     
   
 
@@ -431,10 +445,12 @@ NIL</pre>
             off.
           </clix:description></blockquote></p>
 
-        <p xmlns="">[Macro]<br><a class="none" name="with-output-to-string*"><b>with-output-to-string*</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">(&amp;key indent) &amp;body body</clix:lambda-list></i>
+        <p xmlns="">[Macro]<br><a class="none" name="with-output-to-string*"><b>with-output-to-string*</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">(&amp;key indent stream-symbol) &amp;body body</clix:lambda-list></i>
           =&gt;
           <i>result*</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
-            Set up a JSON streaming encoder context, then evaluate
+			  Set up a JSON streaming encoder context on 
+			  <code><i>stream-symbol</i></code> (by default 
+			  a gensym), then evaluate
             <code><i>body</i></code>.  Return a string with the
             generated JSON output.  See
             <code><a href="#with-output">WITH-OUTPUT</a></code> for the description of
@@ -666,6 +682,7 @@ CL-USER&gt; (yason:with-output-to-string* ()
 
   <h3 xmlns=""><a class="none" name="index">Symbol index</a></h3>
     <ul xmlns="">
+<li><code><a href="#*list-encoder*">*list-encoder*</a></code></li>
 <li><code><a href="#*parse-json-arrays-as-vectors*">*parse-json-arrays-as-vectors*</a></code></li>
 <li><code><a href="#*parse-json-booleans-as-symbols*">*parse-json-booleans-as-symbols*</a></code></li>
 <li><code><a href="#*parse-json-null-as-keyword*">*parse-json-null-as-keyword*</a></code></li>
