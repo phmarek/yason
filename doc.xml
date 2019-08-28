@@ -416,10 +416,12 @@ NIL</pre>
         </clix:function>
 
         <clix:function name="with-output-to-string*" macro="true">
-          <clix:lambda-list>(&amp;key indent) &amp;body body</clix:lambda-list>
+          <clix:lambda-list>(&amp;key indent stream-symbol) &amp;body body</clix:lambda-list>
           <clix:returns>result*</clix:returns>
           <clix:description>
-            Set up a JSON streaming encoder context, then evaluate
+			  Set up a JSON streaming encoder context on 
+			  <clix:arg>stream-symbol</clix:arg> (by default 
+			  a gensym), then evaluate
             <clix:arg>body</clix:arg>.  Return a string with the
             generated JSON output.  See
             <clix:ref>WITH-OUTPUT</clix:ref> for the description of
