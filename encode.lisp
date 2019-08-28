@@ -17,6 +17,11 @@
   "Default indentation width for output if indentation is selected
   with no indentation width specified.")
 
+(defparameter *list-encoder* 'encode-plain-list-to-array
+  "The actual function used to encode a LIST.
+  Can be changed to encode ALISTs or PLISTs as dictionaries by
+  setting it to ENCODE-ALIST or ENCODE-PLIST.")
+
 (defgeneric encode (object &optional stream)
 
   (:documentation "Encode OBJECT to STREAM in JSON format.  May be
@@ -118,12 +123,15 @@
                (encode value stream)))
     object))
 
-(defmethod encode ((object list) &optional (stream *standard-output*))
+(defun encode-plain-list-to-array (object stream)
   (with-aggregate/object (stream #\[ #\])
     (dolist (value object)
       (with-element-output ()
         (encode value stream)))
     object))
+
+(defmethod encode ((object list) &optional (stream *standard-output*))
+  (funcall *list-encoder* object stream))
 
 (defun encode-assoc-key/value (key value stream)
   (let ((string (string key)))

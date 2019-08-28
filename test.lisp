@@ -92,3 +92,11 @@
                                    (make-user :name "uschi" :age 28 :password "kitten"))
                              s))))
 
+
+(deftest :yason "recursive-alist-encode"
+  (test-equal "{\"a\":3,\"b\":[1,2,{\"c\":4,\"d\":[6]}]}"
+              (yason:with-output-to-string* (:stream-symbol s)
+                (let ((yason:*list-encoder* #'yason:encode-alist))
+                  (yason:encode 
+                    `(("a" . 3) ("b" . #(1 2 (("c" . 4) ("d" . #(6))))))
+                    s)))))

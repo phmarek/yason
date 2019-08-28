@@ -29,6 +29,8 @@
    #:encode-object
    #:encode-plist
    #:encode-alist
+   #:encode-plain-list-to-array
+   #:*list-encoder*
 
    #:make-json-output-stream
 

@@ -276,6 +276,21 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
         </clix:description>
       </clix:special-variable>
 
+      <clix:special-variable name="*list-encoder*">
+        <clix:description>
+          Function to call to translate a CL list into JSON data.
+		  <clix:arg>'YASON:ENCODE-PLAIN-LIST-TO-ARRAY</clix:arg> is the default;
+		  <clix:arg>'YASON:ENCODE-PLIST</clix:arg> and
+		  <clix:arg>'YASON:ENCODE-ALIST</clix:arg> are available to produce
+		  JSON objects.
+		  <p>
+			  This is useful to translate a deeply recursive structure in a single
+			  <clix:arg>YASON:ENCODE</clix:arg> call.
+          </p>
+        </clix:description>
+      </clix:special-variable>
+
+
     </clix:subchapter>
   </clix:chapter>
 
