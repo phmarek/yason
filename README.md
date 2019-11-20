@@ -8,4 +8,4 @@ YASON
 > does not impose any object model on the Common Lisp application that
 > uses it.
 
-Please proceed to the [Documentation](http://hanshuebner.github.io/yason)
+Please proceed to the [Documentation](http://phmarek.github.io/yason/)
