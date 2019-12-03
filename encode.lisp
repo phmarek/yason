@@ -138,11 +138,15 @@
     (encode-key/value string value stream)))
 
 (defun encode-alist (object &optional (stream *standard-output*))
-  (with-aggregate/object (stream #\{ #\})
-    (loop for (key . value) in object
-          do (with-element-output ()
-               (encode-assoc-key/value key value stream)))
-    object))
+  ;; Failsafe in case this here is not an ALIST but a normal list
+  (if (consp (first object))
+      (with-aggregate/object (stream #\{ #\})
+        (loop for (key . value) in object
+              do (with-element-output ()
+                                      (encode-assoc-key/value key value stream)))
+        object)
+      ;; We can't call *LIST-ENCODER* again, that would be an unlimited recursion
+    (encode-plain-list-to-array object stream)))
 
 (defun encode-plist (object &optional (stream *standard-output*))
   (with-aggregate/object (stream #\{ #\})
