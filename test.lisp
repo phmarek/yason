@@ -92,11 +92,25 @@
                                    (make-user :name "uschi" :age 28 :password "kitten"))
                              s))))
 
-
 (deftest :yason "recursive-alist-encode"
   (test-equal "{\"a\":3,\"b\":[1,2,{\"c\":4,\"d\":[6]}]}"
               (yason:with-output-to-string* (:stream-symbol s)
                 (let ((yason:*list-encoder* #'yason:encode-alist))
-                  (yason:encode 
+                  (yason:encode
                     `(("a" . 3) ("b" . #(1 2 (("c" . 4) ("d" . #(6))))))
+                    s)))))
+
+(deftest :yason "symbols-as-keys"
+  (test-condition
+    (yason:with-output-to-string* (:stream-symbol s)
+      (let ((yason:*symbol-key-encoder* #'yason:encode-symbol-as-lowercase))
+        (yason:encode-alist
+          `((:|abC| . 3))
+          s)))
+    'error)
+  (test-equal "{\"a\":3}"
+              (yason:with-output-to-string* (:stream-symbol s)
+                (let ((yason:*symbol-key-encoder* #'yason:encode-symbol-as-lowercase))
+                  (yason:encode-alist
+                    `((:a . 3))
                     s)))))
