@@ -22,6 +22,11 @@
   Can be changed to encode ALISTs or PLISTs as dictionaries by
   setting it to ENCODE-ALIST or ENCODE-PLIST.")
 
+(defparameter *symbol-key-encoder* 'encode-symbol-key-error
+  "The actual function used to encode a SYMBOL when seen as a key.
+  You might want ENCODE-SYMBOL-AS-LOWERCASE here.")
+
+
 (defgeneric encode (object &optional stream)
 
   (:documentation "Encode OBJECT to STREAM in JSON format.  May be
@@ -133,8 +138,23 @@
 (defmethod encode ((object list) &optional (stream *standard-output*))
   (funcall *list-encoder* object stream))
 
+
+(defun encode-symbol-key-error (key)
+  (error "No policy for symbols as keys defined. ~
+         Please check YASON:*SYMBOL-KEY-ENCODER*."))
+
+(defun encode-symbol-as-lowercase (key)
+  "Encodes a symbol KEY as a lowercase string.
+  Ensure that there's no intentional lower-case character lost."
+  (let ((name (symbol-name key)))
+    (assert (notany #'lower-case-p name))
+    (string-downcase name)))
+
 (defun encode-assoc-key/value (key value stream)
-  (let ((string (string key)))
+  ;; Checking (EVERY #'UPPER-CASE-P name) breaks with non-alpha characters like #\-
+  (let ((string (if (symbolp key)
+                    (funcall *symbol-key-encoder* key)
+                    (string key))))
     (encode-key/value string value stream)))
 
 (defun encode-alist (object &optional (stream *standard-output*))

@@ -31,6 +31,8 @@
    #:encode-alist
    #:encode-plain-list-to-array
    #:*list-encoder*
+   #:*symbol-key-encoder*
+   #:encode-symbol-as-lowercase
 
    #:make-json-output-stream
 
