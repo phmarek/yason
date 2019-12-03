@@ -276,21 +276,6 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
         </clix:description>
       </clix:special-variable>
 
-      <clix:special-variable name="*list-encoder*">
-        <clix:description>
-          Function to call to translate a CL list into JSON data.
-		  <clix:arg>'YASON:ENCODE-PLAIN-LIST-TO-ARRAY</clix:arg> is the default;
-		  <clix:arg>'YASON:ENCODE-PLIST</clix:arg> and
-		  <clix:arg>'YASON:ENCODE-ALIST</clix:arg> are available to produce
-		  JSON objects.
-		  <p>
-			  This is useful to translate a deeply recursive structure in a single
-			  <clix:arg>YASON:ENCODE</clix:arg> call.
-          </p>
-        </clix:description>
-      </clix:special-variable>
-
-
     </clix:subchapter>
   </clix:chapter>
 
@@ -383,6 +368,32 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
             performance penalty of the indentation algorithm.
           </clix:description>
         </clix:function>
+
+      <clix:special-variable name="*list-encoder*">
+        <clix:description>
+          Function to call to translate a CL list into JSON data.
+		  <clix:arg>'YASON:ENCODE-PLAIN-LIST-TO-ARRAY</clix:arg> is the default;
+		  <clix:arg>'YASON:ENCODE-PLIST</clix:arg> and
+		  <clix:arg>'YASON:ENCODE-ALIST</clix:arg> are available to produce
+		  JSON objects.
+		  <p>
+			  This is useful to translate a deeply recursive structure in a single
+			  <clix:arg>YASON:ENCODE</clix:arg> call.
+          </p>
+        </clix:description>
+      </clix:special-variable>
+
+
+		<clix:special-variable name="*symbol-key-encoder*">
+          <clix:description>
+			  Defines the policy to encode symbols as keys (eg. in hash tables).
+			  The default is to error out, to provide backwards-compatible behaviour.
+			  <p>
+				  A useful function that can be bound to this variable is 
+				  <clix:ref>YASON:ENCODE-SYMBOL-AS-LOWERCASE.</clix:ref>
+			  </p>
+          </clix:description>
+        </clix:special-variable>
       </clix:subchapter>
     </clix:subchapter>
 

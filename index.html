@@ -302,20 +302,6 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
           a key in the CL hash produced. IDENTITY is the default.
         </clix:description></blockquote></p>
 
-      <p xmlns="">
-      [Special variable]<br><a class="none" name="*list-encoder*"><b>*list-encoder*</b></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
-          Function to call to translate a CL list into JSON data.
-		  <code><i>'YASON:ENCODE-PLAIN-LIST-TO-ARRAY</i></code> is the default;
-		  <code><i>'YASON:ENCODE-PLIST</i></code> and
-		  <code><i>'YASON:ENCODE-ALIST</i></code> are available to produce
-		  JSON objects.
-		  <p xmlns="http://www.w3.org/1999/xhtml">
-			  This is useful to translate a deeply recursive structure in a single
-			  <code xmlns=""><i>YASON:ENCODE</i></code> call.
-          </p>
-        </clix:description></blockquote></p>
-
-
     
   
 
@@ -399,6 +385,30 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
             if the <code><i>indent</i></code> argument is NIL, the
             original stream is returned in order to avoid the
             performance penalty of the indentation algorithm.
+          </clix:description></blockquote></p>
+
+      <p xmlns="">
+      [Special variable]<br><a class="none" name="*list-encoder*"><b>*list-encoder*</b></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+          Function to call to translate a CL list into JSON data.
+		  <code><i>'YASON:ENCODE-PLAIN-LIST-TO-ARRAY</i></code> is the default;
+		  <code><i>'YASON:ENCODE-PLIST</i></code> and
+		  <code><i>'YASON:ENCODE-ALIST</i></code> are available to produce
+		  JSON objects.
+		  <p xmlns="http://www.w3.org/1999/xhtml">
+			  This is useful to translate a deeply recursive structure in a single
+			  <code xmlns=""><i>YASON:ENCODE</i></code> call.
+          </p>
+        </clix:description></blockquote></p>
+
+
+		<p xmlns="">
+      [Special variable]<br><a class="none" name="*symbol-key-encoder*"><b>*symbol-key-encoder*</b></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+			  Defines the policy to encode symbols as keys (eg. in hash tables).
+			  The default is to error out, to provide backwards-compatible behaviour.
+			  <p xmlns="http://www.w3.org/1999/xhtml">
+				  A useful function that can be bound to this variable is 
+				  <code xmlns=""><a href="#yason:encode-symbol-as-lowercase.">YASON:ENCODE-SYMBOL-AS-LOWERCASE.</a></code>
+			  </p>
           </clix:description></blockquote></p>
       
     
@@ -688,6 +698,7 @@ CL-USER&gt; (yason:with-output-to-string* ()
 <li><code><a href="#*parse-json-null-as-keyword*">*parse-json-null-as-keyword*</a></code></li>
 <li><code><a href="#*parse-object-as*">*parse-object-as*</a></code></li>
 <li><code><a href="#*parse-object-key-fn*">*parse-object-key-fn*</a></code></li>
+<li><code><a href="#*symbol-key-encoder*">*symbol-key-encoder*</a></code></li>
 <li><code><a href="#encode">encode</a></code></li>
 <li><code><a href="#encode-alist">encode-alist</a></code></li>
 <li><code><a href="#encode-array-element">encode-array-element</a></code></li>
