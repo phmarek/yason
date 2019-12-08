@@ -18,6 +18,22 @@
   "If set to a true value, JSON arrays will be parsed as vectors, not
   as lists.")
 
+(defvar *allow-nan* t
+  "Allow parsing of [+-]Infinity and [+-]Nan into 'nan, 'plus-infinity, 'minus-infinity
+symbols. These are not a part of JSON, but some implementations allow it.")
+
+(defvar *yason-float-parser* nil
+  "A optional external function (function string) for parsing floats, that will be
+used over Lisp read.")
+
+(defvar *yason-float-type* 'double-float
+  "The output type for floats, one of 'single-float and 'double-float.  Does not apply if
+*YASON-FLOAT-PARSER* is set.")
+
+(defvar *allow-loose-floats* t
+  "If set to a true value, then allow numbers to have a leading + sign, and allow
+the exponent in a float to be d or D, which are not normally permitted by standard.")
+
 (defvar *parse-json-booleans-as-symbols* nil
   "If set to a true value, JSON booleans will be read as the symbols
   TRUE and FALSE, not as T and NIL, respectively.")
@@ -32,19 +48,111 @@
 (defvar *parse-object-as-alist* nil
   "DEPRECATED, provided for backward compatibility")
 
+
 (defun make-adjustable-string ()
   "Return an adjustable empty string, usable as a buffer for parsing strings and numbers."
   (make-array +default-string-length+
               :adjustable t :fill-pointer 0 :element-type 'character))
 
+
+
+
+;; verify that the buffer contains a float, and is not a symbol like
+;; 0e++d that might be interned by Lisp reader.
+;;
+;; require leading +,-, or digit; at least one digit in mantissa; no more
+;; than 1 decimal point,; allow zero or one of e,E,d,D followed by +- or digit,
+;; with at least one digit in exponent if e,E,d,D is present
+;; verify that the buffer contains a float, and is not a symbol like
+;; 0e++d that might be interned by Lisp reader.
+;;
+;; require leading +,-, or digit; at least one digit in mantissa; no more
+;; than 1 decimal point,; allow zero or one of e,E,d,D followed by +- or digit,
+;; with at least one digit in exponent if e,E,d,D is present
+(defun yason-validate-float (buffer)
+  (declare (type string buffer)
+	   (optimize speed))
+  (let ((idec  nil) ;; position of decimal point
+	(iexp  nil) ;; position of exponent char
+ 	(ndigman  0) ;; number of of digits in mantissa
+	(ndigexp 0)) ;; number of digits in exponent
+    (declare (type (or null fixnum) idec iexp ndigman ndigexp))
+    ;; first char must be a digit or +/-
+    (when (and (plusp (length buffer))
+	       (or (position (aref buffer 0) ".+-")
+		   (digit-char-p (aref buffer 0))))
+      (when (digit-char-p (aref buffer 0))
+	(setf ndigman 1))
+      (loop for i from 1 below (length buffer)
+	    for c of-type character = (aref buffer i)
+	    do
+	       (cond ((digit-char-p c) ;; count digits in mantissa and exponent
+		      (if iexp (incf ndigexp) (incf ndigman)))
+		     ((position c "eEdD")
+		      (when iexp  (return nil)) ;; error: 2 exponents
+		      (setf iexp i))
+		     ((position c  "+-")
+		      (when (not (eql iexp (1- i))) ;; error: +/- not after 'E,e,D,d' 
+			(return nil)))
+		     ((char= c #\.)
+		      (if (or idec iexp) ;; error: 2 decimal points, or . in exponent
+			  (return nil)
+			  (setf idec i))))
+	    finally
+	       (return (and
+			;; must have some digits in mantissa
+			(plusp ndigman)
+			;; if exponent present, it must have some digits 
+			(or (not iexp)
+			    (plusp ndigexp))))))))
+      
+
+
+
+(defun yason-parse-float (buffer)
+  (declare (type string buffer))
+  (cond
+    ;; use separate parser if supplied
+    (*yason-float-parser*
+     (funcall *yason-float-parser* buffer))
+    ;; check if float is valid, then use Lisp read to parse it
+    ((yason-validate-float buffer)
+     (let* ((*read-default-float-format* *yason-float-type*)
+	    (value (ignore-errors (read-from-string buffer))))
+       (if (numberp value)
+	 (coerce  value *yason-float-type*)
+	 (error "Could not parse float despite being validated ~S" buffer))))
+    (t
+     (error "Failed to parse float string ~S" buffer))))
+
+
+
 (defun parse-number (input)
-  ;; would be
-  ;; (cl-ppcre:scan-to-strings "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+|)(?:[eE][-+]?[0-9]+|)" buffer)
-  ;; but we want to operate on streams
-  (let ((buffer (make-adjustable-string)))
-    (loop while (position (peek-char nil input nil) ".0123456789+-Ee")
-          do (vector-push-extend (read-char input) buffer))
-    (values (read-from-string buffer))))
+  (let ((sign 1)
+	(c (peek-char nil input nil))
+	(all-digits t)) ;; all chars are digits, so it's a float
+    (when (member c '(#\+ #\-))
+      (read-char input)  ;; eat the sign and store it
+      (when (eql c #\-) (setf sign -1)))
+    (cond
+      ;; is it +/- infinity (allow +/- NaN too, but ignore sign and return 'NaN)
+      ((member (peek-char nil input nil) '(#\i #\I #\n #\N))
+       (parse-constant input sign)) ;; parse Infinity, Inf, etc 
+      (t
+       (let ((buffer (make-adjustable-string)))
+	 (loop
+	   for c = (peek-char nil input nil)
+	   for is-digit = (digit-char-p c)
+	   while (or is-digit
+		     (position c (if *allow-loose-floats* ".+-EeDd" ".+-Ee")))
+	   do
+	      (when (not is-digit)
+		(setf all-digits nil))
+	      (vector-push-extend (read-char input) buffer))
+	 (* sign
+	    (if all-digits
+		(parse-integer buffer)
+		(yason-parse-float buffer))))))))
 
 (defun parse-unicode-escape (input)
   (let ((char-code (let ((buffer (make-string 4)))
@@ -113,18 +221,30 @@
   (skip-whitespace input)
   (peek-char nil input eof-error-p))
 
-(defun parse-constant (input)
-  (destructuring-bind (expected-string return-value)
-      (find (peek-char nil input nil)
-            `(("true" ,(if *parse-json-booleans-as-symbols* 'true t))
-              ("false" ,(if *parse-json-booleans-as-symbols* 'false nil))
-              ("null"  ,(if *parse-json-null-as-keyword* :null nil)))
-            :key (lambda (entry) (aref (car entry) 0))
-            :test #'eql)
-    (loop for char across expected-string
-          unless (eql (read-char input nil) char)
-            do (error "invalid constant"))
-    return-value))
+
+;; new parsing function to permit nan,inf
+;; infinity-sign is a leading sign for infinity, passed from
+;; parse-number when it hits a +/- followed by i
+(defun parse-constant (input &optional (infinity-sign 1))
+  (let ((buffer (make-adjustable-string)))
+    (loop while (alpha-char-p (peek-char nil input))
+          do (vector-push-extend (read-char input) buffer))
+    (cond ((string= buffer "true")
+	   (if *parse-json-booleans-as-symbols* 'true t))
+	  ((string= buffer "false")
+	   (if *parse-json-booleans-as-symbols* 'false nil))
+	  ((string= buffer "null")
+	   (if *parse-json-booleans-as-symbols* 'null  nil))
+	  ((and *allow-nan* (string-equal buffer "nan"))
+	   'nan)
+	  ((and *allow-nan* (or (string-equal buffer "inf")
+				(string-equal buffer "infinity")))
+	   (if (= infinity-sign +1)
+	       'plus-infinity
+	       'minus-infinity))
+	  (t
+	   (error "invalid constant '~A'" buffer)))))
+
 
 (define-condition cannot-convert-key (error)
   ((key-string :initarg :key-string
@@ -222,17 +342,22 @@
                                  *parse-object-as*)))
       ;; end of backward compatibility code
       (check-type *parse-object-as* (member :hash-table :alist :plist))
-      (ecase (peek-char-skipping-whitespace input)
-        (#\"
-         (parse-string input))
-        ((#\- #\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
-         (parse-number input))
-        (#\{
-         (parse-object input))
-        (#\[
-         (parse-array input))
-        ((#\t #\f #\n)
-         (parse-constant input)))))
+      (let ((c (peek-char-skipping-whitespace input))) 
+	(ecase c 
+	  (#\"
+	   (parse-string input))
+	  ((#\- #\+ #\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
+	   (when (and (eql c #\+) (not *allow-loose-floats*))
+	     (error "Encountered + sign in a number which is not compliant with standard JSON, and *ALLOW-LOOSE-FLOATS* is not true."))
+	   (parse-number input))
+	  (#\{
+	   (parse-object input))
+	  (#\[
+	   (parse-array input))
+	  ((#\t #\f #\n #\N 
+		#\i #\I) ;; Infinity
+	   (parse-constant input))
+	  ))))
   (:method ((input pathname))
     (with-open-file (stream input)
       (parse stream)))

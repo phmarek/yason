@@ -19,9 +19,20 @@
    #:*parse-json-booleans-as-symbols*
    #:*parse-json-null-as-keyword*
 
+   
+   #:*allow-nan*     
+   #:*yason-float-parser* 
+   #:*yason-float-type*   
+   #:*allow-loose-floats*
+
+
+
    #:true
    #:false
    #:null
+   #:nan
+   #:plus-infinity
+   #:minus-infinity
 
    ;; Basic encoder interface
    #:encode
