@@ -23,16 +23,17 @@
 symbols. These are not a part of JSON, but some implementations allow it.")
 
 (defvar *yason-float-parser* nil
-  "A optional external function (function string) for parsing floats, that will be
-used over Lisp read.")
+  "A optional external function, taking a string as its one argument,
+for parsing floats, that will be used over Lisp read.")
 
 (defvar *yason-float-type* 'double-float
-  "The output type for floats, one of 'single-float and 'double-float.  Does not apply if
-*YASON-FLOAT-PARSER* is set.")
+  "The output type for floats, one of 'single-float and 'double-float.
+Does not apply if *YASON-FLOAT-PARSER* is set.")
 
 (defvar *allow-loose-floats* t
-  "If set to a true value, then allow numbers to have a leading + sign, and allow
-the exponent in a float to be d or D, which are not normally permitted by standard.")
+  "If set to a true value, then allow numbers to have a leading +
+sign, and allow the exponent in a float to be d or D, which are not
+normally permitted by JSON standard.")
 
 (defvar *parse-json-booleans-as-symbols* nil
   "If set to a true value, JSON booleans will be read as the symbols
@@ -130,7 +131,7 @@ the exponent in a float to be d or D, which are not normally permitted by standa
 (defun parse-number (input)
   (let ((sign 1)
 	(c (peek-char nil input nil))
-	(all-digits t)) ;; all chars are digits, so it's a float
+	(all-digits t)) ;; all chars are digits, so it's an int
     (when (member c '(#\+ #\-))
       (read-char input)  ;; eat the sign and store it
       (when (eql c #\-) (setf sign -1)))
