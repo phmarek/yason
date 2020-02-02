@@ -33,6 +33,7 @@
    #:*list-encoder*
    #:*symbol-key-encoder*
    #:encode-symbol-as-lowercase
+   #:encode-symbol-as-string
 
    #:make-json-output-stream
 

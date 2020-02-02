@@ -24,7 +24,8 @@
 
 (defparameter *symbol-key-encoder* 'encode-symbol-key-error
   "The actual function used to encode a SYMBOL when seen as a key.
-  You might want ENCODE-SYMBOL-AS-LOWERCASE here.")
+  You might want ENCODE-SYMBOL-AS-LOWERCASE or
+  ENCODE-SYMBOL-AS-STRING here.")
 
 
 (defgeneric encode (object &optional stream)
@@ -149,6 +150,21 @@
   (let ((name (symbol-name key)))
     (assert (notany #'lower-case-p name))
     (string-downcase name)))
+
+(defun encode-symbol-as-string (sym &optional stream)
+  "Encodes a symbol SYM as string PACKAGE:SYMBOL-NAME.
+  Always prints a double colon, as exportedness
+  might not make sense for the receiver;
+  this way reading the input in again is consistent.
+  Preserves case.
+  Breaks if the package name includes colons."
+  (let ((*print-readably* t)
+        (*package* (symbol-package sym)))
+    (if (keywordp sym)
+        (format stream "~s" sym)
+        (format stream "~a::~s"
+                (package-name *package*)
+                sym))))
 
 (defun encode-assoc-key/value (key value stream)
   ;; Checking (EVERY #'UPPER-CASE-P name) breaks with non-alpha characters like #\-
