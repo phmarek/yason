@@ -237,7 +237,8 @@
     (with-open-file (stream input)
       (parse stream)))
   (:method ((input string))
-    (parse (make-string-input-stream input))))
+    (parse (make-string-input-stream input)))
+  (:method ((input null))))
 
 (defun parse (input
               &key
