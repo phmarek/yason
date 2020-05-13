@@ -52,7 +52,22 @@
                                      (with-output-to-string (s)
                                        (yason:encode '(1 2 3)
                                                     (yason:make-json-output-stream s :indent indentation-arg)))))))
-    
+
+(deftest :yason "dom-encoder.object-indentation"
+  (test-equal "{
+  \"foo\": [
+    1
+  ],
+  \"bar\": [
+    2,
+    3
+  ]
+}"
+              (with-output-to-string (s)
+                (yason:encode-alist
+                 '(("foo" 1) ("bar" 2 3))
+                 (yason:make-json-output-stream s :indent 2)))))
+
 (deftest :yason "stream-encoder.basic-array"
   (test-equal "[0,1,2]"
               (with-output-to-string (s)

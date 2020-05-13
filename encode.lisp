@@ -112,6 +112,9 @@
 (defun encode-key/value (key value stream)
   (encode key stream)
   (write-char #\: stream)
+  (when (and (typep stream 'json-output-stream)
+             (indent stream))
+    (write-char #\space stream))
   (encode value stream))
 
 (defmethod encode ((object hash-table) &optional (stream *standard-output*))
