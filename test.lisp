@@ -68,6 +68,16 @@
                  '(("foo" 1) ("bar" 2 3))
                  (yason:make-json-output-stream s :indent 2)))))
 
+(deftest :yason "dom-encoder.empty-array-and-object-indentation"
+  (test-equal "[
+  [],
+  {}
+]"
+              (with-output-to-string (s)
+                (yason:encode
+                 (list (vector) (make-hash-table))
+                 (yason:make-json-output-stream s :indent 2)))))
+
 (deftest :yason "stream-encoder.basic-array"
   (test-equal "[0,1,2]"
               (with-output-to-string (s)
