@@ -151,7 +151,7 @@
     (assert (notany #'lower-case-p name))
     (string-downcase name)))
 
-(defun encode-symbol-as-string (sym &optional stream)
+(defun encode-symbol-as-string (sym &optional stream prefix)
   "Encodes a symbol SYM as string PACKAGE:SYMBOL-NAME.
   Always prints a double colon, as exportedness
   might not make sense for the receiver;
@@ -161,8 +161,9 @@
   (let ((*print-readably* t)
         (*package* (symbol-package sym)))
     (if (keywordp sym)
-        (format stream "~s" sym)
-        (format stream "~a::~s"
+        (format stream "~a~s" prefix sym)
+        (format stream "~a~a::~s"
+                (or prefix "")
                 (package-name *package*)
                 sym))))
 
@@ -170,7 +171,7 @@
   ;; Checking (EVERY #'UPPER-CASE-P name) breaks with non-alpha characters like #\-
   (let ((string (if (symbolp key)
                     (funcall *symbol-key-encoder* key)
-                    (string key))))
+                    (princ-to-string key))))
     (encode-key/value string value stream)))
 
 (defun encode-alist (object &optional (stream *standard-output*))
