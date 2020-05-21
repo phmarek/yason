@@ -114,3 +114,9 @@
                   (yason:encode-alist
                     `((:a . 3))
                     s)))))
+
+(deftest :yason "symbols-as-ht-keys"
+  (test-equal "{\"bar\":2}"
+              (let* ((yason:*symbol-key-encoder* #'yason:encode-symbol-as-lowercase))
+                (with-output-to-string (*standard-output*)
+                  (yason:encode (alexandria:plist-hash-table `(:bar 2)))))))

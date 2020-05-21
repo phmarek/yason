@@ -118,7 +118,7 @@
   (with-aggregate/object (stream #\{ #\})
     (maphash (lambda (key value)
                (with-element-output ()
-                 (encode-key/value key value stream)))
+                 (encode-assoc-key/value key value stream)))
              object)
     object))
 
