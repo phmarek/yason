@@ -144,6 +144,7 @@
 
 
 (defun encode-symbol-key-error (key)
+  (declare (ignore key))
   (error "No policy for symbols as keys defined. ~
          Please check YASON:*SYMBOL-KEY-ENCODER*."))
 
