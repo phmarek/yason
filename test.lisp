@@ -140,3 +140,12 @@
                       (yason:with-object ()
                         (yason:with-object-element ("bar")
                           (yason:encode 1)))))))))
+
+(deftest :yason "WITH-OBJECT-in-ENCODE-ARRAY-ELEMENT"
+  (test-equal "[{\"foo\":\"bar\"}]"
+              (with-output-to-string (*standard-output*)
+                (yason:with-output (*standard-output*)
+                  (yason:with-array ()
+                    (yason:encode-array-element
+                     (yason:with-object ()
+                       (yason:encode-object-element "foo" "bar"))))))))
