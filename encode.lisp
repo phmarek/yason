@@ -382,7 +382,8 @@ key is the slot name, and the value is the (SLOT-VALUE OBJECT slot)"
      (next-aggregate-element)
      (write-indentation *json-output*)
      (encode ,key (output-stream *json-output*))
-     (setf (car (stack *json-output*)) #\:)
+     (princ #\: (output-stream *json-output*))
+     (push nil (stack *json-output*))
      (unwind-protect
           (progn ,@body)
        (setf (car (stack *json-output*)) #\,))))

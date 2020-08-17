@@ -120,3 +120,23 @@
               (let* ((yason:*symbol-key-encoder* #'yason:encode-symbol-as-lowercase))
                 (with-output-to-string (*standard-output*)
                   (yason:encode (alexandria:plist-hash-table `(:bar 2)))))))
+
+(deftest :yason "ENCODE-as-obj-value"
+  (test-equal "{\"foo\":1}"
+              (with-output-to-string (*standard-output*)
+                (yason:with-output (*standard-output*) 
+                  (yason:with-object ()
+                    (yason:with-object-element ("foo")
+                      (yason:encode 1)))))))
+
+(deftest :yason "ENCODE-as-obj-value-2"
+  (test-equal "{\"baz\":12,\"foo\":{\"bar\":1}}"
+              (with-output-to-string (*standard-output*)
+                (yason:with-output (*standard-output*) 
+                  (yason:with-object ()
+                    (yason:with-object-element ("baz")
+                      (yason:encode 12))
+                    (yason:with-object-element ("foo")
+                      (yason:with-object ()
+                        (yason:with-object-element ("bar")
+                          (yason:encode 1)))))))))
