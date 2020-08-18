@@ -92,7 +92,7 @@
   (alexandria:with-gensyms (printed)
     `(progn
        (write-delimiter ,opening-char ,stream)
-       (change-indentation ,stream #'+)
+       (change-indentation ,stream +1)
        (prog1
            (let (,printed)
              (macrolet ((with-element-output (() &body body)
@@ -105,7 +105,7 @@
                              (write-indentation ,',stream)
                              ,@body)))
                ,@body))
-         (change-indentation ,stream #'-)
+         (change-indentation ,stream -1)
          (write-indentation ,stream)
          (write-delimiter ,closing-char ,stream)))))
 
@@ -217,11 +217,11 @@
                   :initarg :output-stream)
    (stack :accessor stack
           :initform nil)
+   (indent-depth :initform 0
+                 :accessor indent-depth)
    (indent :initarg :indent
            :reader indent
-           :accessor indent%)
-   (indent-string :initform ""
-                  :accessor indent-string))
+           :accessor indent%))
   (:default-initargs :indent *default-indent*)
   (:documentation "Objects of this class capture the state of a JSON stream encoder."))
 
@@ -245,8 +245,12 @@
     nil)
   (:method ((stream json-output-stream))
     (when (indent stream)
-      (fresh-line (output-stream stream))
-      (write-string (indent-string stream) (output-stream stream)))))
+      (let ((o (output-stream stream)))
+        (fresh-line o)
+        ;; WRITE-STRING becomes a loop of WRITE-CHAR anyway
+        (dotimes (i (* (indent-depth stream)
+                       (indent stream)))
+          (write-char #\Space o))))))
 
 (defgeneric write-delimiter (char stream)
   (:method (char stream)
@@ -254,14 +258,13 @@
   (:method (char (stream json-output-stream))
     (write-char char (output-stream stream))))
 
-(defgeneric change-indentation (stream operator)
+(defgeneric change-indentation (stream increment)
   (:method ((stream t) (operator t))
     nil)
-  (:method ((stream json-output-stream) operator)
+  (:method ((stream json-output-stream) increment)
     (when (indent stream)
-      (setf (indent-string stream) (make-string (funcall operator (length (indent-string stream))
-                                                         (indent stream))
-                                                :initial-element #\Space)))))
+      (incf (indent-depth stream)
+            increment))))
 
 (defun next-aggregate-element ()
   (if (car (stack *json-output*))
@@ -300,12 +303,12 @@
        (next-aggregate-element))
      (write-indentation *json-output*)
      (write-delimiter ,begin-char *json-output*)
-     (change-indentation *json-output* #'+)
+     (change-indentation *json-output* +1)
      (push nil (stack *json-output*))
      (prog1
          (progn ,@body)
        (pop (stack *json-output*))
-       (change-indentation *json-output* #'-)
+       (change-indentation *json-output* -1)
        (write-indentation *json-output*)
        (write-delimiter ,end-char *json-output*))))
 
