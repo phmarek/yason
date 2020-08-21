@@ -140,3 +140,23 @@
                       (yason:with-object ()
                         (yason:with-object-element ("bar")
                           (yason:encode 1)))))))))
+
+(deftest :yason "object-in-array"
+  (test-equal "[5,[6,{\"far\":8,\"near\":9,\"there\":1},7],{\"foo\":\"bar\",\"bar\":\"baz\"},7]"
+              (with-output-to-string (*standard-output*)
+                (yason:with-output (*standard-output* :indent nil)
+                  (yason:with-array ()
+                    (yason:encode-array-element 5)
+                    (yason:with-array ()
+                      (yason:encode-array-element 6)
+                      (yason:with-object ()
+                        (yason:with-object-element ("far")
+                          (yason:encode 8))
+                        (yason:encode-object-elements 
+                          "near" 9
+                          "there" 1))
+                      (yason:encode-array-element 7))
+                    (yason:with-object ()
+                      (yason:encode-object-element "foo" "bar")
+                      (yason:encode-object-element "bar" "baz"))
+                    (yason:encode-array-element 7))))))

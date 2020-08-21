@@ -314,9 +314,10 @@
 
 (defmacro with-array (() &body body)
   "Open a JSON array, then run BODY.  Inside the body,
-ENCODE-ARRAY-ELEMENT must be called to encode elements to the opened
-array.  Must be called within an existing JSON encoder context, see
-WITH-OUTPUT and WITH-OUTPUT-TO-STRING*."
+ENCODE-ARRAY-ELEMENT or nested WITH-ARRAY resp. WITH-OBJECT
+must be used to encode elements to the opened array.
+Must be called within an existing JSON encoder context,
+see WITH-OUTPUT and WITH-OUTPUT-TO-STRING*."
   `(with-aggregate/stream (#\[ #\]) ,@body))
 
 (defmacro with-object (() &body body)
