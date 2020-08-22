@@ -160,3 +160,7 @@
                       (yason:encode-object-element "foo" "bar")
                       (yason:encode-object-element "bar" "baz"))
                     (yason:encode-array-element 7))))))
+
+(deftest :yason "parse-double-float"
+  (test-equal 1579806040.0d0
+              (yason:parse "1579806040.0")))

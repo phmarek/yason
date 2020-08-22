@@ -41,7 +41,8 @@
   ;; would be
   ;; (cl-ppcre:scan-to-strings "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+|)(?:[eE][-+]?[0-9]+|)" buffer)
   ;; but we want to operate on streams
-  (let ((buffer (make-adjustable-string)))
+  (let ((buffer (make-adjustable-string))
+        (*read-default-float-format* 'double-float))
     (loop while (position (peek-char nil input nil) ".0123456789+-Ee")
           do (vector-push-extend (read-char input) buffer))
     (values (read-from-string buffer))))
