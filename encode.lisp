@@ -356,24 +356,35 @@ type for which an ENCODE method is defined."
   (loop for (key value) on elements by #'cddr
         do (encode-object-element key value)))
 
-(defun encode-object-slots (object slots)
+(defun encode-object-slots (object slots &key (lowercase-keys? t))
   "For each slot in SLOTS, encode that slot on OBJECT as an object element.
 Equivalent to calling ENCODE-OBJECT-ELEMENT for each slot where the
-key is the slot name, and the value is the (SLOT-VALUE OBJECT slot)"
+key is the slot name, and the value is the (SLOT-VALUE OBJECT slot).
+LOWERCASE-KEYS? says whether the key should be in lowercase."
   (loop for slot in slots
-     do (encode-object-element (string slot)
-                               (slot-value object slot))))
+        for key = (symbol-name slot)
+        do (encode-object-element (if lowercase-keys?
+                                      (string-downcase key)
+                                      key)
+                                  (slot-value object slot))))
 
-(define-compiler-macro encode-object-slots (&whole form &environment env object raw-slots)
-  "Compiler macro to allow open-coding with encode-object-slots when slots are literal list."
+(define-compiler-macro encode-object-slots (&whole form &environment env
+                                                   object raw-slots &key (lowercase-keys? t))
+  "Compiler macro to allow open-coding with ENCODE-OBJECT-SLOTS when slots are a literal list."
   (let ((slots (macroexpand raw-slots env)))
     (cond
       ((null slots) nil)
-      ((eq (car slots) 'quote)
-       (setf slots (cadr slots))        ; Get the quoted list
-       `(with-slots ,slots ,object
-          ,@(loop for slot in slots
-               collect `(encode-object-element ,(string slot) ,slot))))
+      ((and (eq (car slots) 'quote)
+            (constantp lowercase-keys? env))
+       (alexandria:once-only (object lowercase-keys?)
+         `(progn
+            ,@ (loop for slot in (cadr slots)  ; Get the quoted list
+                     for key = (symbol-name slot)
+                     collect `(encode-object-element (if ,lowercase-keys?
+                                                         (string-downcase ,key)
+                                                         ,key)
+                                                     (slot-value ,object ',slot))))))
+
       (t form))))
 
 (defmacro with-object-element ((key) &body body)
