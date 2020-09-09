@@ -395,7 +395,7 @@ key is the slot name, and the value is the (SLOT-VALUE OBJECT slot)"
 (defgeneric encode-slots (object)
   (:documentation
    "Generic function to encode object slots. It should be called in an
-    object encoding context. It uses PROGN combinatation with
+    object encoding context. It uses PROGN combination with
     MOST-SPECIFIC-LAST order, so that base class slots are encoded
     before derived class slots.")
   (:method-combination progn :most-specific-last))
