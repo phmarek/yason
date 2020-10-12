@@ -124,8 +124,8 @@
         (maphash (lambda (key value)
                    (with-element-output ()
                      (encode-assoc-key/value key value stream)))
-                 object)
-        object)))
+                 object)))
+  object)
 
 (defmethod encode ((object vector) &optional (stream *standard-output*))
   (if (zerop (length object))
@@ -133,8 +133,8 @@
       (with-aggregate/object (stream #\[ #\])
         (loop for value across object
               do (with-element-output ()
-                   (encode value stream)))
-        object)))
+                   (encode value stream)))))
+  object)
 
 (defun encode-plain-list-to-array (object stream)
   (with-aggregate/object (stream #\[ #\])
