@@ -144,7 +144,8 @@
   (test-equal "{\"bar\":2}"
               (let* ((yason:*symbol-key-encoder* #'yason:encode-symbol-as-lowercase))
                 (with-output-to-string (*standard-output*)
-                  (yason:encode (alexandria:plist-hash-table `(:bar 2)))))))
+                  (yason:with-output (*standard-output*) 
+                    (yason:encode (alexandria:plist-hash-table `(:bar 2))))))))
 
 (deftest :yason "ENCODE-as-obj-value"
   (test-equal "{\"foo\":1}"
