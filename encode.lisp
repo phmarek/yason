@@ -57,7 +57,7 @@
                   #xDC00)))
     (format stream "\\u~4,'0X\\u~4,'0X" upper lower)))
 
-(defmethod encode ((string string) &optional (stream *standard-output*))
+(defmethod encode ((string string) &optional (stream *json-output*))
   (write-char #\" stream)
   (dotimes (i (length string))
     (let* ((char (aref string i))
@@ -74,16 +74,16 @@
   (write-char #\" stream)
   string)
 
-(defmethod encode ((object ratio) &optional (stream *standard-output*))
+(defmethod encode ((object ratio) &optional (stream *json-output*))
   (encode (coerce object 'double-float) stream)
   object)
 
-(defmethod encode ((object float) &optional (stream *standard-output*))
+(defmethod encode ((object float) &optional (stream *json-output*))
   (let ((*read-default-float-format* 'double-float))
     (format stream "~F" (coerce object 'double-float)))
   object)
 
-(defmethod encode ((object integer) &optional (stream *standard-output*))
+(defmethod encode ((object integer) &optional (stream *json-output*))
   (princ object stream))
 
 (defmacro with-aggregate/object ((stream opening-char closing-char) &body body)
@@ -117,7 +117,7 @@
     (write-char #\space stream))
   (encode value stream))
 
-(defmethod encode ((object hash-table) &optional (stream *standard-output*))
+(defmethod encode ((object hash-table) &optional (stream *json-output*))
   (if (zerop (hash-table-count object))
       (write-string "{}" stream)
       (with-aggregate/object (stream #\{ #\})
@@ -127,7 +127,7 @@
                  object)))
   object)
 
-(defmethod encode ((object vector) &optional (stream *standard-output*))
+(defmethod encode ((object vector) &optional (stream *json-output*))
   (if (zerop (length object))
       (write-string "[]" stream)
       (with-aggregate/object (stream #\[ #\])
@@ -143,7 +143,7 @@
         (encode value stream)))
     object))
 
-(defmethod encode ((object list) &optional (stream *standard-output*))
+(defmethod encode ((object list) &optional (stream *json-output*))
   (funcall *list-encoder* object stream))
 
 
@@ -182,7 +182,7 @@
                     (princ-to-string key))))
     (encode-key/value string value stream)))
 
-(defun encode-alist (object &optional (stream *standard-output*))
+(defun encode-alist (object &optional (stream *json-output*))
   ;; Failsafe in case this here is not an ALIST but a normal list
   (if (consp (first object))
       (with-aggregate/object (stream #\{ #\})
@@ -193,30 +193,30 @@
       ;; We can't call *LIST-ENCODER* again, that would be an unlimited recursion
     (encode-plain-list-to-array object stream)))
 
-(defun encode-plist (object &optional (stream *standard-output*))
+(defun encode-plist (object &optional (stream *json-output*))
   (with-aggregate/object (stream #\{ #\})
     (loop for (key value) on object by #'cddr
           do (with-element-output ()
                (encode-assoc-key/value key value stream)))
     object))
 
-(defmethod encode ((object (eql 'true)) &optional (stream *standard-output*))
+(defmethod encode ((object (eql 'true)) &optional (stream *json-output*))
   (write-string "true" stream)
   object)
 
-(defmethod encode ((object (eql 'false)) &optional (stream *standard-output*))
+(defmethod encode ((object (eql 'false)) &optional (stream *json-output*))
   (write-string "false" stream)
   object)
 
-(defmethod encode ((object (eql :null)) &optional (stream *standard-output*))
+(defmethod encode ((object (eql :null)) &optional (stream *json-output*))
   (write-string "null" stream)
   object)
 
-(defmethod encode ((object (eql t)) &optional (stream *standard-output*))
+(defmethod encode ((object (eql t)) &optional (stream *json-output*))
   (write-string "true" stream)
   object)
 
-(defmethod encode ((object (eql nil)) &optional (stream *standard-output*))
+(defmethod encode ((object (eql nil)) &optional (stream *json-output*))
   (write-string "null" stream)
   object)
 
