@@ -1,3 +1,12 @@
+Version 0.8.2
+2020-11-08
+Maintainer change
+Encode empty arrays and objects on a single line
+Add space after an object's key's colon
+Indentation handling simplified
+Always parse as DOUBLE-FLOATs
+Fix WITH-OBJECT-ELEMENT followed by ENCODE
+
 Version 0.7.6
 2016-01-26
 Revert Rick's changes for alist/plist behavior (Hans Huebner)
