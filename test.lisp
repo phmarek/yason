@@ -199,3 +199,20 @@
 (deftest :yason "parse-double-float"
   (test-equal 1579806040.0d0
               (yason:parse "1579806040.0")))
+
+(deftest :yason "parse-ordering-hash"
+  (let ((parsed-hash (yason:parse "{\"foo\":0,\"bar\":1,\"foo\":2}")))
+    (test-equal 2
+                (gethash "foo" parsed-hash))
+    (test-equal 1
+                (gethash "bar" parsed-hash))))
+
+(deftest :yason "parse-ordering-alist"
+  (setf yason:*parse-object-as* :alist)
+  (test-equal '(("foo" . 0) ("bar" . 1) ("foo" . 2))
+              (yason:parse "{\"foo\":0,\"bar\":1,\"foo\":2}")))
+
+(deftest :yason "parse-ordering-plist"
+  (setf yason:*parse-object-as* :plist)
+  (test-equal '("foo" 0 "bar" 1 "foo" 2)
+              (yason:parse "{\"foo\":0,\"bar\":1,\"foo\":2}")))

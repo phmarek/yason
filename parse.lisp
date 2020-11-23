@@ -181,7 +181,9 @@
         (#\, (read-char input))
         (#\} nil)))
     (read-char input)
-    return-value))
+    (if (eq *parse-object-as* :alist)
+      (nreverse return-value)
+      return-value)))
 
 (defconstant +initial-array-size+ 20
   "Initial size of JSON arrays read, they will grow as needed.")
