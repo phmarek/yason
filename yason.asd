@@ -17,7 +17,7 @@
 (defsystem :yason
   :name "YASON"
   :author "Hans Huebner <hans@huebner.org>"
-  :version "0.8.2"
+  :version "0.8.3"
   :licence "BSD"
   :description "JSON parser/encoder"
   :long-description "YASON is a Common Lisp library for encoding and

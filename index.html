@@ -81,7 +81,7 @@
     <p>
       YASON has its permanent home at <a href="https://github.com/hanshuebner/yason/">GitHub</a>.
       It can be obtained by downloading the <a href="https://github.com/downloads/hanshuebner/yason/yason.tar.gz">release
-      tarball</a>.  The current release is 0.7.6.
+      tarball</a>.  The current release is 0.8.3.
     </p>
     <p>
       You may also check out the current development version from its
@@ -401,6 +401,17 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
         </clix:description></blockquote></p>
 
 
+      <p xmlns="">
+      [Special variable]<br><a class="none" name="*symbol-encoder*"><b>*symbol-encoder*</b></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
+          Function to call to translate a CL symbol into a JSON string.
+		  The default is to error out, to provide backwards-compatible behaviour.
+		  <p xmlns="http://www.w3.org/1999/xhtml">
+			  A useful function that can be bound to this variable is 
+			  <code xmlns=""><a href="#yason:encode-symbol-as-lowercase.">YASON:ENCODE-SYMBOL-AS-LOWERCASE.</a></code>
+		  </p>
+        </clix:description></blockquote></p>
+
+
 		<p xmlns="">
       [Special variable]<br><a class="none" name="*symbol-key-encoder*"><b>*symbol-key-encoder*</b></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
 			  Defines the policy to encode symbols as keys (eg. in hash tables).
@@ -698,6 +709,7 @@ CL-USER&gt; (yason:with-output-to-string* ()
 <li><code><a href="#*parse-json-null-as-keyword*">*parse-json-null-as-keyword*</a></code></li>
 <li><code><a href="#*parse-object-as*">*parse-object-as*</a></code></li>
 <li><code><a href="#*parse-object-key-fn*">*parse-object-key-fn*</a></code></li>
+<li><code><a href="#*symbol-encoder*">*symbol-encoder*</a></code></li>
 <li><code><a href="#*symbol-key-encoder*">*symbol-key-encoder*</a></code></li>
 <li><code><a href="#encode">encode</a></code></li>
 <li><code><a href="#encode-alist">encode-alist</a></code></li>
