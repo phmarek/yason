@@ -31,6 +31,7 @@
    #:encode-alist
    #:encode-plain-list-to-array
    #:*list-encoder*
+   #:*symbol-encoder*
    #:*symbol-key-encoder*
    #:encode-symbol-as-lowercase
    #:encode-symbol-as-string

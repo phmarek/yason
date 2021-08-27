@@ -25,6 +25,12 @@
 (defparameter *symbol-key-encoder* 'encode-symbol-key-error
   "The actual function used to encode a SYMBOL when seen as a key.
   You might want ENCODE-SYMBOL-AS-LOWERCASE or
+  ENCODE-SYMBOL-AS-STRING here.
+  The function returns just a string - the quotes are added when writing the key.")
+
+(defparameter *symbol-encoder* 'encode-symbol-error
+  "The actual function used to encode a SYMBOL.
+  You might want ENCODE-SYMBOL-AS-LOWERCASE or
   ENCODE-SYMBOL-AS-STRING here.")
 
 
@@ -146,11 +152,22 @@
 (defmethod encode ((object list) &optional (stream *json-output*))
   (funcall *list-encoder* object stream))
 
+(defmethod encode ((object symbol) &optional (stream *json-output*))
+  (let ((new (funcall *symbol-encoder* object)))
+    (assert (stringp new))
+    (encode new stream))
+  )
 
 (defun encode-symbol-key-error (key)
   (declare (ignore key))
   (error "No policy for symbols as keys defined. ~
          Please check YASON:*SYMBOL-KEY-ENCODER*."))
+
+(defun encode-symbol-error (key)
+  (declare (ignore key))
+  (error "No policy for symbols as keys defined. ~
+         Please check YASON:*SYMBOL-ENCODER*."))
+
 
 (defun encode-symbol-as-lowercase (key)
   "Encodes a symbol KEY as a lowercase string.
@@ -159,7 +176,7 @@
     (assert (notany #'lower-case-p name))
     (string-downcase name)))
 
-(defun encode-symbol-as-string (sym &optional stream prefix)
+(defun encode-symbol-as-string (sym &optional prefix)
   "Encodes a symbol SYM as string PACKAGE:SYMBOL-NAME.
   Always prints a double colon, as exportedness
   might not make sense for the receiver;
@@ -169,8 +186,10 @@
   (let ((*print-readably* t)
         (*package* (symbol-package sym)))
     (if (keywordp sym)
-        (format stream "~a~s" prefix sym)
-        (format stream "~a~a::~s"
+        (format nil "~a~s"
+                (or prefix "") 
+                sym)
+        (format nil "~a~a::~s"
                 (or prefix "")
                 (package-name *package*)
                 sym))))

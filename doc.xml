@@ -384,6 +384,18 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
       </clix:special-variable>
 
 
+      <clix:special-variable name="*symbol-encoder*">
+        <clix:description>
+          Function to call to translate a CL symbol into a JSON string.
+		  The default is to error out, to provide backwards-compatible behaviour.
+		  <p>
+			  A useful function that can be bound to this variable is 
+			  <clix:ref>YASON:ENCODE-SYMBOL-AS-LOWERCASE.</clix:ref>
+		  </p>
+        </clix:description>
+      </clix:special-variable>
+
+
 		<clix:special-variable name="*symbol-key-encoder*">
           <clix:description>
 			  Defines the policy to encode symbols as keys (eg. in hash tables).
