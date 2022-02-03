@@ -283,7 +283,7 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
     YASON provides two distinct modes to encode JSON data:
     applications can either create an in-memory representation of the
     data to be serialized, then have YASON convert it to JSON in one
-    go, or they can use a set of macros to serialze the JSON data
+    go, or they can use a set of macros to serialize the JSON data
     element-by-element, allowing fine-grained control over the layout
     of the generated data.
 
