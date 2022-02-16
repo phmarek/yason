@@ -134,12 +134,21 @@
              (format stream "cannot convert key ~S used in JSON object to hash table key"
                      (key-string c)))))
 
-(defun create-container ()
+(define-condition duplicate-key (error)
+  ((key-string :initarg :key-string
+               :reader key-string))
+  (:report (lambda (c stream)
+             (format stream "Duplicate dict key ~S"
+                     (key-string c)))))
+
+
+(defun create-container (ht)
   (ecase *parse-object-as*
     ((:plist :alist)
      nil)
     (:hash-table
-     (make-hash-table :test #'equal))))
+     ;; Uses hash-table
+     ht)))
 
 (defun add-attribute (to key value)
   (ecase *parse-object-as*
@@ -159,31 +168,34 @@
                      (key-string c)))))
 
 (defun parse-object (input)
-  (let ((return-value (create-container)))
+  (let* ((ht (make-hash-table :test #'equal))
+         (return-value (create-container ht)))
     (read-char input)
     (loop
       (when (eql (peek-char-skipping-whitespace input)
                  #\})
         (return))
       (skip-whitespace input)
-      (setf return-value
-            (add-attribute return-value
-                           (let ((key-string (parse-string input)))
-                             (prog1
-                                 (or (funcall *parse-object-key-fn* key-string)
-                                     (error 'cannot-convert-key :key-string key-string))
-                               (skip-whitespace input)
-                               (unless (eql #\: (read-char input))
-                                 (error 'expected-colon :key-string key-string))
-                               (skip-whitespace input)))
-                           (parse input)))
+      (let* ((key-string (parse-string input))
+             (key (or (funcall *parse-object-key-fn* key-string)
+                      (error 'cannot-convert-key :key-string key-string))))
+        (when (nth-value 1 (gethash key ht))
+          (error 'duplicate-key :key-string key-string))
+        (skip-whitespace input)
+        (unless (eql #\: (read-char input))
+          (error 'expected-colon :key-string key-string))
+        (skip-whitespace input)
+        (let ((value (parse input)))
+          (setf return-value
+                (add-attribute return-value key value))))
       (ecase (peek-char-skipping-whitespace input)
         (#\, (read-char input))
         (#\} nil)))
     (read-char input)
-    (if (eq *parse-object-as* :alist)
-      (nreverse return-value)
-      return-value)))
+    (values (if (eq *parse-object-as* :alist)
+                (nreverse return-value)
+                return-value)
+            ht)))
 
 (defconstant +initial-array-size+ 20
   "Initial size of JSON arrays read, they will grow as needed.")

@@ -277,6 +277,13 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
       </clix:special-variable>
 
     </clix:subchapter>
+
+	<p>
+		To avoid <a href="https://bishopfox.com/blog/json-interoperability-vulnerabilities">security issues</a>
+        in Common Lisp code and/or downstream, on parsing JSON duplicate keys
+		are rejected. If allowing that is a real use case, please send a patch
+		providing a restart.
+	</p>
   </clix:chapter>
 
   <clix:chapter name="encoding" title="Encoding JSON data">

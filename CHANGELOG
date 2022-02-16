@@ -1,3 +1,9 @@
+Version 0.8.4
+2022-02-20
+Due to https://bishopfox.com/blog/json-interoperability-vulnerabilities for dictionaries a hash-table is _always_ filled in, and duplicate keys raise an error.
+Documentation update.
+
+
 Version 0.8.2
 2020-11-08
 Maintainer change

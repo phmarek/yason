@@ -201,18 +201,27 @@
               (yason:parse "1579806040.0")))
 
 (deftest :yason "parse-ordering-hash"
-  (let ((parsed-hash (yason:parse "{\"foo\":0,\"bar\":1,\"foo\":2}")))
-    (test-equal 2
+  (let ((parsed-hash (yason:parse "{\"foo\":0,\"bar\":1,\"foO\":2}")))
+    (test-equal 0
                 (gethash "foo" parsed-hash))
+    (test-equal 2
+                (gethash "foO" parsed-hash))
     (test-equal 1
                 (gethash "bar" parsed-hash))))
 
 (deftest :yason "parse-ordering-alist"
   (let ((yason:*parse-object-as* :alist))
-    (test-equal '(("foo" . 0) ("bar" . 1) ("foo" . 2))
-                (yason:parse "{\"foo\":0,\"bar\":1,\"foo\":2}"))))
+    (test-equal '(("foo" . 0) ("bar" . 1) ("foO" . 2))
+                (yason:parse "{\"foo\":0,\"bar\":1,\"foO\":2}"))))
 
 (deftest :yason "parse-ordering-plist"
   (let ((yason:*parse-object-as* :plist))
     (test-equal '("foo" 0 "bar" 1 "foo" 2)
                 (yason:parse "{\"foo\":0,\"bar\":1,\"foo\":2}"))))
+
+
+(deftest :yason "duplicate-key"
+  (test-condition (yason:parse "{\"a\":1,\"a\":2}")
+                  'yason::duplicate-key)
+  (test-condition (yason:parse "{\"a\":1,\"a\\ud800\":2}")
+                  'error))
