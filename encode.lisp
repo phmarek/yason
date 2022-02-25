@@ -37,8 +37,9 @@
 (defgeneric encode (object &optional stream)
 
   (:documentation "Encode OBJECT to STREAM in JSON format.  May be
-  specialized by applications to perform specific rendering.  STREAM
-  defaults to *STANDARD-OUTPUT*."))
+  specialized by applications to perform specific rendering.
+  STREAM must be a JSON-OUTPUT-STREAM; you can get one via
+  MAKE-JSON-OUTPUT-STREAM, WITH-OUTPUT, or WITH-OUTPUT-TO-STRING*."))
 
 (defparameter *char-replacements*
   (alexandria:plist-hash-table

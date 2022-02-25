@@ -36,6 +36,23 @@
     (test-equal (first *basic-test-json-dom*) (first result) :test #'equalp)
     (test-equal (rest *basic-test-json-dom*) (rest result))))
 
+(deftest :yason "dom-encoder.w-o-t-s*"
+      (let* ((stg (yason:with-output-to-string* (:indent 2)
+                    (yason:encode *basic-test-json-dom*)))
+             (result (yason:parse stg)))
+    (test-equal (subseq stg 2 5) "  {")
+    (test-equal (first *basic-test-json-dom*) (first result) :test #'equalp)
+    (test-equal (rest *basic-test-json-dom*) (rest result))))
+
+(deftest :yason "dom-encoder.w-o"
+  (let* ((stg (with-output-to-string (s)
+                    (yason:with-output (s :indent 3)
+                      (yason:encode *basic-test-json-dom*))))
+         (result (yason:parse stg)))
+    (test-equal (subseq stg 2 6) "   {")
+    (test-equal (first *basic-test-json-dom*) (first result) :test #'equalp)
+    (test-equal (rest *basic-test-json-dom*) (rest result))))
+
 (defun whitespace-char-p (char)
   (member char '(#\space #\tab #\return #\newline #\linefeed)))
 
