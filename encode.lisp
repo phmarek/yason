@@ -64,8 +64,7 @@
                   #xDC00)))
     (format stream "\\u~4,'0X\\u~4,'0X" upper lower)))
 
-(defmethod encode ((string string) &optional (stream *json-output*))
-  (write-char #\" stream)
+(defun escape-string-to-stream (string stream)
   (dotimes (i (length string))
     (let* ((char (aref string i))
            (replacement (gethash char *char-replacements*)))
@@ -77,7 +76,11 @@
         ;; Non-BMP characters must be escaped as a UTF-16 surrogate pair.
         ((<= #x010000 (unicode-code char) #x10FFFF)
          (write-surrogate-pair-escape (unicode-code char) stream))
-        (t (write-char char stream)))))
+        (t (write-char char stream))))))
+
+(defmethod encode ((string string) &optional (stream *json-output*))
+  (write-char #\" stream)
+  (escape-string-to-stream string stream)
   (write-char #\" stream)
   string)
 
