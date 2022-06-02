@@ -172,6 +172,7 @@
 
 (defmethod encode ((object symbol) &optional (stream *json-output*))
   (let ((new (funcall *symbol-encoder* object)))
+    ;; We require a string-like output here to ensure that the JSON format stays consistent.
     (assert (or (stringp new)
                 (raw-json-output-p new)))
     (encode new stream)))
