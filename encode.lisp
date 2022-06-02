@@ -81,6 +81,20 @@
   (write-char #\" stream)
   string)
 
+(defstruct (raw-json-output
+             (:constructor make-raw-json-output (stg)))
+  "Escape mechanism to allow more intricate JSON exports.
+    (MAKE-RAW-JSON-OUTPUT X)
+   causes the string X to be written to the JSON output verbatim,
+   ie. without any encoding.
+   (Bad) example:
+      (yason:encode (vector 1 2 (make-raw-json-output \"{}\")"
+  (stg nil :type string))
+
+(defmethod encode ((raw raw-json-output) &optional (stream *json-output*))
+  (princ (raw-json-output-stg raw) stream)
+  raw)
+
 (defmethod encode ((object ratio) &optional (stream *json-output*))
   (encode (coerce object 'double-float) stream)
   object)
@@ -155,9 +169,9 @@
 
 (defmethod encode ((object symbol) &optional (stream *json-output*))
   (let ((new (funcall *symbol-encoder* object)))
-    (assert (stringp new))
-    (encode new stream))
-  )
+    (assert (or (stringp new)
+                (raw-json-output-p new)))
+    (encode new stream)))
 
 (defun encode-symbol-key-error (key)
   (declare (ignore key))
