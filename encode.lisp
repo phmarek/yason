@@ -7,7 +7,7 @@
 
 (in-package :yason)
 
-(defvar *json-output*)
+(defvar *json-output* (make-json-output-stream *standard-output*))
 
 (defparameter *default-indent* nil
   "Set to T or an numeric indentation width in order to have YASON
@@ -206,7 +206,7 @@
         (*package* (symbol-package sym)))
     (if (keywordp sym)
         (format nil "~a~s"
-                (or prefix "") 
+                (or prefix "")
                 sym)
         (format nil "~a~a::~s"
                 (or prefix "")
