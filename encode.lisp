@@ -7,8 +7,6 @@
 
 (in-package :yason)
 
-(defvar *json-output* (make-json-output-stream *standard-output*))
-
 (defparameter *default-indent* nil
   "Set to T or an numeric indentation width in order to have YASON
   indent its output by default.")
@@ -32,6 +30,34 @@
   "The actual function used to encode a SYMBOL.
   You might want ENCODE-SYMBOL-AS-LOWERCASE or
   ENCODE-SYMBOL-AS-STRING here.")
+
+
+(defclass json-output-stream (trivial-gray-streams:fundamental-character-output-stream)
+  ((output-stream :reader output-stream
+                  :initarg :output-stream)
+   (stack :accessor stack
+          :initform nil)
+   (indent-depth :initform 0
+                 :accessor indent-depth)
+   (indent :initarg :indent
+           :reader indent
+           :accessor indent%))
+  (:default-initargs :indent *default-indent*)
+  (:documentation "Objects of this class capture the state of a JSON stream encoder."))
+
+(defmethod initialize-instance :after ((stream json-output-stream) &key indent)
+  (when (eq indent t)
+    (setf (indent% stream) *default-indent-width*)))
+
+(defgeneric make-json-output-stream (stream &key indent))
+
+(defmethod make-json-output-stream (stream &key (indent t))
+  "Create a JSON output stream with indentation enabled."
+  (if indent
+      (make-instance 'json-output-stream :output-stream stream :indent indent)
+      stream))
+
+(defvar *json-output* (make-json-output-stream *standard-output*))
 
 
 (defgeneric encode (object &optional stream)
@@ -257,31 +283,6 @@
 (defmethod encode ((object (eql nil)) &optional (stream *json-output*))
   (write-string "null" stream)
   object)
-
-(defclass json-output-stream (trivial-gray-streams:fundamental-character-output-stream)
-  ((output-stream :reader output-stream
-                  :initarg :output-stream)
-   (stack :accessor stack
-          :initform nil)
-   (indent-depth :initform 0
-                 :accessor indent-depth)
-   (indent :initarg :indent
-           :reader indent
-           :accessor indent%))
-  (:default-initargs :indent *default-indent*)
-  (:documentation "Objects of this class capture the state of a JSON stream encoder."))
-
-(defmethod initialize-instance :after ((stream json-output-stream) &key indent)
-  (when (eq indent t)
-    (setf (indent% stream) *default-indent-width*)))
-
-(defgeneric make-json-output-stream (stream &key indent))
-
-(defmethod make-json-output-stream (stream &key (indent t))
-  "Create a JSON output stream with indentation enabled."
-  (if indent
-      (make-instance 'json-output-stream :output-stream stream :indent indent)
-      stream))
 
 (defmethod trivial-gray-streams:stream-write-char ((stream json-output-stream) char)
   (write-char char (output-stream stream)))
