@@ -465,3 +465,8 @@ LOWERCASE-KEYS? says whether the key should be in lowercase."
   (:method (object)
     (with-object ()
       (yason:encode-slots object))))
+
+;; See discussion at https://github.com/phmarek/yason/issues/74
+#+cmucl
+(defmethod trivial-gray-streams:stream-line-column ((stream json-output-stream))
+  nil)

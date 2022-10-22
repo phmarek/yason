@@ -242,3 +242,12 @@
                   'yason::duplicate-key)
   (test-condition (yason:parse "{\"a\":1,\"a\\ud800\":2}")
                   'error))
+
+(deftest :yason "surrogate"
+  ;; Cmucl uses utf-16 strings, so the result has the surrogate pair
+  ;; in the parsed string.
+  (test-equal #-cmucl
+	      (list (char-code #\a) #x1d11e (char-code #\b))
+	      #+cmucl
+	      (list (char-code #\a) #xd834 #xdd1e (char-code #\b))
+	      (map 'list #'char-code (yason:parse "\"a\\ud834\\udd1eb\""))))

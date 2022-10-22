@@ -61,9 +61,14 @@
             (when (not (and (>= tail-code #xdc00)
                             (<= tail-code #xdfff)))
               (error "Lead Surrogate without Tail Surrogate"))
+	    #-cmucl
             (code-char (+ #x010000
                           (ash (- char-code #xd800) 10)
-                          (- tail-code #xdc00)))))
+                          (- tail-code #xdc00)))
+	    ;; Cmucl strings use utf-16 encoding.  Just return the two
+	    ;; surrogate chars as is.
+	    #+cmucl
+	    (values (code-char char-code) (code-char tail-code))))
         (code-char char-code))))
 
 (defun parse-string (input)
@@ -94,7 +99,16 @@
                (#\n (outc #\Newline))
                (#\r (outc #\Return))
                (#\t (outc #\Tab))
-               (#\u (outc (parse-unicode-escape input)))))
+               (#\u
+		#-cmucl
+		(outc (parse-unicode-escape input))
+		#+cmucl
+		(multiple-value-bind (char tail)
+		    (parse-unicode-escape input)
+		  (outc char)
+		  ;; Output the surrogate as is for cmucl.
+		  (when tail
+		    (outc tail))))))
             ((and (or (whitespace-p (peek))
                       (eql (peek) #\:))
                   (not string-quoted))
