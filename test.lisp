@@ -114,6 +114,8 @@
                         (dotimes (i 3)
                           (yason:encode-array-element i)))))))))
 
+;; See "surrogate" test below for CMUCL.
+#+cmucl
 (deftest :yason "stream-encode.unicode-string"
   (test-equal "\"ab\\u0002 cde \\uD834\\uDD1E\""
               (with-output-to-string (s)
