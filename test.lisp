@@ -115,11 +115,20 @@
                           (yason:encode-array-element i)))))))))
 
 ;; See "surrogate" test below for CMUCL.
-#+cmucl
 (deftest :yason "stream-encode.unicode-string"
   (test-equal "\"ab\\u0002 cde \\uD834\\uDD1E\""
               (with-output-to-string (s)
-                (yason:encode (format nil "ab~C cde ~C" (code-char #x02) (code-char #x1d11e)) s))))
+		(yason:encode
+		 #-cmucl
+		 (format nil "ab~C cde ~C" (code-char #x02) (code-char #x1d11e))
+		 #+cmucl
+		 ;; Cmucl strings are utf-16 so we need to use
+		 ;; surrogate pairs to represent codepoints outside the
+		 ;; BMP.
+                 (format nil "ab~C cde ~{~C~}"
+			 (code-char #x02)
+			 (multiple-value-list (lisp:surrogates #x1d11e)))
+		 s))))
 
 (defstruct user name age password)
 

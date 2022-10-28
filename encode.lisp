@@ -64,6 +64,7 @@
                   #xDC00)))
     (format stream "\\u~4,'0X\\u~4,'0X" upper lower)))
 
+#-cmucl
 (defun escape-string-to-stream (string stream)
   (dotimes (i (length string))
     (let* ((char (aref string i))
@@ -77,6 +78,29 @@
         ((<= #x010000 (unicode-code char) #x10FFFF)
          (write-surrogate-pair-escape (unicode-code char) stream))
         (t (write-char char stream))))))
+
+#+cmucl
+(defun escape-string-to-stream (string stream)
+  (loop for codepoint being the codepoint of string
+	do
+	   (cond
+	     ((<= #x0000 codepoint #x001F)
+	      ;; Control characters (U+0000 - U+001F) must be escaped.
+	      (format stream "\\u~4,'0X" codepoint))
+             ((<= #x010000 codepoint #x10FFFF)
+	      ;; Non-BMP characters must be escaped as a UTF-16
+	      ;; surrogate pair.  Cmucl strings already use surrogate
+	      ;; pairs, but do it this way to get the pairs in the
+	      ;; desired order.
+	      (write-surrogate-pair-escape codepoint stream))
+	     (t
+	      ;; Codepoint is in the BMP.  Use the replacement if
+	      ;; available or just output the character.
+	      (let ((replacement (gethash (code-char codepoint)
+					  *char-replacements*)))
+		(if replacement
+		    (write-string replacement stream)
+		    (write-char (code-char codepoint) stream)))))))
 
 (defmethod encode ((string string) &optional (stream *json-output*))
   (write-char #\" stream)
