@@ -17,6 +17,12 @@
   "Default indentation width for output if indentation is selected
   with no indentation width specified.")
 
+(defvar *nil-encoder* 'encode-null
+  "The actual function used to encode NIL.
+  Default is ENCODE-NULL, but ENCODE-FALSE may be appropriate, too.
+  Special value :LIST means to encode NIL as an empty list by calling
+  the *LIST-ENCODER* function.")
+
 (defparameter *list-encoder* 'encode-plain-list-to-array
   "The actual function used to encode a LIST.
   Can be changed to encode ALISTs or PLISTs as dictionaries by
@@ -246,7 +252,7 @@
 
 (defun encode-alist (object &optional (stream *json-output*))
   ;; Failsafe in case this here is not an ALIST but a normal list
-  (if (consp (first object))
+  (if (or (null object) (consp (first object)))
       (with-aggregate/object (stream #\{ #\})
         (loop for (key . value) in object
               do (with-element-output ()
@@ -262,25 +268,38 @@
                (encode-assoc-key/value key value stream)))
     object))
 
-(defmethod encode ((object (eql 'true)) &optional (stream *json-output*))
+(declaim (inline encode-true))
+(defun encode-true (object &optional (stream *json-output*))
+  "Constantly encode OBJECT as true."
   (write-string "true" stream)
   object)
 
-(defmethod encode ((object (eql 'false)) &optional (stream *json-output*))
+(declaim (inline encode-false))
+(defun encode-false (object &optional (stream *json-output*))
+  "Constantly encode OBJECT as false."
   (write-string "false" stream)
   object)
 
-(defmethod encode ((object (eql :null)) &optional (stream *json-output*))
+(declaim (inline encode-null))
+(defun encode-null (object &optional (stream *json-output*))
+  "Constantly encode OBJECT as null."
   (write-string "null" stream)
   object)
+
+(defmethod encode ((object (eql 'true)) &optional (stream *json-output*))
+  (encode-true object stream))
+
+(defmethod encode ((object (eql 'false)) &optional (stream *json-output*))
+  (encode-false object stream))
+
+(defmethod encode ((object (eql :null)) &optional (stream *json-output*))
+  (encode-null object stream))
 
 (defmethod encode ((object (eql t)) &optional (stream *json-output*))
-  (write-string "true" stream)
-  object)
+  (encode-true object stream))
 
 (defmethod encode ((object (eql nil)) &optional (stream *json-output*))
-  (write-string "null" stream)
-  object)
+  (funcall (if (eq *nil-encoder* :list) *list-encoder* *nil-encoder*) object stream))
 
 (defclass json-output-stream (trivial-gray-streams:fundamental-character-output-stream)
   ((output-stream :reader output-stream

@@ -30,6 +30,10 @@
    #:encode-plist
    #:encode-alist
    #:encode-plain-list-to-array
+   #:encode-true
+   #:encode-false
+   #:encode-null
+   #:*nil-encoder*
    #:*list-encoder*
    #:*symbol-encoder*
    #:*symbol-key-encoder*
