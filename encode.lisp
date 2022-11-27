@@ -195,11 +195,17 @@
   (funcall *list-encoder* object stream))
 
 (defmethod encode ((object symbol) &optional (stream *json-output*))
-  (let ((new (funcall *symbol-encoder* object)))
-    ;; We require a string-like output here to ensure that the JSON format stays consistent.
-    (assert (or (stringp new)
-                (raw-json-output-p new)))
-    (encode new stream)))
+  (cond ((eq object true)
+	 (encode 'true stream))
+	((eq object false)
+	 (encode 'false stream))
+	(t
+	 (let ((new (funcall *symbol-encoder* object)))
+	   ;; We require a string-like output here to ensure that the
+	   ;; JSON format stays consistent.
+	   (assert (or (stringp new)
+                       (raw-json-output-p new)))
+	   (encode new stream)))))
 
 (defun encode-symbol-key-error (key)
   (declare (ignore key))

@@ -10,6 +10,14 @@
 (defconstant +default-string-length+ 20
   "Default length of strings that are created while reading json input.")
 
+(declaim (type symbol true))
+(defvar true 'true
+  "Symbol representing the JSON value true.")
+
+(declaim (type symbol false))
+(defvar false 'false
+  "Symbol representing the JSON value false.")
+
 (defvar *parse-object-key-fn* #'identity
   "Function to call to convert a key string in a JSON array to a key
   in the CL hash produced.")
@@ -20,7 +28,8 @@
 
 (defvar *parse-json-booleans-as-symbols* nil
   "If set to a true value, JSON booleans will be read as the symbols
-  TRUE and FALSE, not as T and NIL, respectively.")
+  TRUE and FALSE, not as T and NIL, respectively.  The actual symbols
+  can be customized via the TRUE and FALSE special variables.")
 
 (defvar *parse-json-null-as-keyword* nil
   "If set to a true value, JSON nulls will be read as the keyword :NULL, not as NIL.")
@@ -131,8 +140,8 @@
 (defun parse-constant (input)
   (destructuring-bind (expected-string return-value)
       (find (peek-char nil input nil)
-            `(("true" ,(if *parse-json-booleans-as-symbols* 'true t))
-              ("false" ,(if *parse-json-booleans-as-symbols* 'false nil))
+            `(("true" ,(if *parse-json-booleans-as-symbols* true t))
+              ("false" ,(if *parse-json-booleans-as-symbols* false nil))
               ("null"  ,(if *parse-json-null-as-keyword* :null nil)))
             :key (lambda (entry) (aref (car entry) 0))
             :test #'eql)

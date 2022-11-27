@@ -262,3 +262,33 @@
 	      #+cmucl
 	      (list (char-code #\a) #xd834 #xdd1e (char-code #\b))
 	      (map 'list #'char-code (yason:parse "\"a\\ud834\\udd1eb\""))))
+
+(deftest :yason "booleans-as-symbols"
+  (let ((yason:*parse-json-booleans-as-symbols* t))
+    (test-equal (yason:parse "true") 'yason:true :test #'eq)
+    (test-equal (yason:parse "false") 'yason:false :test #'eq)
+    (test-equal (yason:parse "true") yason:true :test #'eq)
+    (test-equal (yason:parse "false") yason:false :test #'eq)
+    (let ((yason:true :true)
+	  (yason:false :false))
+      (test-equal (yason:parse "true") :true :test #'eq)
+      (test-equal (yason:parse "false") :false :test #'eq)
+      (test-equal (yason:parse "true") yason:true :test #'eq)
+      (test-equal (yason:parse "false") yason:false :test #'eq)))
+  (labels ((encode-to-string (data)
+	     (with-output-to-string (stream)
+	       (yason:encode data stream))))
+    (test-equal (encode-to-string 'yason:true) "true")
+    (test-equal (encode-to-string 'yason:false) "false")
+    (test-equal (encode-to-string yason:true) "true")
+    (test-equal (encode-to-string yason:false) "false")
+    (let ((yason:true :true)
+	  (yason:false :false))
+      (test-equal (encode-to-string :true) "true")
+      (test-equal (encode-to-string :false) "false")
+      (test-equal (encode-to-string yason:true) "true")
+      (test-equal (encode-to-string yason:false) "false")
+      ;; The symbols ‘true’ and ‘false’ always encode to true and
+      ;; false, no matter how they are bound.
+      (test-equal (encode-to-string 'yason:true) "true")
+      (test-equal (encode-to-string 'yason:false) "false"))))
