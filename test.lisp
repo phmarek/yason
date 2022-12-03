@@ -172,13 +172,13 @@
   (test-equal "{\"bar\":2}"
               (let* ((yason:*symbol-key-encoder* #'yason:encode-symbol-as-lowercase))
                 (with-output-to-string (*standard-output*)
-                  (yason:with-output (*standard-output*) 
+                  (yason:with-output (*standard-output*)
                     (yason:encode (alexandria:plist-hash-table `(:bar 2))))))))
 
 (deftest :yason "ENCODE-as-obj-value"
   (test-equal "{\"foo\":1}"
               (with-output-to-string (*standard-output*)
-                (yason:with-output (*standard-output*) 
+                (yason:with-output (*standard-output*)
                   (yason:with-object ()
                     (yason:with-object-element ("foo")
                       (yason:encode 1)))))))
@@ -186,7 +186,7 @@
 (deftest :yason "ENCODE-as-obj-value-2"
   (test-equal "{\"baz\":12,\"foo\":{\"bar\":1}}"
               (with-output-to-string (*standard-output*)
-                (yason:with-output (*standard-output*) 
+                (yason:with-output (*standard-output*)
                   (yason:with-object ()
                     (yason:with-object-element ("baz")
                       (yason:encode 12))
@@ -206,7 +206,7 @@
                       (yason:with-object ()
                         (yason:with-object-element ("far")
                           (yason:encode 8))
-                        (yason:encode-object-elements 
+                        (yason:encode-object-elements
                           "near" 9
                           "there" 1))
                       (yason:encode-array-element 7))
@@ -262,3 +262,32 @@
 	      #+cmucl
 	      (list (char-code #\a) #xd834 #xdd1e (char-code #\b))
 	      (map 'list #'char-code (yason:parse "\"a\\ud834\\udd1eb\""))))
+
+(deftest :yason "nil-encoder"
+  (labels ((encode-to-string (data)
+	     (with-output-to-string (stream)
+	       (yason:encode data stream))))
+    (test-equal (encode-to-string nil) "null")
+    (let ((yason:*nil-encoder* #'yason:encode-null))
+      (test-equal (encode-to-string nil) "null"))
+    (let ((yason:*nil-encoder* #'yason:encode-false))
+      (test-equal (encode-to-string nil) "false"))
+    (let ((yason:*nil-encoder* #'yason:encode-list))
+      (let ((yason:*list-encoder* #'yason:encode-plain-list-to-array))
+	(test-equal (encode-to-string ()) "[]"))
+      (let ((yason:*list-encoder* #'yason:encode-alist))
+	(test-equal (encode-to-string ()) "{}"))
+      (let ((yason:*list-encoder* #'yason:encode-plist))
+	(test-equal (encode-to-string ()) "{}"))
+      (let ((yason:*parse-object-as* :alist)
+	    (yason:*list-encoder* #'yason:encode-alist))
+	(let ((string "{\"foo\":23,\"bar\":\"baz\"}"))
+	  (test-equal (encode-to-string (yason:parse string)) string))
+	(let ((string "{}"))
+	  (test-equal (encode-to-string (yason:parse string)) string)))
+      (let ((yason:*parse-object-as* :plist)
+	    (yason:*list-encoder* #'yason:encode-plist))
+	(let ((string "{\"foo\":23,\"bar\":\"baz\"}"))
+	  (test-equal (encode-to-string (yason:parse string)) string))
+	(let ((string "{}"))
+	  (test-equal (encode-to-string (yason:parse string)) string))))))
