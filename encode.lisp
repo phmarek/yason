@@ -19,9 +19,8 @@
 
 (defvar *nil-encoder* 'encode-null
   "The actual function used to encode NIL.
-  Default is ENCODE-NULL, but ENCODE-FALSE may be appropriate, too.
-  Special value :LIST means to encode NIL as an empty list by calling
-  the *LIST-ENCODER* function.")
+  Default is ENCODE-NULL, but ENCODE-FALSE or ENCODE-LIST may be
+  appropriate, too.")
 
 (defparameter *list-encoder* 'encode-plain-list-to-array
   "The actual function used to encode a LIST.
@@ -197,8 +196,13 @@
         (encode value stream)))
     object))
 
-(defmethod encode ((object list) &optional (stream *json-output*))
+(declaim (inline encode-list))
+(defun encode-list (object &optional (stream *json-output*))
+  "Encode OBJECT as a list by calling *LIST-ENCODER*."
   (funcall *list-encoder* object stream))
+
+(defmethod encode ((object list) &optional (stream *json-output*))
+  (encode-list object stream))
 
 (defmethod encode ((object symbol) &optional (stream *json-output*))
   (let ((new (funcall *symbol-encoder* object)))
@@ -251,17 +255,15 @@
     (encode-key/value string value stream)))
 
 (defun encode-alist (object &optional (stream *json-output*))
-  ;; Failsafe in case this here is not an ALIST but a normal list
-  (if (or (null object) (consp (first object)))
-      (with-aggregate/object (stream #\{ #\})
-        (loop for (key . value) in object
-              do (with-element-output ()
-                                      (encode-assoc-key/value key value stream)))
-        object)
-      ;; We can't call *LIST-ENCODER* again, that would be an unlimited recursion
-    (encode-plain-list-to-array object stream)))
+  "Encode OBJECT (an alist) as a JSON object."
+  (with-aggregate/object (stream #\{ #\})
+    (loop for (key . value) in object
+          do (with-element-output ()
+               (encode-assoc-key/value key value stream)))
+    object))
 
 (defun encode-plist (object &optional (stream *json-output*))
+  "Encode OBJECT (a plist) as a JSON object."
   (with-aggregate/object (stream #\{ #\})
     (loop for (key value) on object by #'cddr
           do (with-element-output ()
@@ -299,7 +301,7 @@
   (encode-true object stream))
 
 (defmethod encode ((object (eql nil)) &optional (stream *json-output*))
-  (funcall (if (eq *nil-encoder* :list) *list-encoder* *nil-encoder*) object stream))
+  (funcall *nil-encoder* object stream))
 
 (defclass json-output-stream (trivial-gray-streams:fundamental-character-output-stream)
   ((output-stream :reader output-stream

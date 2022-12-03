@@ -272,7 +272,7 @@
       (test-equal (encode-to-string nil) "null"))
     (let ((yason:*nil-encoder* #'yason:encode-false))
       (test-equal (encode-to-string nil) "false"))
-    (let ((yason:*nil-encoder* :list))
+    (let ((yason:*nil-encoder* #'yason:encode-list))
       (let ((yason:*list-encoder* #'yason:encode-plain-list-to-array))
 	(test-equal (encode-to-string ()) "[]"))
       (let ((yason:*list-encoder* #'yason:encode-alist))

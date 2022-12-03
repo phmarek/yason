@@ -30,6 +30,7 @@
    #:encode-plist
    #:encode-alist
    #:encode-plain-list-to-array
+   #:encode-list
    #:encode-true
    #:encode-false
    #:encode-null
