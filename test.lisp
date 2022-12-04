@@ -278,7 +278,7 @@
 				      (asdf:system-source-directory :yason))))
 		     (handler-case
 			 (setf data (funcall *json-decoder* stream)
-			       status (if (eq stream (peek-char t stream nil stream)) :pass :fail))
+			       status (if (eq stream (peek-char nil stream nil stream)) :pass :fail))
 		       (error ()
 			 (setf status :fail))))
 		   (test-equal expected-status status :test #'eq))))
@@ -321,5 +321,6 @@
 	       (json-checker-1 "fail33.json" :fail)
 	       ()))
       (let ((*json-decoder* #'yason:parse))
+	(declare (special *json-decoder*))
 	(json-checker))
       ())))
