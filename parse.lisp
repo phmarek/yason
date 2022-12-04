@@ -38,14 +38,48 @@
               :adjustable t :fill-pointer 0 :element-type 'character))
 
 (defun parse-number (input)
-  ;; would be
-  ;; (cl-ppcre:scan-to-strings "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+|)(?:[eE][-+]?[0-9]+|)" buffer)
-  ;; but we want to operate on streams
+  "Parse a JSON number.
+
+May signal an ‘arithmetic-error’ like, e.g. ‘floating-point-overflow’
+or ‘floating-point-underflow’."
   (let ((buffer (make-adjustable-string))
-        (*read-default-float-format* 'double-float))
-    (loop while (position (peek-char nil input nil) ".0123456789+-Ee")
-          do (vector-push-extend (read-char input) buffer))
-    (values (read-from-string buffer))))
+	;; Sequence of valid digit characters.
+	(digits "0123456789")
+	;; Invalid input character.
+	(invalid #\Space))
+    (flet ((read-digits (optional)
+	     (when (not optional)
+	       (unless (position (peek-char nil input nil invalid) digits :test #'char=)
+		 (error 'parse-error)))
+	     (loop :while (position (peek-char nil input nil invalid) digits :test #'char=)
+		   :do (vector-push-extend (read-char input) buffer))))
+      (declare (inline read-digits))
+      ;; Optional minus sign.
+      (when (char= (peek-char nil input nil invalid) #\-)
+	(vector-push-extend (read-char input) buffer))
+      ;; Integer part.
+      (case (peek-char nil input nil invalid)
+	(#\0
+	 (vector-push-extend (read-char input) buffer))
+	((#\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
+	 (vector-push-extend (read-char input) buffer)
+	 (read-digits t))
+	(t
+	 (error 'parse-error)))
+      ;; Optional fractional part.
+      (when (char= (peek-char nil input nil invalid) #\.)
+	(vector-push-extend (read-char input) buffer)
+	(read-digits nil))
+      ;; Optional exponent part.
+      (when (char-equal (peek-char nil input nil invalid) #\E)
+	(vector-push-extend (read-char input) buffer)
+	(case (peek-char nil input nil invalid)
+	  ((#\+ #\-)
+	   (vector-push-extend (read-char input) buffer)))
+	(read-digits nil))
+      ;; Read the number.
+      (let ((*read-default-float-format* 'double-float))
+	(values (read-from-string buffer))))))
 
 (defun parse-unicode-escape (input)
   (let ((char-code (let ((buffer (make-string 4)))

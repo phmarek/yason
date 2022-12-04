@@ -298,7 +298,7 @@
 	       (json-checker-1 "fail10.json" :fail)
 	       (json-checker-1 "fail11.json" :fail)
 	       (json-checker-1 "fail12.json" :fail)
-	       (json-checker-1 "fail13.json" :skip) ;to be fixed
+	       (json-checker-1 "fail13.json" :fail)
 	       (json-checker-1 "fail14.json" :fail)
 	       (json-checker-1 "fail15.json" :fail)
 	       (json-checker-1 "fail16.json" :fail)
@@ -314,9 +314,9 @@
 	       (json-checker-1 "fail26.json" :fail)
 	       (json-checker-1 "fail27.json" :skip) ;to be fixed w/ strict
 	       (json-checker-1 "fail28.json" :fail)
-	       (json-checker-1 "fail29.json" :skip) ;to be fixed
-	       (json-checker-1 "fail30.json" :skip) ;to be fixed
-	       (json-checker-1 "fail31.json" :skip) ;to be fixed
+	       (json-checker-1 "fail29.json" :fail)
+	       (json-checker-1 "fail30.json" :fail)
+	       (json-checker-1 "fail31.json" :fail)
 	       (json-checker-1 "fail32.json" :fail)
 	       (json-checker-1 "fail33.json" :fail)
 	       ()))
