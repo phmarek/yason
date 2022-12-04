@@ -264,9 +264,10 @@
          (parse-constant input)))))
   (:method ((input pathname))
     (with-open-file (stream input)
-      (parse stream)))
+      (parse% stream)))
   (:method ((input string))
-    (parse (make-string-input-stream input))))
+    (with-input-from-string (stream input)
+      (parse% stream))))
 
 (defun parse (input
               &key
