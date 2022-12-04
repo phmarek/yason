@@ -199,7 +199,7 @@
         (unless (eql #\: (read-char input))
           (error 'expected-colon :key-string key-string))
         (skip-whitespace input)
-        (let ((value (parse input)))
+        (let ((value (parse* input)))
           (setf return-value
                 (add-attribute return-value key value))))
       (ecase (peek-char-skipping-whitespace input)
@@ -221,7 +221,7 @@
     (when (eql (peek-char-skipping-whitespace input)
                #\])
       (return))
-    (funcall add-element-function (parse input))
+    (funcall add-element-function (parse* input))
     (ecase (peek-char-skipping-whitespace input)
       (#\, (read-char input))
       (#\] nil)))
@@ -240,49 +240,58 @@
                         (push element return-value)))
         (nreverse return-value))))
 
-(defgeneric parse% (input)
-  (:method ((input stream))
-    ;; backward compatibility code
-    (assert (or (not *parse-object-as-alist*)
-                (eq *parse-object-as* :hash-table))
-            () "unexpected combination of *parse-object-as* and *parse-object-as-alist*, please use *parse-object-as* exclusively")
-    (let ((*parse-object-as* (if *parse-object-as-alist*
-                                 :alist
-                                 *parse-object-as*)))
-      ;; end of backward compatibility code
-      (check-type *parse-object-as* (member :hash-table :alist :plist))
-      (ecase (peek-char-skipping-whitespace input)
-        (#\"
-         (parse-string input))
-        ((#\- #\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
-         (parse-number input))
-        (#\{
-         (parse-object input))
-        (#\[
-         (parse-array input))
-        ((#\t #\f #\n)
-         (parse-constant input)))))
-  (:method ((input pathname))
-    (with-open-file (stream input)
-      (parse% stream)))
-  (:method ((input string))
-    (with-input-from-string (stream input)
-      (parse% stream))))
+(defun parse* (input)
+  "Parse any JSON value."
+  (ecase (peek-char-skipping-whitespace input)
+    (#\"
+     (parse-string input))
+    ((#\- #\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
+     (parse-number input))
+    (#\{
+     (parse-object input))
+    (#\[
+     (parse-array input))
+    ((#\t #\f #\n)
+     (parse-constant input))))
 
 (defun parse (input
               &key
                 (object-key-fn *parse-object-key-fn*)
-                (object-as *parse-object-as*)
+                (object-as *parse-object-as* object-as-supplied-p)
                 (json-arrays-as-vectors *parse-json-arrays-as-vectors*)
                 (json-booleans-as-symbols *parse-json-booleans-as-symbols*)
-                (json-nulls-as-keyword *parse-json-null-as-keyword*))
-  "Parse INPUT, which needs to be a string or a stream, as JSON.
-  Returns the lisp representation of the JSON structure parsed.  The
-  keyword arguments can be used to override the parser settings as
-  defined by the respective special variables."
+                (json-nulls-as-keyword *parse-json-null-as-keyword*)
+		junk-allowed)
+  "Parse INPUT, which needs to be a stream, pathname, or string, as JSON.
+
+If keyword argument JUNK-ALLOWED is false, signal an error of type
+ ‘parse-error’ if a non-whitespace character occurs after the JSON
+ structure.
+The remaining keyword arguments can be used to override the parser
+ settings as defined by the respective special variables.
+
+Returns the Lisp representation of the JSON structure parsed."
+  (check-type object-as (member :hash-table :alist :plist))
+  (when (and (not object-as-supplied-p) (not (eq *parse-object-as* :alist)) *parse-object-as-alist*)
+    (error "Incompatible combination of *PARSE-OBJECT-AS* and *PARSE-OBJECT-AS-ALIST*, please use *PARSE-OBJECT-AS* exclusively."))
   (let ((*parse-object-key-fn* object-key-fn)
         (*parse-object-as* object-as)
         (*parse-json-arrays-as-vectors* json-arrays-as-vectors)
         (*parse-json-booleans-as-symbols* json-booleans-as-symbols)
         (*parse-json-null-as-keyword* json-nulls-as-keyword))
-    (parse% input)))
+    (flet ((%parse (stream)
+	     (prog1
+		 (parse* stream)
+	       ;; Check for end of file.
+	       (skip-whitespace stream)
+	       (unless (or junk-allowed (eq (peek-char nil stream nil stream) stream))
+		 (error 'parse-error)))))
+      (etypecase input
+	(stream
+	 (%parse input))
+	(pathname
+	 (with-open-file (stream input)
+	   (%parse stream)))
+	(string
+	 (with-input-from-string (stream input)
+	   (%parse stream)))))))
