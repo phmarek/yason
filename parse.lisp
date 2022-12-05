@@ -332,7 +332,7 @@ or ‘floating-point-underflow’."
 
 (defun parse* (input)
   "Parse any JSON value."
-  (ecase (peek-char-skipping-whitespace input)
+  (case (peek-char-skipping-whitespace input)
     (#\"
      (parse-string input))
     ((#\- #\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
@@ -342,7 +342,9 @@ or ‘floating-point-underflow’."
     (#\[
      (parse-array input))
     ((#\t #\f #\n)
-     (parse-constant input))))
+     (parse-constant input))
+    (t
+     (error 'parse-error))))
 
 (defun parse (input
               &key
