@@ -92,30 +92,45 @@ or ‘floating-point-underflow’."
 	(values (read-from-string buffer))))))
 
 (defun parse-unicode-escape (input)
-  (let ((char-code (let ((buffer (make-string 4)))
-                     (read-sequence buffer input)
-                     (parse-integer buffer :radix 16))))
+  "Helper function for ‘parse-string’."
+  (let* ((buffer (make-string 6))
+	 (char-code (progn
+		      (when (< (read-sequence buffer input :end 4) 4)
+			(error 'end-of-file))
+		      (multiple-value-bind (integer position)
+			  (parse-integer buffer :end 4 :radix 16 :junk-allowed t)
+			(when (< position 4)
+			  (error 'parse-error))
+			integer))))
     (if (and (>= char-code #xd800)
              (<= char-code #xdbff))
-        (let ((buffer (make-string 6)))
-          (read-sequence buffer input)
-          (when (not (string= buffer "\\u" :end1 2))
-            (error "Lead Surrogate without Tail Surrogate"))
-          (let ((tail-code (parse-integer buffer :radix 16 :start 2)))
-            (when (not (and (>= tail-code #xdc00)
-                            (<= tail-code #xdfff)))
-              (error "Lead Surrogate without Tail Surrogate"))
-	    #-cmucl
-            (code-char (+ #x010000
-                          (ash (- char-code #xd800) 10)
-                          (- tail-code #xdc00)))
-	    ;; Cmucl strings use utf-16 encoding.  Just return the two
-	    ;; surrogate chars as is.
-	    #+cmucl
-	    (values (code-char char-code) (code-char tail-code))))
-        (code-char char-code))))
+	;; A surrogate code point.
+	(let ((tail-code (progn
+			   (when (< (read-sequence buffer input :end 6) 6)
+			     (error 'end-of-file))
+			   (when (string/= buffer "\\u" :end1 2 :end2 2)
+			     (error 'parse-error))
+			   (multiple-value-bind (integer position)
+			       (parse-integer buffer :start 2 :end 6 :radix 16 :junk-allowed t)
+			     (when (< position 6)
+			       (error 'parse-error))
+			     integer))))
+          (when (not (and (>= tail-code #xdc00)
+                          (<= tail-code #xdfff)))
+	    (error 'parse-error))
+	  #-cmucl
+          (code-char (+ #x010000
+                        (ash (- char-code #xd800) 10)
+                        (- tail-code #xdc00)))
+	  ;; Cmucl strings use utf-16 encoding.  Just return the two
+	  ;; surrogate chars as is.
+	  #+cmucl
+	  (values (code-char char-code) (code-char tail-code)))
+      ;; A regular character.
+      (code-char char-code))))
 
 (defun parse-string (input)
+  "Parse a JSON string."
   (let ((output (make-adjustable-string)))
     (labels ((outc (c)
                (vector-push-extend c output))
@@ -123,42 +138,64 @@ or ‘floating-point-underflow’."
                (read-char input))
              (peek ()
                (peek-char nil input)))
-      (let* ((starting-symbol (next))
-             (string-quoted (equal starting-symbol #\")))
-        (unless string-quoted
-          (outc starting-symbol))
-        (loop
-          (cond
-            ((eql (peek) #\")
-             (next)
-             (return-from parse-string output))
-            ((eql (peek) #\\)
-             (next)
-             (ecase (next)
-               (#\" (outc #\"))
-               (#\\ (outc #\\))
-               (#\/ (outc #\/))
-               (#\b (outc #\Backspace))
-               (#\f (outc #\Page))
-               (#\n (outc #\Newline))
-               (#\r (outc #\Return))
-               (#\t (outc #\Tab))
-               (#\u
-		#-cmucl
-		(outc (parse-unicode-escape input))
-		#+cmucl
-		(multiple-value-bind (char tail)
-		    (parse-unicode-escape input)
-		  (outc char)
-		  ;; Output the surrogate as is for cmucl.
-		  (when tail
-		    (outc tail))))))
-            ((and (or (whitespace-p (peek))
-                      (eql (peek) #\:))
-                  (not string-quoted))
-             (return-from parse-string output))
-            (t
-             (outc (next)))))))))
+      (let ((c (next)))
+	(if (char= c #\")
+	    ;; Parse quoted string.
+            (loop
+	      (setf c (next))
+	      (case c
+		(#\"
+		 (return))
+		(#\\
+		 ;; Escape sequence.
+		 (case (next)
+		   (#\" (outc #\"))
+		   (#\\ (outc #\\))
+		   (#\/ (outc #\/))
+		   (#\b (outc #\Backspace))
+		   (#\f (outc #\Page))
+		   (#\n (outc #\Newline))
+		   (#\r (outc #\Return))
+		   (#\t (outc #\Tab))
+		   (#\u
+		    #-cmucl
+		    (outc (parse-unicode-escape input))
+		    #+cmucl
+		    (multiple-value-bind (char tail)
+			(parse-unicode-escape input)
+		      (outc char)
+		      ;; Output the surrogate as is for cmucl.
+		      (when tail
+			(outc tail))))
+		   (t
+		    (error 'parse-error))))
+		(t
+		 (when *parse-strict*
+		   (unless (and (standard-char-p c)
+				(graphic-char-p c))
+		     (error 'parse-error)))
+		 (outc c))))
+	  ;; Parse unquoted string.  Allow letters, decimal digits,
+	  ;; and some punctuation characters.
+	  (progn
+	    (loop
+	      (if (and (characterp c)
+		       (standard-char-p c)
+		       (or (alpha-char-p c)
+			   (digit-char-p c)
+			   ;; TODO: Make the alphabet a user option.
+			   (position c "-_")))
+		  (outc c)
+		(return))
+	      (setf c (read-char input nil)))
+	    (when (characterp c)
+	      (unread-char c input))
+	    (when (zerop (length output))
+	      (error 'parse-error))
+	    ;; TODO: More sanity checks, e.g. the unquoted string
+	    ;; should not look like a number.
+	    ()))))
+    output))
 
 (defun whitespace-p (char)
   (member char '(#\Space #\Newline #\Tab #\Linefeed #\Return)))

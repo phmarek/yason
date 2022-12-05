@@ -321,9 +321,9 @@
 		 (json-checker-1 "fail22.json" :fail)
 		 (json-checker-1 "fail23.json" :fail)
 		 (json-checker-1 "fail24.json" :fail)
-		 (json-checker-1 "fail25.json" :skip) ;to be fixed w/ strict
+		 (json-checker-1 "fail25.json" :fail)
 		 (json-checker-1 "fail26.json" :fail)
-		 (json-checker-1 "fail27.json" :skip) ;to be fixed w/ strict
+		 (json-checker-1 "fail27.json" :fail)
 		 (json-checker-1 "fail28.json" :fail)
 		 (json-checker-1 "fail29.json" :fail)
 		 (json-checker-1 "fail30.json" :fail)
@@ -333,7 +333,9 @@
 	       (let ((yason:*parse-strict* nil))
 		 (json-checker-1 "fail3.json" :pass)
 		 (json-checker-1 "fail4.json" :pass)
-		 (json-checker-1 "fail9.json" :pass))
+		 (json-checker-1 "fail9.json" :pass)
+		 (json-checker-1 "fail25.json" :pass)
+		 (json-checker-1 "fail27.json" :pass))
 	       ()))
       (let ((*json-decoder* #'yason:parse))
 	(declare (special *json-decoder*))
