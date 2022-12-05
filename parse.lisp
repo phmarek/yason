@@ -10,6 +10,16 @@
 (defconstant +default-string-length+ 20
   "Default length of strings that are created while reading json input.")
 
+(defvar *parse-strict* nil
+  "Whether or not to parse JSON strictly according to the standard.
+The relaxed parser accepts the following non-standard constructs:
+
+   * Keys of object members may be unquoted strings.
+   * A comma may appear after the last object member
+     or after the last array element.
+   * Numbers may have an explicit plus sign and digits
+     before or after the decimal point may be omitted.")
+
 (defvar *parse-object-key-fn* #'identity
   "Function to call to convert a key string in a JSON array to a key
   in the CL hash produced.")
@@ -200,11 +210,17 @@ or ‘floating-point-underflow’."
 	 (when emptyp
 	   (error 'parse-error))
 	 (read-char input)
-         (skip-whitespace input))
+         (skip-whitespace input)
+	 ;; Check for trailing comma.
+	 (when (and (not *parse-strict*) (eql #\} (peek-char nil input)))
+	   (return)))
 	(t
 	 (when (not emptyp)
 	   ;; Require a comma.
 	   (error 'parse-error))))
+      ;; Check for unquoted string.
+      (when (and *parse-strict* (not (eql #\" (peek-char nil input))))
+	(error 'parse-error))
       (let* ((key-string (parse-string input))
              (key (funcall *parse-object-key-fn* key-string)))
 	(when (ecase *parse-object-as*
@@ -283,6 +299,7 @@ or ‘floating-point-underflow’."
 
 (defun parse (input
               &key
+                (strict *parse-strict*)
                 (object-key-fn *parse-object-key-fn*)
                 (object-as *parse-object-as* object-as-supplied-p)
                 (json-arrays-as-vectors *parse-json-arrays-as-vectors*)
@@ -301,7 +318,8 @@ Returns the Lisp representation of the JSON structure parsed."
   (check-type object-as (member :hash-table :alist :plist))
   (when (and (not object-as-supplied-p) (not (eq *parse-object-as* :alist)) *parse-object-as-alist*)
     (error "Incompatible combination of *PARSE-OBJECT-AS* and *PARSE-OBJECT-AS-ALIST*, please use *PARSE-OBJECT-AS* exclusively."))
-  (let ((*parse-object-key-fn* object-key-fn)
+  (let ((*parse-strict* strict)
+	(*parse-object-key-fn* object-key-fn)
         (*parse-object-as* object-as)
         (*parse-json-arrays-as-vectors* json-arrays-as-vectors)
         (*parse-json-booleans-as-symbols* json-booleans-as-symbols)

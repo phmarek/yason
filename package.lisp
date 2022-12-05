@@ -12,6 +12,7 @@
   (:export
    ;; Parser
    #:parse
+   #:*parse-strict*
    #:*parse-object-key-fn*
    #:*parse-object-as*
    #:*parse-object-as-alist* ; deprecated
