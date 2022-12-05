@@ -257,31 +257,41 @@ or ‘floating-point-underflow’."
 (defconstant +initial-array-size+ 20
   "Initial size of JSON arrays read, they will grow as needed.")
 
-(defun %parse-array (input add-element-function)
-  "Parse JSON array from input, calling ADD-ELEMENT-FUNCTION for each array element parsed."
-  (read-char input)
-  (loop
-    (when (eql (peek-char-skipping-whitespace input)
-               #\])
-      (return))
-    (funcall add-element-function (parse* input))
-    (ecase (peek-char-skipping-whitespace input)
-      (#\, (read-char input))
-      (#\] nil)))
-  (read-char input))
-
 (defun parse-array (input)
-  (if *parse-json-arrays-as-vectors*
-      (let ((return-value (make-array +initial-array-size+ :adjustable t :fill-pointer 0)))
-        (%parse-array input
-                      (lambda (element)
-                        (vector-push-extend element return-value)))
-        return-value)
-      (let (return-value)
-        (%parse-array input
-                      (lambda (element)
-                        (push element return-value)))
-        (nreverse return-value))))
+  "Parse a JSON array."
+  (let ((array (when *parse-json-arrays-as-vectors*
+		 (make-array +initial-array-size+ :adjustable t :fill-pointer 0)))
+	(emptyp t))
+    ;; Discard opening bracket.
+    (read-char input)
+    ;; Parse elements.
+    (loop
+      (case (peek-char-skipping-whitespace input)
+        (#\]
+	 (return))
+	(#\,
+	 (when emptyp
+	   (error 'parse-error))
+	 (read-char input)
+         (skip-whitespace input)
+	 ;; Check for trailing comma.
+	 (when (and (not *parse-strict*) (eql #\] (peek-char nil input)))
+	   (return)))
+	(t
+	 (when (not emptyp)
+	   ;; Require a comma.
+	   (error 'parse-error))))
+      (let ((element (parse* input)))
+	(if *parse-json-arrays-as-vectors*
+	    (vector-push-extend element array)
+          (push element array))
+	(setf emptyp nil)))
+    ;; Discard closing bracket.
+    (read-char input)
+    ;; Return value.
+    (if (not *parse-json-arrays-as-vectors*)
+	(nreverse array)
+      array)))
 
 (defun parse* (input)
   "Parse any JSON value."

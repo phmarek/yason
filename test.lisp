@@ -300,7 +300,7 @@
 		 (json-checker-1 "fail1.json" :skip) ;to be documented
 		 (json-checker-1 "fail2.json" :fail)
 		 (json-checker-1 "fail3.json" :fail)
-		 (json-checker-1 "fail4.json" :skip) ;to be fixed w/ strict
+		 (json-checker-1 "fail4.json" :fail)
 		 (json-checker-1 "fail5.json" :fail)
 		 (json-checker-1 "fail6.json" :fail)
 		 (json-checker-1 "fail7.json" :fail)
