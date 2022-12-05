@@ -175,75 +175,68 @@ or ‘floating-point-underflow’."
             do (error "invalid constant"))
     return-value))
 
-(define-condition cannot-convert-key (error)
+(define-condition duplicate-key (parse-error)
   ((key-string :initarg :key-string
                :reader key-string))
   (:report (lambda (c stream)
-             (format stream "cannot convert key ~S used in JSON object to hash table key"
-                     (key-string c)))))
-
-(define-condition duplicate-key (error)
-  ((key-string :initarg :key-string
-               :reader key-string))
-  (:report (lambda (c stream)
-             (format stream "Duplicate dict key ~S"
-                     (key-string c)))))
-
-
-(defun create-container (ht)
-  (ecase *parse-object-as*
-    ((:plist :alist)
-     nil)
-    (:hash-table
-     ;; Uses hash-table
-     ht)))
-
-(defun add-attribute (to key value)
-  (ecase *parse-object-as*
-    (:plist
-     (append to (list key value)))
-    (:alist
-     (acons key value to))
-    (:hash-table
-     (setf (gethash key to) value)
-     to)))
-
-(define-condition expected-colon (error)
-  ((key-string :initarg :key-string
-               :reader key-string))
-  (:report (lambda (c stream)
-             (format stream "expected colon to follow key ~S used in JSON object"
+             (format stream "Duplicate JSON object key ~S."
                      (key-string c)))))
 
 (defun parse-object (input)
-  (let* ((ht (make-hash-table :test #'equal))
-         (return-value (create-container ht)))
+  "Parse a JSON object."
+  (let ((object (when (eq *parse-object-as* :hash-table)
+		  (make-hash-table :test #'equal)))
+	(unknown (when (eq *parse-object-as* :plist)
+		   (gensym)))
+	(emptyp t))
+    ;; Discard opening brace.
     (read-char input)
+    ;; Parse members.
     (loop
-      (when (eql (peek-char-skipping-whitespace input)
-                 #\})
-        (return))
-      (skip-whitespace input)
+      (case (peek-char-skipping-whitespace input)
+        (#\}
+	 (return))
+	(#\,
+	 (when emptyp
+	   (error 'parse-error))
+	 (read-char input)
+         (skip-whitespace input))
+	(t
+	 (when (not emptyp)
+	   ;; Require a comma.
+	   (error 'parse-error))))
       (let* ((key-string (parse-string input))
-             (key (or (funcall *parse-object-key-fn* key-string)
-                      (error 'cannot-convert-key :key-string key-string))))
-        (when (nth-value 1 (gethash key ht))
+             (key (funcall *parse-object-key-fn* key-string)))
+	(when (ecase *parse-object-as*
+		(:hash-table
+		 (nth-value 1 (gethash key object)))
+		(:alist
+		 (assoc key object :test #'equal))
+		(:plist
+		 #-(and)
+		 (unless (symbolp key)
+		   (error "Object keys must be symbols."))
+		 (not (eq (getf object key unknown) unknown))))
           (error 'duplicate-key :key-string key-string))
         (skip-whitespace input)
         (unless (eql #\: (read-char input))
-          (error 'expected-colon :key-string key-string))
+          (error 'parse-error))
         (skip-whitespace input)
         (let ((value (parse* input)))
-          (setf return-value
-                (add-attribute return-value key value))))
-      (ecase (peek-char-skipping-whitespace input)
-        (#\, (read-char input))
-        (#\} nil)))
+	  (ecase *parse-object-as*
+	    (:hash-table
+	     (setf (gethash key object) value))
+	    (:alist
+	     (setf object (acons key value object)))
+	    (:plist
+	     (setf object (nconc object (list key value)))))
+	  (setf emptyp nil))))
+    ;; Discard closing brace.
     (read-char input)
-    (values (if (eq *parse-object-as* :alist)
-                (nreverse return-value)
-                return-value)
-            ht)))
+    ;; Return value.
+    (if (eq *parse-object-as* :alist)
+        (nreverse object)
+      object)))
 
 (defconstant +initial-array-size+ 20
   "Initial size of JSON arrays read, they will grow as needed.")

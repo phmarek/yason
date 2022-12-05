@@ -3,6 +3,9 @@
 
 (in-package :yason-test)
 
+(defun plist-object-key (name)
+  (intern name (find-package :yason-test)))
+
 (defparameter *basic-test-json-string* "[{\"foo\":1,\"bar\":[7,8,9]},2,3,4,[5,6,7],true,null]")
 (defparameter *basic-test-json-string-indented* "
 [
@@ -243,14 +246,21 @@
                 (yason:parse "{\"foo\":0,\"bar\":1,\"foO\":2}"))))
 
 (deftest :yason "parse-ordering-plist"
-  (let ((yason:*parse-object-as* :plist))
-    (test-equal '("foo" 0 "bar" 1 "foo" 2)
-                (yason:parse "{\"foo\":0,\"bar\":1,\"foo\":2}"))))
-
+  (let ((yason:*parse-object-as* :plist)
+	(yason:*parse-object-key-fn* #'plist-object-key))
+    (test-equal '(|foo| 0 |bar| 1 |foO| 2)
+                (yason:parse "{\"foo\":0,\"bar\":1,\"foO\":2}"))))
 
 (deftest :yason "duplicate-key"
   (test-condition (yason:parse "{\"a\":1,\"a\":2}")
                   'yason::duplicate-key)
+  (let ((yason:*parse-object-as* :alist))
+    (test-condition (yason:parse "{\"a\":1,\"a\":2}")
+                    'yason::duplicate-key))
+  (let ((yason:*parse-object-as* :plist)
+	(yason:*parse-object-key-fn* #'plist-object-key))
+    (test-condition (yason:parse "{\"a\":1,\"a\":2}")
+                    'yason::duplicate-key))
   (test-condition (yason:parse "{\"a\":1,\"a\\ud800\":2}")
                   'error))
 
@@ -294,7 +304,7 @@
 	       (json-checker-1 "fail6.json" :fail)
 	       (json-checker-1 "fail7.json" :fail)
 	       (json-checker-1 "fail8.json" :fail)
-	       (json-checker-1 "fail9.json" :skip) ;to be fixed w/ strict
+	       (json-checker-1 "fail9.json" :fail)
 	       (json-checker-1 "fail10.json" :fail)
 	       (json-checker-1 "fail11.json" :fail)
 	       (json-checker-1 "fail12.json" :fail)
