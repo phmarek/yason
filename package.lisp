@@ -12,7 +12,9 @@
   (:export
    ;; Parser
    #:parse
+   #:syntax-error
    #:*parse-strict*
+   #:*parse-duplicate-keys*
    #:*parse-object-key-fn*
    #:*parse-object-as*
    #:*parse-object-as-alist* ; deprecated
