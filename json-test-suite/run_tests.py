@@ -26,7 +26,7 @@ programs = {
             "url":"https://github.com/hankhero/cl-json",
             "commands":[os.path.join(PARSERS_DIR, "test_cl_json/test-cl-json")]
         },
-    "Common Lisp Jonathan": 
+    "Common Lisp Jonathan":
         {
             "url":"https://github.com/Rudolph-Miller/jonathan",
             "commands":[os.path.join(PARSERS_DIR, "test_jonathan/test-jonathan")]
