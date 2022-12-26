@@ -22,6 +22,12 @@ The relaxed parser accepts the following non-standard constructs:
 
 See also ‘*parse-duplicate-keys*’.")
 
+(defvar *parse-nesting-depth* 1000
+  "The maximum number of nested JSON structures.
+Value must be a positive number and should be at least 500.
+A value of ‘nil’ means to not limit the depth of nesting.")
+(declaim (type (or (integer (0)) null) *parse-nesting-depth*))
+
 (defvar *parse-duplicate-keys* nil
   "Whether or not to accept duplicate keys in JSON objects.
 If enabled, the value of an existing object member is replaced by a
@@ -116,6 +122,22 @@ Argument CHAR has to be a character object."
       (return)))
   next-char)
 
+(defvar nesting-depth 0
+  "The current number of nested structures.")
+(declaim (type integer nesting-depth))
+
+(declaim (inline incr-nesting))
+(defun incr-nesting ()
+  "Increase the nesting depth."
+  (incf nesting-depth)
+  (when (and *parse-nesting-depth* (> nesting-depth *parse-nesting-depth*))
+    (syntax-error "Too many nested structures, current limit is ~A." *parse-nesting-depth*)))
+
+(declaim (inline decr-nesting))
+(defun decr-nesting ()
+  "Decrease the nesting depth."
+  (decf nesting-depth))
+
 (define-condition syntax-error (parse-error stream-error simple-condition)
   ()
   (:documentation "Base class for all syntax errors.")
@@ -165,6 +187,7 @@ Argument CHAR has to be a character object."
 		arguments
               &key
                 (strict *parse-strict*)
+                (nesting-depth *parse-nesting-depth*)
 		(duplicate-keys *parse-duplicate-keys*)
                 (object-as *parse-object-as* object-as-supplied-p)
                 (object-key-fn *parse-object-key-fn*)
@@ -202,6 +225,7 @@ Exceptional situations:
   (when (and (not object-as-supplied-p) (not (eq *parse-object-as* :alist)) *parse-object-as-alist*)
     (error "Incompatible combination of ‘*parse-object-as*’ and ‘*parse-object-as-alist*’, please use ‘*parse-object-as*’ exclusively."))
   (let ((*parse-strict* strict)
+	(*parse-nesting-depth* nesting-depth)
 	(*parse-duplicate-keys* duplicate-keys)
         (*parse-object-as* object-as)
 	(*parse-object-key-fn* object-key-fn)
@@ -214,7 +238,8 @@ Exceptional situations:
   "Like the ‘parse’ function but with a lightweight interface."
   (flet ((%parse (stream)
 	   (let ((input-stream stream)
-		 (next-char nil))
+		 (next-char nil)
+		 (nesting-depth 0))
 	     ;; Read first character.
 	     (next-char*)
 	     (prog1
@@ -253,6 +278,7 @@ Exceptional situations:
 	(emptyp t) key-string key value dup)
     ;; Discard opening brace.
     (next-char*)
+    (incr-nesting)
     ;; Parse object members.
     (loop
       (case next-char
@@ -321,6 +347,7 @@ Exceptional situations:
       ;; Object is not empty.
       (setf emptyp nil))
     ;; Discard closing brace and skip trailing whitespace.
+    (decr-nesting)
     (next-char* nil)
     ;; Return value.
     (if (eq *parse-object-as* :alist)
@@ -334,6 +361,7 @@ Exceptional situations:
 	(emptyp t) element)
     ;; Discard opening bracket.
     (next-char*)
+    (incr-nesting)
     ;; Parse array elements.
     (loop
       (case next-char
@@ -358,6 +386,7 @@ Exceptional situations:
       ;; Array is not empty.
       (setf emptyp nil))
     ;; Discard closing bracket and skip trailing whitespace.
+    (decr-nesting)
     (next-char* nil)
     ;; Return value.
     (if (not *parse-json-arrays-as-vectors*)
