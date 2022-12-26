@@ -3,6 +3,8 @@ all-local: $(app)
 
 EXTRA_DIST = $(app).asd packages.lisp parse.lisp main.lisp
 
+# To build the test programs with Clozure CL,
+# say ‘make clean all SBCL=true’.
 $(app): $(app).asd packages.lisp parse.lisp main.lisp
 	rm -f $@
 	if test ! -f $@ ; then \
