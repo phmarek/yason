@@ -492,12 +492,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('restrict_to_path', nargs='?', type=str, default=None)
     parser.add_argument('--filter', dest='restrict_to_program', type=argparse.FileType('r'), default=None)
+    parser.add_argument('--no-run-tests', action="store_true")
 
     args = parser.parse_args()
 
     #args.restrict_to_program = ["C ConcreteServer"]
 
-    run_tests(args.restrict_to_path, args.restrict_to_program)
+    if not args.no_run_tests:
+       run_tests(args.restrict_to_path, args.restrict_to_program)
 
     generate_report(os.path.join(BASE_DIR, "results/parsing.html"), keep_only_first_result_in_set = False)
     generate_report(os.path.join(BASE_DIR, "results/parsing_pruned.html"), keep_only_first_result_in_set = True)
