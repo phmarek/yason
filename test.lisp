@@ -3,6 +3,9 @@
 
 (in-package :yason-test)
 
+(defun plist-object-key (name)
+  (intern name (find-package :yason-test)))
+
 (defparameter *basic-test-json-string* "[{\"foo\":1,\"bar\":[7,8,9]},2,3,4,[5,6,7],true,null]")
 (defparameter *basic-test-json-string-indented* "
 [
@@ -172,13 +175,13 @@
   (test-equal "{\"bar\":2}"
               (let* ((yason:*symbol-key-encoder* #'yason:encode-symbol-as-lowercase))
                 (with-output-to-string (*standard-output*)
-                  (yason:with-output (*standard-output*) 
+                  (yason:with-output (*standard-output*)
                     (yason:encode (alexandria:plist-hash-table `(:bar 2))))))))
 
 (deftest :yason "ENCODE-as-obj-value"
   (test-equal "{\"foo\":1}"
               (with-output-to-string (*standard-output*)
-                (yason:with-output (*standard-output*) 
+                (yason:with-output (*standard-output*)
                   (yason:with-object ()
                     (yason:with-object-element ("foo")
                       (yason:encode 1)))))))
@@ -186,7 +189,7 @@
 (deftest :yason "ENCODE-as-obj-value-2"
   (test-equal "{\"baz\":12,\"foo\":{\"bar\":1}}"
               (with-output-to-string (*standard-output*)
-                (yason:with-output (*standard-output*) 
+                (yason:with-output (*standard-output*)
                   (yason:with-object ()
                     (yason:with-object-element ("baz")
                       (yason:encode 12))
@@ -206,7 +209,7 @@
                       (yason:with-object ()
                         (yason:with-object-element ("far")
                           (yason:encode 8))
-                        (yason:encode-object-elements 
+                        (yason:encode-object-elements
                           "near" 9
                           "there" 1))
                       (yason:encode-array-element 7))
@@ -243,14 +246,21 @@
                 (yason:parse "{\"foo\":0,\"bar\":1,\"foO\":2}"))))
 
 (deftest :yason "parse-ordering-plist"
-  (let ((yason:*parse-object-as* :plist))
-    (test-equal '("foo" 0 "bar" 1 "foo" 2)
-                (yason:parse "{\"foo\":0,\"bar\":1,\"foo\":2}"))))
-
+  (let ((yason:*parse-object-as* :plist)
+	(yason:*parse-object-key-fn* #'plist-object-key))
+    (test-equal '(|foo| 0 |bar| 1 |foO| 2)
+                (yason:parse "{\"foo\":0,\"bar\":1,\"foO\":2}"))))
 
 (deftest :yason "duplicate-key"
   (test-condition (yason:parse "{\"a\":1,\"a\":2}")
                   'yason::duplicate-key)
+  (let ((yason:*parse-object-as* :alist))
+    (test-condition (yason:parse "{\"a\":1,\"a\":2}")
+                    'yason::duplicate-key))
+  (let ((yason:*parse-object-as* :plist)
+	(yason:*parse-object-key-fn* #'plist-object-key))
+    (test-condition (yason:parse "{\"a\":1,\"a\":2}")
+                    'yason::duplicate-key))
   (test-condition (yason:parse "{\"a\":1,\"a\\ud800\":2}")
                   'error))
 
@@ -262,3 +272,72 @@
 	      #+cmucl
 	      (list (char-code #\a) #xd834 #xdd1e (char-code #\b))
 	      (map 'list #'char-code (yason:parse "\"a\\ud834\\udd1eb\""))))
+
+(deftest :yason "json-checker"
+  (let (*json-decoder*)
+    (declare (special *json-decoder*))
+    (labels ((json-checker-1 (file-name expected-status)
+	       (when (and (member expected-status '(:pass :fail))
+			  (functionp *json-decoder*))
+		 (let (data status)
+		   (with-open-file (stream
+				    (merge-pathnames
+				     (parse-namestring file-name)
+				     (merge-pathnames
+				      (make-pathname :directory '(:relative "json-checker"))
+				      (asdf:system-source-directory :yason))))
+		     (handler-case
+			 (setf data (funcall *json-decoder* stream)
+			       status (if (eq stream (peek-char nil stream nil stream)) :pass :fail))
+		       (error ()
+			 (setf status :fail))))
+		   (test-equal expected-status status :test #'eq))))
+	     (json-checker ()
+	       (let ((yason:*parse-strict* t))
+		 (json-checker-1 "pass1.json" :pass)
+		 (json-checker-1 "pass2.json" :pass)
+		 (json-checker-1 "pass3.json" :pass)
+		 (json-checker-1 "fail1.json" :skip) ;to be documented
+		 (json-checker-1 "fail2.json" :fail)
+		 (json-checker-1 "fail3.json" :fail)
+		 (json-checker-1 "fail4.json" :fail)
+		 (json-checker-1 "fail5.json" :fail)
+		 (json-checker-1 "fail6.json" :fail)
+		 (json-checker-1 "fail7.json" :fail)
+		 (json-checker-1 "fail8.json" :fail)
+		 (json-checker-1 "fail9.json" :fail)
+		 (json-checker-1 "fail10.json" :fail)
+		 (json-checker-1 "fail11.json" :fail)
+		 (json-checker-1 "fail12.json" :fail)
+		 (json-checker-1 "fail13.json" :fail)
+		 (json-checker-1 "fail14.json" :fail)
+		 (json-checker-1 "fail15.json" :fail)
+		 (json-checker-1 "fail16.json" :fail)
+		 (json-checker-1 "fail17.json" :fail)
+		 (json-checker-1 "fail18.json" :skip) ;to be documented, to be fixed w/ strict
+		 (json-checker-1 "fail19.json" :fail)
+		 (json-checker-1 "fail20.json" :fail)
+		 (json-checker-1 "fail21.json" :fail)
+		 (json-checker-1 "fail22.json" :fail)
+		 (json-checker-1 "fail23.json" :fail)
+		 (json-checker-1 "fail24.json" :fail)
+		 (json-checker-1 "fail25.json" :fail)
+		 (json-checker-1 "fail26.json" :fail)
+		 (json-checker-1 "fail27.json" :fail)
+		 (json-checker-1 "fail28.json" :fail)
+		 (json-checker-1 "fail29.json" :fail)
+		 (json-checker-1 "fail30.json" :fail)
+		 (json-checker-1 "fail31.json" :fail)
+		 (json-checker-1 "fail32.json" :fail)
+		 (json-checker-1 "fail33.json" :fail))
+	       (let ((yason:*parse-strict* nil))
+		 (json-checker-1 "fail3.json" :pass)
+		 (json-checker-1 "fail4.json" :pass)
+		 (json-checker-1 "fail9.json" :pass)
+		 (json-checker-1 "fail25.json" :pass)
+		 (json-checker-1 "fail27.json" :pass))
+	       ()))
+      (let ((*json-decoder* #'yason:parse))
+	(declare (special *json-decoder*))
+	(json-checker))
+      ())))
