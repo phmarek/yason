@@ -64,7 +64,7 @@ def run_tests(restrict_to_path=None, restrict_to_program=None):
     log_file = open(LOG_FILE_PATH, 'w')
 
     prog_names = list(programs.keys())
-    prog_names.sort()
+#   prog_names.sort()
 
     if isinstance(restrict_to_program, io.TextIOBase):
         restrict_to_program = json.load(restrict_to_program)
@@ -333,10 +333,10 @@ def generate_report(report_path, keep_only_first_result_in_set = False):
         """)
 
         prog_names = list(programs.keys())
-        prog_names.sort()
+#       prog_names.sort()
 
         libs = list(status_for_path_for_lib.keys())
-        libs.sort()
+#       libs.sort()
 
         title = "JSON Parsing Tests"
         if keep_only_first_result_in_set:
