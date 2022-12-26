@@ -31,6 +31,11 @@ programs = {
             "url":"https://github.com/Rudolph-Miller/jonathan",
             "commands":[os.path.join(PARSERS_DIR, "test_jonathan/test-jonathan")]
         },
+    "Common Lisp json-streams":
+        {
+            "url":"https://github.com/rotatef/json-streams",
+            "commands":[os.path.join(PARSERS_DIR, "test_json_streams/test-json-streams")]
+        },
     "Common Lisp jsown":
         {
             "url":"https://github.com/madnificent/jsown",

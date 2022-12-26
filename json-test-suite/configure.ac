@@ -10,6 +10,7 @@ AC_CONFIG_FILES([Makefile
 		 parsers/Makefile
 		 parsers/test_cl_json/Makefile
 		 parsers/test_jonathan/Makefile
+		 parsers/test_json_streams/Makefile
 		 parsers/test_jsown/Makefile
 		 parsers/test_shasht/Makefile
 		 parsers/test_st_json/Makefile
