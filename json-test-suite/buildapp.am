@@ -1,0 +1,23 @@
+.PHONY: all-local
+all-local: $(app)
+
+EXTRA_DIST = $(app).asd packages.lisp parse.lisp main.lisp
+
+$(app): $(app).asd packages.lisp parse.lisp main.lisp
+	rm -f $@
+	if test ! -f $@ ; then \
+	  $(SBCL) --noinform \
+	  --eval "(asdf:initialize-source-registry '(:source-registry (:tree \"$$PWD\") :inherit-configuration))" \
+	  --eval "(asdf:make :$(app))" \
+	  --quit ; \
+	fi
+	if test ! -f $@ ; then \
+	  $(CCL) --quiet --batch \
+	  --eval "(asdf:initialize-source-registry '(:source-registry (:tree \"$$PWD\") :inherit-configuration))" \
+	  --eval "(asdf:make :$(app))" ; \
+	fi
+	test -f $@
+
+.PHONY: clean-local
+clean-local:
+	rm -f $(app)
