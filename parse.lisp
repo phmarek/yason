@@ -161,6 +161,8 @@ Argument CHAR has to be a character object."
 		:format-arguments ()))))
 
 (defun parse (input
+	      &rest
+		arguments
               &key
                 (strict *parse-strict*)
 		(duplicate-keys *parse-duplicate-keys*)
@@ -206,25 +208,29 @@ Exceptional situations:
         (*parse-json-arrays-as-vectors* json-arrays-as-vectors)
         (*parse-json-booleans-as-symbols* json-booleans-as-symbols)
         (*parse-json-null-as-keyword* json-nulls-as-keyword))
-    (flet ((%parse (stream)
-	     (let ((input-stream stream)
-		   (next-char nil))
-	       ;; Read first character.
-	       (next-char*)
-	       (prog1
-		   (parse-value)
-		 ;; Check for end of file.
-		 (unless (or junk-allowed (null next-char))
-		   (syntax-error))))))
-      (etypecase input
-	(stream
-	 (%parse input))
-	(pathname
-	 (with-open-file (stream input)
-	   (%parse stream)))
-	(string
-	 (with-input-from-string (stream input)
-	   (%parse stream)))))))
+    (apply #'parse* input arguments)))
+
+(defun parse* (input &key junk-allowed &allow-other-keys)
+  "Like the ‘parse’ function but with a lightweight interface."
+  (flet ((%parse (stream)
+	   (let ((input-stream stream)
+		 (next-char nil))
+	     ;; Read first character.
+	     (next-char*)
+	     (prog1
+		 (parse-value)
+	       ;; Check for end of file.
+	       (unless (or junk-allowed (null next-char))
+		 (syntax-error))))))
+    (etypecase input
+      (stream
+       (%parse input))
+      (pathname
+       (with-open-file (stream input)
+	 (%parse stream)))
+      (string
+       (with-input-from-string (stream input)
+	 (%parse stream))))))
 
 (defun parse-value ()
   "Parse any JSON value."
