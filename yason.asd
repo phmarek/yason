@@ -17,7 +17,7 @@
 (defsystem :yason
   :name "YASON"
   :author "Hans Huebner <hans@huebner.org>"
-  :version "0.8.3"
+  :version "1.0"
   :licence "BSD"
   :description "JSON parser/encoder"
   :long-description "YASON is a Common Lisp library for encoding and
@@ -26,7 +26,12 @@
     encoding and decoding data and does not impose any object model on
     the Common Lisp application that uses it."
 
-  :depends-on (:alexandria :trivial-gray-streams)
+  :depends-on (:alexandria 
+               :trivial-gray-streams 
+               :closer-mop)
   :components ((:file "package")
 	       (:file "encode" :depends-on ("package"))
-	       (:file "parse" :depends-on ("package"))))
+	       (:file "parse" :depends-on ("package"))
+	       (:file "encode-y2" :depends-on ("package"))
+	       (:file "parse-y2" :depends-on ("package"))
+           ))

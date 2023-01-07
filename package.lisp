@@ -8,6 +8,7 @@
 (defpackage :yason
 
   (:use :cl)
+  (:nicknames :yason-1 :yason1)
 
   (:export
    ;; Parser
@@ -50,3 +51,47 @@
    #:encode-object-elements
    #:encode-object-slots
    #:with-object-element))
+
+(delete-package :yason-2)
+(defpackage :yason-2
+  (:nicknames :yason2)
+  (:use :cl)
+  (:import-from :yason-1
+                yason-1:null
+                yason-1:true
+                yason-1:false
+
+                yason-1::with-aggregate/object
+                yason-1::with-element-output
+                yason-1::with-output-to-string*
+                yason-1::with-output
+                yason-1::escape-string-to-stream
+                yason-1::json-output-stream
+                yason-1::indent
+
+                yason-1::parse-string
+                )
+  (:export #:encode
+           #:with-output-to-string*
+           #:indentation-mixin
+           #:compact-mixin
+           #:hash-table-to-dict-mixin
+           #:obj-to-dict-mixin
+           #:lists-as-vector-mixin
+
+           #:parse
+           #:default-parse-ctx
+           #:alist-parse-ctx
+
+           #:parse-context
+           #:obj-key-keep-string-mixin
+           #:obj-key-to-symbol-mixin
+           #:obj-key-to-existing-symbol-mixin
+           #:obj-to-alist-mixin
+           #:obj-to-plist-mixin
+           #:obj-to-hash-table-mixin
+           #:ignore-duplicate-object-keys
+           #:json-array-as-vector
+           #:default-parse-class
+           #:default-alist-class
+  ))
