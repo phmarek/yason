@@ -33,6 +33,32 @@
   You might want ENCODE-SYMBOL-AS-LOWERCASE or
   ENCODE-SYMBOL-AS-STRING here.")
 
+(defconstant true 'true)
+(defconstant false 'false)
+(defconstant null 'null)
+
+;; In case of mistaken use...
+(setf (symbol-function 'null)
+      (symbol-function 'cl:null))
+
+(defparameter *true* '(T yason:true)
+  "Symbol(s) representing the JSON value TRUE,
+  or a list of symbols (like eg. '(T YASON:TRUE).
+  The first one is used when parsing a string into a
+  Lisp structure.")
+
+(defparameter *false* '(NIL yason:false)
+  "Symbol(s) representing the JSON value FALSE,
+  or a list of symbols (like eg. '(NIL YASON:FALSE).
+  The first one is used when parsing a string into a
+  Lisp structure.")
+
+(defparameter *null* '(null :null)
+  "Symbol(s) representing the JSON value NULL,
+  or a list of symbols (like eg. '(YASON:NULL :NULL).
+  The first one is used when parsing a string into a
+  Lisp structure.")
+
 
 (defgeneric encode (object &optional stream)
 
@@ -195,17 +221,36 @@
   (funcall *list-encoder* object stream))
 
 (defmethod encode ((object symbol) &optional (stream *json-output*))
-  (cond ((eq object true)
-	 (encode 'true stream))
-	((eq object false)
-	 (encode 'false stream))
-	(t
-	 (let ((new (funcall *symbol-encoder* object)))
-	   ;; We require a string-like output here to ensure that the
-	   ;; JSON format stays consistent.
-	   (assert (or (stringp new)
-                       (raw-json-output-p new)))
-	   (encode new stream)))))
+  ;; (alexandria:ensure-list nil) would be T,
+  ;; which we'd have to check extra for;
+  ;; so let's use CONSP directly here instead.
+  (labels 
+      ((ensure-list (x)
+         (if (consp x)
+             x
+             (list x)))
+       (does-match (expected)
+         (if (functionp expected)
+             ;; with argument, check whether that matches.
+             (funcall expected object)
+             (member object (ensure-list expected)))))
+    ;; :TEST #'EQ? Does it make sense to compare to a number,
+    ;; or to forbid having a number here?
+    (cond ((does-match *true*)
+           (princ "true" stream))
+          ;; First test for FALSE, so that NIL being used 
+          ;; both in *FALSE* and *NULL* gets seen as FALSE.
+          ((does-match *false*)
+           (princ "false" stream))
+          ((does-match *null*)
+           (princ "null" stream))
+          (t
+           (let ((new (funcall *symbol-encoder* object)))
+             ;; We require a string-like output here to ensure that the
+             ;; JSON format stays consistent.
+             (assert (or (stringp new)
+                         (raw-json-output-p new)))
+             (encode new stream))))))
 
 (defun encode-symbol-key-error (key)
   (declare (ignore key))
@@ -267,26 +312,6 @@
           do (with-element-output ()
                (encode-assoc-key/value key value stream)))
     object))
-
-(defmethod encode ((object (eql 'true)) &optional (stream *json-output*))
-  (write-string "true" stream)
-  object)
-
-(defmethod encode ((object (eql 'false)) &optional (stream *json-output*))
-  (write-string "false" stream)
-  object)
-
-(defmethod encode ((object (eql :null)) &optional (stream *json-output*))
-  (write-string "null" stream)
-  object)
-
-(defmethod encode ((object (eql t)) &optional (stream *json-output*))
-  (write-string "true" stream)
-  object)
-
-(defmethod encode ((object (eql nil)) &optional (stream *json-output*))
-  (write-string "null" stream)
-  object)
 
 (defclass json-output-stream (trivial-gray-streams:fundamental-character-output-stream)
   ((output-stream :reader output-stream
@@ -449,7 +474,7 @@ LOWERCASE-KEYS? says whether the key should be in lowercase."
   "Compiler macro to allow open-coding with ENCODE-OBJECT-SLOTS when slots are a literal list."
   (let ((slots (macroexpand raw-slots env)))
     (cond
-      ((null slots) nil)
+      ((cl:null slots) nil)
       ((and (eq (car slots) 'quote)
             (constantp lowercase-keys? env))
        (alexandria:once-only (object lowercase-keys?)

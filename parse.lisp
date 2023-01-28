@@ -10,14 +10,6 @@
 (defconstant +default-string-length+ 20
   "Default length of strings that are created while reading json input.")
 
-(declaim (type symbol true))
-(defvar true 'true
-  "Symbol representing the JSON value true.")
-
-(declaim (type symbol false))
-(defvar false 'false
-  "Symbol representing the JSON value false.")
-
 (defvar *parse-object-key-fn* #'identity
   "Function to call to convert a key string in a JSON array to a key
   in the CL hash produced.")
@@ -25,14 +17,6 @@
 (defvar *parse-json-arrays-as-vectors* nil
   "If set to a true value, JSON arrays will be parsed as vectors, not
   as lists.")
-
-(defvar *parse-json-booleans-as-symbols* nil
-  "If set to a true value, JSON booleans will be read as the symbols
-  TRUE and FALSE, not as T and NIL, respectively.  The actual symbols
-  can be customized via the TRUE and FALSE special variables.")
-
-(defvar *parse-json-null-as-keyword* nil
-  "If set to a true value, JSON nulls will be read as the keyword :NULL, not as NIL.")
 
 (defvar *parse-object-as* :hash-table
   "Set to either :hash-table, :plist or :alist to determine the data
@@ -138,17 +122,27 @@
   (peek-char nil input eof-error-p))
 
 (defun parse-constant (input)
-  (destructuring-bind (expected-string return-value)
-      (find (peek-char nil input nil)
-            `(("true" ,(if *parse-json-booleans-as-symbols* true t))
-              ("false" ,(if *parse-json-booleans-as-symbols* false nil))
-              ("null"  ,(if *parse-json-null-as-keyword* :null nil)))
-            :key (lambda (entry) (aref (car entry) 0))
-            :test #'eql)
-    (loop for char across expected-string
-          unless (eql (read-char input nil) char)
+  ;; See comment in (ENCODE symbol)
+  (labels ((ensure-list (x)
+             (if (consp x)
+                 x
+                 (list x)))
+           (first-of (list?)
+             (if (functionp list?)
+                 ;; Without arguments, get the "canonical" value.
+                 (funcall list?)
+                 (first (ensure-list list?)))))
+    (destructuring-bind (expected-string return-value)
+        (find (peek-char nil input nil)
+              `(("true" ,(first-of *true*))
+                ("false" ,(first-of *false*))
+                ("null"  ,(first-of *null*)))
+              :key (lambda (entry) (aref (car entry) 0))
+              :test #'eql)
+      (loop for char across expected-string
+            unless (eql (read-char input nil) char)
             do (error "invalid constant"))
-    return-value))
+      return-value)))
 
 (define-condition cannot-convert-key (error)
   ((key-string :initarg :key-string
@@ -279,18 +273,20 @@
 
 (defun parse (input
               &key
-                (object-key-fn *parse-object-key-fn*)
-                (object-as *parse-object-as*)
-                (json-arrays-as-vectors *parse-json-arrays-as-vectors*)
-                (json-booleans-as-symbols *parse-json-booleans-as-symbols*)
-                (json-nulls-as-keyword *parse-json-null-as-keyword*))
+              (true-s *true*)
+              (false-s *false*)
+              (null-s *null*)
+              (object-key-fn *parse-object-key-fn*)
+              (object-as *parse-object-as*)
+              (json-arrays-as-vectors *parse-json-arrays-as-vectors*))
   "Parse INPUT, which needs to be a string or a stream, as JSON.
   Returns the lisp representation of the JSON structure parsed.  The
   keyword arguments can be used to override the parser settings as
   defined by the respective special variables."
   (let ((*parse-object-key-fn* object-key-fn)
         (*parse-object-as* object-as)
-        (*parse-json-arrays-as-vectors* json-arrays-as-vectors)
-        (*parse-json-booleans-as-symbols* json-booleans-as-symbols)
-        (*parse-json-null-as-keyword* json-nulls-as-keyword))
+        (*null*  (or null-s  '(nil null :null)))
+        (*false* (or false-s '(nil  yason:false)))
+        (*true*  (or true-s  '(t    yason:true)))
+        (*parse-json-arrays-as-vectors* json-arrays-as-vectors))
     (parse% input)))
