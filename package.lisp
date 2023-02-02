@@ -9,8 +9,6 @@
 
   (:use :cl)
 
-  (:shadow #:null)
-
   (:export
    ;; Parser
    #:parse
@@ -21,9 +19,6 @@
    #:*parse-json-booleans-as-symbols*
    #:*parse-json-null-as-keyword*
 
-   #:*true*
-   #:*false*
-   #:*null*
    #:true
    #:false
    #:null

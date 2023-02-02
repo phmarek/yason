@@ -145,21 +145,24 @@
         </tr>
         <tr>
           <td>true</td>
-          <td>T</td>
-		  <td>See <clix:ref>*TRUE*</clix:ref>.
+          <td>t</td>
+          <td>
+	    Can be changed to read as TRUE (see
+	    <clix:ref>*parse-json-booleans-as-symbols*</clix:ref>).
 	  </td>
         </tr>
         <tr>
           <td>false</td>
           <td>nil</td>
-		  <td>See <clix:ref>*FALSE*</clix:ref>.
+          <td>
+	    Can be changed to read as FALSE (see
+	    <clix:ref>*parse-json-booleans-as-symbols*</clix:ref>).
 	  </td>
         </tr>
         <tr>
           <td>null</td>
-          <td>yason:null</td>
-		  <td>See <clix:ref>*NULL*</clix:ref>.
-		  </td>
+          <td>nil</td>
+          <td></td>
         </tr>
       </tbody>
     </table>
@@ -183,7 +186,7 @@ CL-USER&gt; (let* ((result (yason:parse *json-string*)))
            (print result)
            (alexandria:hash-table-plist (first result)))
 
-(#&lt;HASH-TABLE :TEST EQUAL :COUNT 2 {5A4420F1}&gt; 2 3 4 (5 6 7) T YASON:NULL)
+(#&lt;HASH-TABLE :TEST EQUAL :COUNT 2 {5A4420F1}&gt; 2 3 4 (5 6 7) T NIL)
 ("bar" (7 8 9) "foo" 1)
 CL-USER&gt; (defun maybe-convert-to-keyword (js-name)
            (or (find-symbol (string-upcase js-name) :keyword)
@@ -192,19 +195,19 @@ MAYBE-CONVERT-TO-KEYWORD
 CL-USER&gt; :FOO ; intern the :FOO keyword
 :FOO
 CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
+                (yason:*parse-json-booleans-as-symbols* t)
                 (yason:*parse-object-key-fn* #'maybe-convert-to-keyword)
-                (yason:*true* 'MY-TRUE)
                 (result (yason:parse *json-string*)))
            (print result)
            (alexandria:hash-table-plist (aref result 0)))
 
-#(#&lt;HASH-TABLE :TEST EQUAL :COUNT 2 {59B4EAD1}&gt; 2 3 4 #(5 6 7) MY-TRUE NIL)
+#(#&lt;HASH-TABLE :TEST EQUAL :COUNT 2 {59B4EAD1}&gt; 2 3 4 #(5 6 7) YASON:TRUE NIL)
 ("bar" #(7 8 9) :FOO 1)</pre>
 
     <p>
       The second example modifies the parser's behaviour so that JSON
-      arrays are read as CL vectors, JSON "true" values will be read as the
-      symbol MY-TRUE, and JSON object keys will be looked up in
+      arrays are read as CL vectors, JSON booleans will be read as the
+      symbols TRUE and FALSE and JSON object keys will be looked up in
       the <b>:keyword</b> package.  Interning strings coming from an
       external source is not recommended practice.
     </p>
@@ -214,7 +217,8 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
         <clix:lambda-list>input &amp;key (object-key-fn
         *parse-object-as-key-fn*) (object-as *parse-object-as*)
         (json-arrays-as-vectors *parse-json-arrays-as-vectors*)
-        </clix:lambda-list>
+        (json-booleans-as-symbols *parse-json-booleans-as-symbols*)
+        (json-nulls-as-keyword *parse-json-null-as-keyword*)</clix:lambda-list>
         <clix:returns>object</clix:returns>
         <clix:description>
           Parse <clix:arg>input</clix:arg>, which must be a string or
@@ -222,9 +226,10 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
           JSON structure parsed.
           <p>
             The keyword arguments <clix:arg>object-key-fn</clix:arg>,
-            <clix:arg>object-as</clix:arg> and
+            <clix:arg>object-as</clix:arg>,
             <clix:arg>json-arrays-as-vectors</clix:arg>,
-            may be used
+            <clix:arg>json-booleans-as-symbols</clix:arg>, and
+            <clix:arg>json-null-as-keyword</clix:arg> may be used
             to specify different values for the parsing parameters
             from the current bindings of the respective special
             variables.
@@ -248,39 +253,21 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
         </clix:description>
       </clix:special-variable>
 
-      <clix:special-variable name="*true*">
+      <clix:special-variable name="*parse-json-booleans-as-symbols*">
         <clix:description>
-		Can be set to a list of values that will be encoded to JSON <tt>true</tt>;
-		on parsing, the first of these will be used in the returned structure.
+          If set to a true value, JSON booleans will be read as the
+          symbols TRUE and FALSE instead of T and NIL, respectively.
+          NIL is the default.
         </clix:description>
       </clix:special-variable>
 
-      <clix:special-variable name="*false*">
+      <clix:special-variable name="*parse-json-null-as-keyword*">
         <clix:description>
-		Can be set to a list of values that will be encoded to JSON <tt>false</tt>;
-		on parsing, the first of these will be used in the returned structure.
+          If set to a true value, JSON null will be read as the
+          keyword :NULL, instead of NIL.
+          NIL is the default.
         </clix:description>
       </clix:special-variable>
-
-      <clix:special-variable name="*null*">
-        <clix:description>
-		Can be set to a list of values that will be encoded to JSON <tt>null</tt>;
-		on parsing, the first of these will be used in the returned structure.
-        </clix:description>
-      </clix:special-variable>
-
-      <clix:constant name="true">
-        <clix:description>Another default "true" value.</clix:description>
-      </clix:constant>
-
-      <clix:constant name="false">
-        <clix:description>Another default "false" value.</clix:description>
-      </clix:constant>
-
-      <clix:constant name="null">
-        <clix:description>Another default "null" value.</clix:description>
-      </clix:constant>
-
 
       <clix:special-variable name="*parse-object-key-fn*">
         <clix:description>
@@ -737,7 +724,7 @@ CL-USER&gt; (yason:with-output-to-string* ()
   </clix:chapter>
 
   <clix:chapter name="license" title="License">
-    <pre class="none">Copyright (c) 2008-2023 Hans Hübner and contributors
+    <pre class="none">Copyright (c) 2008-2014 Hans Hübner and contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
