@@ -41,6 +41,7 @@
 <ol xmlns="">
 <li><a href="#intro">Introduction</a></li>
 <li><a href="#install">Download and Installation</a></li>
+<li><a href="#test">Running Tests</a></li>
 <li><a href="#json-package">Using JSON as package name</a></li>
 <li><a href="#mapping">Mapping between JSON and CL datatypes</a></li>
 <li>
@@ -103,6 +104,13 @@
       access YASON's symbols.  For that reason, YASON's symbols do not
       contain the string "JSON" themselves.  See below for usage
       samples.
+    </p>
+  
+  
+  <h3 xmlns=""><a class="none" name="test">Running Tests</a></h3>
+    <p>
+      To run tests, load the system and run this in the REPL:
+      <pre>CL-USER&gt; (asdf:test-system :yason)</pre>
     </p>
   
 
@@ -303,13 +311,20 @@ CL-USER&gt; (let* ((yason:*parse-json-arrays-as-vectors* t)
         </clix:description></blockquote></p>
 
     
+
+	<p>
+		To avoid <a href="https://bishopfox.com/blog/json-interoperability-vulnerabilities">security issues</a>
+        in Common Lisp code and/or downstream, on parsing JSON duplicate keys
+		are rejected. If allowing that is a real use case, please send a patch
+		providing a restart.
+	</p>
   
 
   <h3 xmlns=""><a class="none" name="encoding">Encoding JSON data</a></h3>
     YASON provides two distinct modes to encode JSON data:
     applications can either create an in-memory representation of the
     data to be serialized, then have YASON convert it to JSON in one
-    go, or they can use a set of macros to serialze the JSON data
+    go, or they can use a set of macros to serialize the JSON data
     element-by-element, allowing fine-grained control over the layout
     of the generated data.
 
