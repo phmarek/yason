@@ -72,6 +72,13 @@
       samples.
     </p>
   </clix:chapter>
+  
+  <clix:chapter name="test" title="Running Tests">
+    <p>
+      To run tests, load the system and run this in the REPL:
+      <pre>CL-USER&gt; (asdf:test-system :yason)</pre>
+    </p>
+  </clix:chapter>
 
   <clix:chapter name="json-package" title="Using JSON as package name">
     Versions of YASON preceding the v0.6.0 release provided a package

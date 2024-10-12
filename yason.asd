@@ -29,4 +29,5 @@
   :depends-on (:alexandria :trivial-gray-streams)
   :components ((:file "package")
 	       (:file "encode" :depends-on ("package"))
-	       (:file "parse" :depends-on ("package"))))
+	       (:file "parse" :depends-on ("package")))
+  :in-order-to ((test-op (test-op "yason-tests"))))
