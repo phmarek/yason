@@ -301,3 +301,16 @@
       ;; false, no matter how they are bound.
       (test-equal (encode-to-string 'yason:true) "true")
       (test-equal (encode-to-string 'yason:false) "false"))))
+
+(deftest :yason "obj-element-indent"
+  (test-equal
+"{
+  \"foo\": [
+    0,
+    1,
+    2
+  ]
+}"
+  (yason:with-output-to-string* (:indent 2)
+    (yason:with-object ()
+      (yason:encode-object-element "foo" (alexandria:iota 3))))))

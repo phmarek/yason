@@ -424,7 +424,7 @@ encoded using the ENCODE generic function, so they both must be of a
 type for which an ENCODE method is defined."
   (next-aggregate-element)
   (write-indentation *json-output*)
-  (encode-key/value key value (output-stream *json-output*))
+  (encode-key/value key value *json-output*)
   value)
 
 (defun encode-object-elements (&rest elements)
