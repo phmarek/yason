@@ -314,3 +314,23 @@
   (yason:with-output-to-string* (:indent 2)
     (yason:with-object ()
       (yason:encode-object-element "foo" (alexandria:iota 3))))))
+
+
+(deftest :yason "prettier-float-encoding"
+  (flet ((s (x)
+           (yason:with-output-to-string* ()
+             (yason:encode x))))
+    ;; single-float
+    (test-equal "1.2"
+                (s 1.2e0))
+    (test-equal "1.000001"
+                (s (/ (1+ 1e6) 1e6)))
+    (test-equal "1.0"
+                (s (coerce (/ (1+ 1d8) 1d8) 'single-float)))
+    ;; double-float
+    (test-equal "1.00000001"
+                (s (/ (1+ 1d8) 1d8)))
+    (test-equal "1.000001"
+                (s (/ (1+ 1d6) 1d6)))
+    (test-equal "1.2"
+                (s 1.2d0))))

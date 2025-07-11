@@ -131,6 +131,13 @@
     (format stream "~F" (coerce object 'double-float)))
   object)
 
+;; If there is no more precision available,
+;; don't write out so many digits
+(defmethod encode ((object single-float) &optional (stream *json-output*))
+  (format stream "~F" object)
+  object)
+
+
 (defmethod encode ((object integer) &optional (stream *json-output*))
   (princ object stream))
 
