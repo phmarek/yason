@@ -64,7 +64,7 @@
                   #xDC00)))
     (format stream "\\u~4,'0X\\u~4,'0X" upper lower)))
 
-#-cmucl
+#-(or cmucl dotcl)
 (defun escape-string-to-stream (string stream)
   (dotimes (i (length string))
     (let* ((char (aref string i))
@@ -79,28 +79,28 @@
          (write-surrogate-pair-escape (unicode-code char) stream))
         (t (write-char char stream))))))
 
-#+cmucl
+#+(or cmucl dotcl)
 (defun escape-string-to-stream (string stream)
-  (loop for codepoint being the codepoint of string
-	do
-	   (cond
-	     ((<= #x0000 codepoint #x001F)
-	      ;; Control characters (U+0000 - U+001F) must be escaped.
-	      (format stream "\\u~4,'0X" codepoint))
-             ((<= #x010000 codepoint #x10FFFF)
-	      ;; Non-BMP characters must be escaped as a UTF-16
-	      ;; surrogate pair.  Cmucl strings already use surrogate
-	      ;; pairs, but do it this way to get the pairs in the
-	      ;; desired order.
-	      (write-surrogate-pair-escape codepoint stream))
-	     (t
-	      ;; Codepoint is in the BMP.  Use the replacement if
-	      ;; available or just output the character.
-	      (let ((replacement (gethash (code-char codepoint)
-					  *char-replacements*)))
-		(if replacement
-		    (write-string replacement stream)
-		    (write-char (code-char codepoint) stream)))))))
+  (loop with length = (length string)
+        with skip = nil
+        for i from 0 below length
+        for char = (aref string i)
+        for code = (char-code char)
+        for next = (and (< (1+ i) length) (char-code (aref string (1+ i))))
+        for replacement = (gethash char *char-replacements*)
+        do (cond
+             (skip (setf skip nil))
+             (replacement (write-string replacement stream))
+             ;; Control characters (U+0000 - U+001F) must be escaped.
+             ((<= #x0000 code #x001F)
+              (format stream "\\u~4,'0X" code))
+             ;; Non-BMP characters must be escaped as a UTF-16 surrogate pair.
+             ((and (<= #xD800 code #xDBFF) next (<= #xDC00 next #xDFFF))
+              (write-surrogate-pair-escape
+               (+ #x10000 (ash (- code #xD800) 10) (- next #xDC00))
+               stream)
+              (setf skip t))
+             (t (write-char char stream)))))
 
 (defmethod encode ((string string) &optional (stream *json-output*))
   (write-char #\" stream)

@@ -128,8 +128,12 @@
   (test-equal "\"ab\\u0002 cde \\uD834\\uDD1E\""
               (with-output-to-string (s)
 		(yason:encode
-		 #-cmucl
+		 #-(or cmucl dotcl)
 		 (format nil "ab~C cde ~C" (code-char #x02) (code-char #x1d11e))
+		 #+dotcl
+		 ;; Dotcl strings are utf-16 too.
+		 (format nil "ab~C cde ~C~C"
+			 (code-char #x02) (code-char #xd834) (code-char #xdd1e))
 		 #+cmucl
 		 ;; Cmucl strings are utf-16 so we need to use
 		 ;; surrogate pairs to represent codepoints outside the
@@ -266,9 +270,9 @@
 (deftest :yason "surrogate"
   ;; Cmucl uses utf-16 strings, so the result has the surrogate pair
   ;; in the parsed string.
-  (test-equal #-cmucl
+  (test-equal #-(or cmucl dotcl)
 	      (list (char-code #\a) #x1d11e (char-code #\b))
-	      #+cmucl
+	      #+(or cmucl dotcl)
 	      (list (char-code #\a) #xd834 #xdd1e (char-code #\b))
 	      (map 'list #'char-code (yason:parse "\"a\\ud834\\udd1eb\""))))
 

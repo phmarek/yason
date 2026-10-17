@@ -70,13 +70,13 @@
             (when (not (and (>= tail-code #xdc00)
                             (<= tail-code #xdfff)))
               (error "Lead Surrogate without Tail Surrogate"))
-	    #-cmucl
+	    #-(or cmucl dotcl)
             (code-char (+ #x010000
                           (ash (- char-code #xd800) 10)
                           (- tail-code #xdc00)))
-	    ;; Cmucl strings use utf-16 encoding.  Just return the two
-	    ;; surrogate chars as is.
-	    #+cmucl
+	    ;; Cmucl and dotcl strings use utf-16 encoding.  Just return
+	    ;; the two surrogate chars as is.
+	    #+(or cmucl dotcl)
 	    (values (code-char char-code) (code-char tail-code))))
         (code-char char-code))))
 
@@ -109,9 +109,9 @@
                (#\r (outc #\Return))
                (#\t (outc #\Tab))
                (#\u
-		#-cmucl
+		#-(or cmucl dotcl)
 		(outc (parse-unicode-escape input))
-		#+cmucl
+		#+(or cmucl dotcl)
 		(multiple-value-bind (char tail)
 		    (parse-unicode-escape input)
 		  (outc char)
